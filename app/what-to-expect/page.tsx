@@ -1,0 +1,325 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Plan Your Visit — Fulshear Church of Christ",
+  description:
+    "Everything you need to know before your first visit — service times, what to wear, where to go, and how we can make you feel at home.",
+};
+
+/* ─── Page Hero ─────────────────────────────────────────────────────────────── */
+function PageHero() {
+  return (
+    <section className="relative overflow-hidden bg-slate-deep py-20 md:py-28">
+      {/* Placeholder: AI-generated image — warm, sun-lit modern church lobby with welcoming staff */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(135deg, #1E3A5F 0%, #2D4F7A 50%, #A67C52 100%)",
+        }}
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse at 80% 60%, rgba(196,149,106,0.3) 0%, transparent 60%)",
+        }}
+      />
+      <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+        <p className="text-wood-light text-sm font-semibold tracking-widest uppercase mb-4">
+          First Time Here?
+        </p>
+        <h1 className="font-serif text-white text-4xl md:text-6xl font-bold mb-6 leading-tight">
+          What to Expect
+        </h1>
+        <p className="text-white/75 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+          We know visiting a new church can feel a little daunting. We want to
+          take the mystery out of it. Here&apos;s everything you need to know
+          before Sunday.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Quick Info Cards ──────────────────────────────────────────────────────── */
+const quickInfo = [
+  {
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+        <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 0 0 0-1.5h-3.75V6Z" clipRule="evenodd" />
+      </svg>
+    ),
+    label: "Service Times",
+    lines: ["Sunday Bible Class: 9:00 AM", "Sunday Worship: 10:00 AM", "Wednesday Evening: 7:00 PM"],
+  },
+  {
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+        <path fillRule="evenodd" d="m11.54 22.351.07.04.028.016a.76.76 0 0 0 .723 0l.028-.015.071-.041a16.975 16.975 0 0 0 1.144-.742 19.58 19.58 0 0 0 2.683-2.282c1.944-2.003 3.5-4.697 3.5-8.327a8.25 8.25 0 0 0-16.5 0c0 3.63 1.556 6.326 3.5 8.327a19.58 19.58 0 0 0 2.683 2.282 16.975 16.975 0 0 0 1.144.742ZM21.75 12a9.75 9.75 0 1 1-19.5 0 9.75 9.75 0 0 1 19.5 0Zm-13.5-1.5a3.75 3.75 0 1 1 7.5 0 3.75 3.75 0 0 1-7.5 0Z" clipRule="evenodd" />
+      </svg>
+    ),
+    label: "Location",
+    lines: ["Fulshear Church of Christ", "Fulshear, TX 77441", "Free parking is always available"],
+  },
+  {
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+        <path d="M1.5 8.67v8.58a3 3 0 0 0 3 3h15a3 3 0 0 0 3-3V8.67l-8.928 5.493a3 3 0 0 1-3.144 0L1.5 8.67Z" />
+        <path d="M22.5 6.908V6.75a3 3 0 0 0-3-3h-15a3 3 0 0 0-3 3v.158l9.714 5.978a1.5 1.5 0 0 0 1.572 0L22.5 6.908Z" />
+      </svg>
+    ),
+    label: "Get in Touch",
+    lines: ["info@fulshearcoc.org", "Questions? We love to hear from you.", "We'll get back to you quickly."],
+  },
+];
+
+function QuickInfoCards() {
+  return (
+    <section className="bg-white py-12 border-b border-slate-muted">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="grid sm:grid-cols-3 gap-6">
+          {quickInfo.map((card) => (
+            <div key={card.label} className="flex gap-4 p-5 rounded-xl bg-cream">
+              <div className="text-wood shrink-0 mt-0.5">{card.icon}</div>
+              <div>
+                <div className="font-semibold text-slate-deep mb-2">{card.label}</div>
+                {card.lines.map((line) => (
+                  <p key={line} className="text-sm text-muted leading-relaxed">
+                    {line}
+                  </p>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── What Happens Section ──────────────────────────────────────────────────── */
+const steps = [
+  {
+    number: "01",
+    title: "Arrive & Park",
+    body: "Pull into our free lot and look for our friendly greeters at every entrance. If it&rsquo;s your first Sunday, head to the Welcome Table just inside the main lobby — we&rsquo;d love to say hello personally.",
+  },
+  {
+    number: "02",
+    title: "Check In Your Kids",
+    body: "Our Kids Ministry team will get your children checked in and settled into a safe, age-appropriate class. We use a secure check-in system so you can worship with complete peace of mind.",
+  },
+  {
+    number: "03",
+    title: "Join Us for Worship",
+    body: "Our Sunday worship service lasts about 60–70 minutes. We sing a cappella — no instruments, just voices raised together — study the Bible, and share the Lord&rsquo;s Supper as a family.",
+  },
+  {
+    number: "04",
+    title: "Stay for Coffee",
+    body: "After worship, the lobby fills up. Grab a cup of coffee and meet people. No pressure — just an open door. Many of our deepest friendships started right here.",
+  },
+];
+
+function WhatHappens() {
+  return (
+    <section className="bg-cream py-16 md:py-20">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-2xl mb-12">
+          <p className="text-wood text-sm font-semibold tracking-widest uppercase mb-2">
+            Your First Sunday
+          </p>
+          <h2 className="font-serif text-slate-deep text-3xl md:text-4xl font-bold mb-4">
+            Here&apos;s How It Goes
+          </h2>
+          <p className="text-muted leading-relaxed">
+            No surprises. No pressure. We want your first visit to feel
+            comfortable from the moment you pull in the parking lot.
+          </p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-6">
+          {steps.map((step) => (
+            <div key={step.number} className="bg-white rounded-2xl p-7 flex gap-5 shadow-sm">
+              <div className="font-serif text-4xl font-bold text-wood-light/50 leading-none shrink-0 w-10">
+                {step.number}
+              </div>
+              <div>
+                <h3 className="font-serif font-bold text-slate-deep text-lg mb-2">
+                  {step.title}
+                </h3>
+                <p
+                  className="text-muted text-sm leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: step.body }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── What to Wear / FAQs ───────────────────────────────────────────────────── */
+const faqs = [
+  {
+    q: "What should I wear?",
+    a: "Come as you are — truly. You'll see people in everything from jeans and t-shirts to Sunday best. We care far more about you being present than what you're wearing.",
+  },
+  {
+    q: "Do I have to participate?",
+    a: "Not at all. You're welcome to simply observe. We'll never put you on the spot, ask you to stand up as a visitor, or pressure you in any way.",
+  },
+  {
+    q: "What about giving?",
+    a: "As a guest, please don't feel any obligation to give. Offerings are for our church family. We just want you to feel welcome.",
+  },
+  {
+    q: "What is a cappella worship?",
+    a: "Churches of Christ have historically worshipped with voices only — no instruments. It can feel surprisingly powerful and beautiful. We think you'll love it.",
+  },
+  {
+    q: "What is the Lord's Supper?",
+    a: "Each Sunday we remember Jesus's death and resurrection through unleavened bread and grape juice. Visitors are welcome to observe. There's no pressure to participate if you're not ready.",
+  },
+  {
+    q: "How long is the service?",
+    a: "Sunday worship runs about 60–70 minutes. Bible class before worship is 45 minutes. There's no 'right' time to arrive — join us for whatever works for your schedule.",
+  },
+];
+
+function FAQSection() {
+  return (
+    <section className="bg-white py-16 md:py-20">
+      <div className="max-w-4xl mx-auto px-6">
+        <div className="text-center mb-12">
+          <p className="text-wood text-sm font-semibold tracking-widest uppercase mb-2">
+            Common Questions
+          </p>
+          <h2 className="font-serif text-slate-deep text-3xl md:text-4xl font-bold">
+            Good to Know Before You Come
+          </h2>
+        </div>
+
+        <div className="divide-y divide-slate-muted">
+          {faqs.map((faq) => (
+            <div key={faq.q} className="py-6">
+              <h3 className="font-serif font-semibold text-slate-deep text-lg mb-2">
+                {faq.q}
+              </h3>
+              <p className="text-muted leading-relaxed text-sm">{faq.a}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Kids Ministry Callout ─────────────────────────────────────────────────── */
+function KidsCallout() {
+  return (
+    <section className="bg-wood-muted py-16 md:py-20">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="grid md:grid-cols-2 gap-10 items-center">
+          {/* Placeholder: AI-generated image — children in a bright, colorful classroom with a teacher */}
+          <div
+            className="rounded-2xl overflow-hidden h-64 md:h-80 flex items-end p-6"
+            style={{
+              background:
+                "linear-gradient(160deg, #F0E6D9 0%, #C4956A 50%, #A67C52 100%)",
+            }}
+            aria-label="Placeholder image: children in a bright, colorful Kids Ministry classroom"
+          >
+            <div className="bg-white/80 backdrop-blur-sm rounded-lg px-4 py-3 text-xs text-charcoal font-medium">
+              AI Image: Bright Kids Ministry classroom with smiling children and teacher
+            </div>
+          </div>
+
+          <div>
+            <p className="text-wood-dark text-sm font-semibold tracking-widest uppercase mb-3">
+              Kids Ministry
+            </p>
+            <h2 className="font-serif text-slate-deep text-3xl md:text-4xl font-bold mb-5 leading-snug">
+              Your Kids Will Love It Here
+            </h2>
+            <p className="text-charcoal leading-relaxed mb-4">
+              We invest deeply in our youngest members. Every Sunday, trained
+              volunteers lead age-appropriate classes built around Scripture,
+              worship, and community — from our nursery all the way through 5th
+              grade.
+            </p>
+            <ul className="space-y-2 mb-8">
+              {[
+                "Secure check-in system for every child",
+                "Age-grouped classes: Nursery, Pre-K, K–2nd, 3rd–5th",
+                "Background-checked, trained volunteers",
+                "Fun, engaging lessons rooted in the Bible",
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-2 text-sm text-charcoal">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-wood shrink-0">
+                    <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clipRule="evenodd" />
+                  </svg>
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <Link
+              href="/ministries/kids"
+              className="inline-flex items-center gap-2 bg-slate text-white font-semibold px-6 py-3 rounded-full hover:bg-slate-dark transition-colors"
+            >
+              Learn About Kids Ministry
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── CTA Strip ─────────────────────────────────────────────────────────────── */
+function CTAStrip() {
+  return (
+    <section className="bg-slate-deep py-16 text-center">
+      <div className="max-w-2xl mx-auto px-6">
+        <h2 className="font-serif text-white text-3xl md:text-4xl font-bold mb-4">
+          Ready to Visit?
+        </h2>
+        <p className="text-white/70 text-lg mb-8 leading-relaxed">
+          We&apos;d love to reserve a seat — or just know to look out for you.
+          Fill out the short form and someone from our team will be in touch
+          before Sunday.
+        </p>
+        <a
+          href="mailto:info@fulshearcoc.org?subject=Planning%20a%20Visit"
+          className="inline-flex items-center justify-center gap-2 bg-wood text-white font-semibold px-8 py-4 rounded-full hover:bg-wood-dark transition-colors text-base shadow-lg"
+        >
+          Let Us Know You&apos;re Coming
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+            <path d="M3 4a2 2 0 0 0-2 2v1.161l8.441 4.221a1.25 1.25 0 0 0 1.118 0L19 7.162V6a2 2 0 0 0-2-2H3Z" />
+            <path d="m19 8.839-7.77 3.885a2.75 2.75 0 0 1-2.46 0L1 8.839V14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.839Z" />
+          </svg>
+        </a>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Page ──────────────────────────────────────────────────────────────────── */
+export default function WhatToExpectPage() {
+  return (
+    <>
+      <PageHero />
+      <QuickInfoCards />
+      <WhatHappens />
+      <FAQSection />
+      <KidsCallout />
+      <CTAStrip />
+    </>
+  );
+}
