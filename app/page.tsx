@@ -91,9 +91,8 @@ function LatestMessage() {
           {/* Video embed */}
           <div className="md:col-span-3">
             <div className="rounded-2xl overflow-hidden shadow-xl aspect-video bg-slate-muted relative">
-              {/* Replace VIDEO_ID below with a real YouTube video ID */}
               <iframe
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1"
+                src="https://www.youtube.com/embed/wBU6d6XULU4?rel=0&modestbranding=1"
                 title="Latest Sermon — Fulshear Church of Christ"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
