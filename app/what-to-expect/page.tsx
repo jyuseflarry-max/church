@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -227,18 +228,13 @@ function KidsCallout() {
     <section className="bg-wood-muted py-16 md:py-20">
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-10 items-center">
-          {/* Placeholder: AI-generated image — children in a bright, colorful classroom with a teacher */}
-          <div
-            className="rounded-2xl overflow-hidden h-64 md:h-80 flex items-end p-6"
-            style={{
-              background:
-                "linear-gradient(160deg, #F0E6D9 0%, #C4956A 50%, #A67C52 100%)",
-            }}
-            aria-label="Placeholder image: children in a bright, colorful Kids Ministry classroom"
-          >
-            <div className="bg-white/80 backdrop-blur-sm rounded-lg px-4 py-3 text-xs text-charcoal font-medium">
-              AI Image: Bright Kids Ministry classroom with smiling children and teacher
-            </div>
+          <div className="relative rounded-2xl overflow-hidden h-64 md:h-80">
+            <Image
+              src="/kids.jpg"
+              alt="Children enjoying Kids Ministry at Fulshear Church of Christ"
+              fill
+              className="object-cover"
+            />
           </div>
 
           <div>
