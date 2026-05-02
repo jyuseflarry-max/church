@@ -17,11 +17,32 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
+const SITE_URL = "https://fulshearcoc.org";
+const SITE_NAME = "Fulshear Church of Christ";
+const SITE_DESCRIPTION =
+  "A welcoming community of faith in Fulshear, TX. Join us for worship, community, and a life transformed by grace.";
+
 export const metadata: Metadata = {
-  title: "Fulshear Church of Christ",
-  description:
-    "A welcoming community of faith in Fulshear, TX. Join us for worship, community, and a life transformed by grace.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
   keywords: ["church", "Fulshear", "Church of Christ", "worship", "community", "faith"],
+  openGraph: {
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+  },
 };
 
 const desktopNavLinks = [
