@@ -27,10 +27,10 @@ export const metadata: Metadata = {
 const desktopNavLinks = [
   { href: "/", label: "Home" },
   { href: "/what-to-expect", label: "Plan a Visit" },
-  { href: "/sermons", label: "Sermons" },
+  { href: "/connect", label: "Connect" },
   { href: "/ministries", label: "Ministries" },
-  { href: "/give", label: "Give" },
   { href: "/about", label: "About" },
+  { href: "/sermons", label: "Sermons" },
 ];
 
 export default function RootLayout({
@@ -49,10 +49,10 @@ export default function RootLayout({
           <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
             <Link href="/" className="flex items-center group" aria-label="Fulshear Church of Christ — Home">
               <Image
-                src="/logo.jpg"
+                src="/logo.png"
                 alt="Fulshear Church of Christ"
-                width={260}
-                height={219}
+                width={150}
+                height={126}
                 priority
                 className="h-12 w-auto"
               />
@@ -84,10 +84,10 @@ export default function RootLayout({
           <div className="flex items-center justify-between px-4 h-14">
             <Link href="/" className="flex items-center" aria-label="Fulshear Church of Christ — Home">
               <Image
-                src="/logo.jpg"
+                src="/logo.png"
                 alt="Fulshear Church of Christ"
-                width={260}
-                height={219}
+                width={150}
+                height={126}
                 priority
                 className="h-10 w-auto"
               />
