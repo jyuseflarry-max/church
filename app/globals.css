@@ -3,20 +3,20 @@
 @theme {
   /* Soft whites / creams */
   --color-cream: #FAF9F6;
-  --color-warm-white: #F2EFE8;
+  --color-warm-white: #F4F1EB;
 
-  /* Slate blues */
-  --color-slate: #4A6FA5;
-  --color-slate-dark: #2D4F7A;
-  --color-slate-deep: #1E3A5F;
-  --color-slate-light: #7A9CC5;
-  --color-slate-muted: #E8EEF5;
+  /* Sage / teal — drawn from the cross in the logo */
+  --color-sage: #6B9489;
+  --color-sage-dark: #4D7770;
+  --color-sage-deep: #2F5247;
+  --color-sage-light: #9CBCB3;
+  --color-sage-muted: #E5EFEB;
 
-  /* Warm wood tones */
-  --color-wood: #A67C52;
-  --color-wood-light: #C4956A;
-  --color-wood-dark: #7A5C3A;
-  --color-wood-muted: #F0E6D9;
+  /* Rose / coral — drawn from "Fulshear" in the logo */
+  --color-rose: #C97A7C;
+  --color-rose-dark: #A35C5E;
+  --color-rose-light: #E4A8AA;
+  --color-rose-muted: #F8E5E6;
 
   /* Neutrals */
   --color-charcoal: #2C2C2C;

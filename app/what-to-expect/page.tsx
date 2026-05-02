@@ -11,14 +11,14 @@ export const metadata: Metadata = {
 /* ─── Page Hero ─────────────────────────────────────────────────────────────── */
 function PageHero() {
   return (
-    <section className="relative overflow-hidden bg-slate-deep py-20 md:py-28">
+    <section className="relative overflow-hidden bg-sage-deep py-20 md:py-28">
       {/* Placeholder: AI-generated image — warm, sun-lit modern church lobby with welcoming staff */}
       <div
         aria-hidden="true"
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(135deg, #1E3A5F 0%, #2D4F7A 50%, #A67C52 100%)",
+            "linear-gradient(135deg, #2F5247 0%, #4D7770 50%, #C97A7C 100%)",
         }}
       />
       <div
@@ -26,11 +26,11 @@ function PageHero() {
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse at 80% 60%, rgba(196,149,106,0.3) 0%, transparent 60%)",
+            "radial-gradient(ellipse at 80% 60%, rgba(228,168,170,0.32) 0%, transparent 60%)",
         }}
       />
       <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
-        <p className="text-wood-light text-sm font-semibold tracking-widest uppercase mb-4">
+        <p className="text-rose-light text-sm font-semibold tracking-widest uppercase mb-4">
           First Time Here?
         </p>
         <h1 className="font-serif text-white text-4xl md:text-6xl font-bold mb-6 leading-tight">
@@ -80,14 +80,14 @@ const quickInfo = [
 
 function QuickInfoCards() {
   return (
-    <section className="bg-white py-12 border-b border-slate-muted">
+    <section className="bg-white py-12 border-b border-sage-muted">
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid sm:grid-cols-3 gap-6">
           {quickInfo.map((card) => (
             <div key={card.label} className="flex gap-4 p-5 rounded-xl bg-cream">
-              <div className="text-wood shrink-0 mt-0.5">{card.icon}</div>
+              <div className="text-rose shrink-0 mt-0.5">{card.icon}</div>
               <div>
-                <div className="font-semibold text-slate-deep mb-2">{card.label}</div>
+                <div className="font-semibold text-sage-deep mb-2">{card.label}</div>
                 {card.lines.map((line) => (
                   <p key={line} className="text-sm text-muted leading-relaxed">
                     {line}
@@ -131,10 +131,10 @@ function WhatHappens() {
     <section className="bg-cream py-16 md:py-20">
       <div className="max-w-6xl mx-auto px-6">
         <div className="max-w-2xl mb-12">
-          <p className="text-wood text-sm font-semibold tracking-widest uppercase mb-2">
+          <p className="text-rose text-sm font-semibold tracking-widest uppercase mb-2">
             Your First Sunday
           </p>
-          <h2 className="font-serif text-slate-deep text-3xl md:text-4xl font-bold mb-4">
+          <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold mb-4">
             Here&apos;s How It Goes
           </h2>
           <p className="text-muted leading-relaxed">
@@ -146,11 +146,11 @@ function WhatHappens() {
         <div className="grid sm:grid-cols-2 gap-6">
           {steps.map((step) => (
             <div key={step.number} className="bg-white rounded-2xl p-7 flex gap-5 shadow-sm">
-              <div className="font-serif text-4xl font-bold text-wood-light/50 leading-none shrink-0 w-10">
+              <div className="font-serif text-4xl font-bold text-rose-light/50 leading-none shrink-0 w-10">
                 {step.number}
               </div>
               <div>
-                <h3 className="font-serif font-bold text-slate-deep text-lg mb-2">
+                <h3 className="font-serif font-bold text-sage-deep text-lg mb-2">
                   {step.title}
                 </h3>
                 <p
@@ -199,18 +199,18 @@ function FAQSection() {
     <section className="bg-white py-16 md:py-20">
       <div className="max-w-4xl mx-auto px-6">
         <div className="text-center mb-12">
-          <p className="text-wood text-sm font-semibold tracking-widest uppercase mb-2">
+          <p className="text-rose text-sm font-semibold tracking-widest uppercase mb-2">
             Common Questions
           </p>
-          <h2 className="font-serif text-slate-deep text-3xl md:text-4xl font-bold">
+          <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold">
             Good to Know Before You Come
           </h2>
         </div>
 
-        <div className="divide-y divide-slate-muted">
+        <div className="divide-y divide-sage-muted">
           {faqs.map((faq) => (
             <div key={faq.q} className="py-6">
-              <h3 className="font-serif font-semibold text-slate-deep text-lg mb-2">
+              <h3 className="font-serif font-semibold text-sage-deep text-lg mb-2">
                 {faq.q}
               </h3>
               <p className="text-muted leading-relaxed text-sm">{faq.a}</p>
@@ -225,7 +225,7 @@ function FAQSection() {
 /* ─── Kids Ministry Callout ─────────────────────────────────────────────────── */
 function KidsCallout() {
   return (
-    <section className="bg-wood-muted py-16 md:py-20">
+    <section className="bg-rose-muted py-16 md:py-20">
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-10 items-center">
           <div className="relative rounded-2xl overflow-hidden h-64 md:h-80">
@@ -238,10 +238,10 @@ function KidsCallout() {
           </div>
 
           <div>
-            <p className="text-wood-dark text-sm font-semibold tracking-widest uppercase mb-3">
+            <p className="text-rose-dark text-sm font-semibold tracking-widest uppercase mb-3">
               Kids Ministry
             </p>
-            <h2 className="font-serif text-slate-deep text-3xl md:text-4xl font-bold mb-5 leading-snug">
+            <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold mb-5 leading-snug">
               Your Kids Will Love It Here
             </h2>
             <p className="text-charcoal leading-relaxed mb-4">
@@ -258,7 +258,7 @@ function KidsCallout() {
                 "Fun, engaging lessons rooted in the Bible",
               ].map((item) => (
                 <li key={item} className="flex items-center gap-2 text-sm text-charcoal">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-wood shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-rose shrink-0">
                     <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clipRule="evenodd" />
                   </svg>
                   {item}
@@ -267,7 +267,7 @@ function KidsCallout() {
             </ul>
             <Link
               href="/ministries/kids"
-              className="inline-flex items-center gap-2 bg-slate text-white font-semibold px-6 py-3 rounded-full hover:bg-slate-dark transition-colors"
+              className="inline-flex items-center gap-2 bg-sage text-white font-semibold px-6 py-3 rounded-full hover:bg-sage-dark transition-colors"
             >
               Learn About Kids Ministry
             </Link>
@@ -281,7 +281,7 @@ function KidsCallout() {
 /* ─── CTA Strip ─────────────────────────────────────────────────────────────── */
 function CTAStrip() {
   return (
-    <section className="bg-slate-deep py-16 text-center">
+    <section className="bg-sage-deep py-16 text-center">
       <div className="max-w-2xl mx-auto px-6">
         <h2 className="font-serif text-white text-3xl md:text-4xl font-bold mb-4">
           Ready to Visit?
@@ -293,7 +293,7 @@ function CTAStrip() {
         </p>
         <a
           href="mailto:info@fulshearcoc.org?subject=Planning%20a%20Visit"
-          className="inline-flex items-center justify-center gap-2 bg-wood text-white font-semibold px-8 py-4 rounded-full hover:bg-wood-dark transition-colors text-base shadow-lg"
+          className="inline-flex items-center justify-center gap-2 bg-rose text-white font-semibold px-8 py-4 rounded-full hover:bg-rose-dark transition-colors text-base shadow-lg"
         >
           Let Us Know You&apos;re Coming
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import Image from "next/image";
 import Link from "next/link";
 import "./globals.css";
 import BottomNav from "./components/BottomNav";
@@ -44,16 +45,17 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-cream">
         {/* Desktop Header */}
-        <header className="hidden md:block sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-muted shadow-sm">
+        <header className="hidden md:block sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-sage-muted shadow-sm">
           <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-9 h-9 rounded-full bg-slate-deep flex items-center justify-center">
-                <span className="text-white font-serif text-sm font-bold">F</span>
-              </div>
-              <div className="leading-tight">
-                <div className="font-serif font-bold text-slate-deep text-sm">Fulshear</div>
-                <div className="text-xs text-muted tracking-widest uppercase">Church of Christ</div>
-              </div>
+            <Link href="/" className="flex items-center group" aria-label="Fulshear Church of Christ — Home">
+              <Image
+                src="/logo.jpg"
+                alt="Fulshear Church of Christ"
+                width={260}
+                height={219}
+                priority
+                className="h-12 w-auto"
+              />
             </Link>
 
             <nav className="flex items-center gap-1">
@@ -61,7 +63,7 @@ export default function RootLayout({
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="px-3 py-2 text-sm font-medium text-charcoal hover:text-slate rounded-md hover:bg-slate-muted transition-colors"
+                  className="px-3 py-2 text-sm font-medium text-charcoal hover:text-sage rounded-md hover:bg-sage-muted transition-colors"
                 >
                   {link.label}
                 </Link>
@@ -70,7 +72,7 @@ export default function RootLayout({
 
             <Link
               href="/what-to-expect"
-              className="hidden lg:inline-flex items-center gap-2 bg-slate px-4 py-2 rounded-full text-white text-sm font-semibold hover:bg-slate-dark transition-colors"
+              className="hidden lg:inline-flex items-center gap-2 bg-sage px-4 py-2 rounded-full text-white text-sm font-semibold hover:bg-sage-dark transition-colors"
             >
               Plan Your Visit
             </Link>
@@ -78,20 +80,21 @@ export default function RootLayout({
         </header>
 
         {/* Mobile Header */}
-        <header className="md:hidden sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-muted">
+        <header className="md:hidden sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-sage-muted">
           <div className="flex items-center justify-between px-4 h-14">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-slate-deep flex items-center justify-center">
-                <span className="text-white font-serif text-xs font-bold">F</span>
-              </div>
-              <div className="leading-tight">
-                <div className="font-serif font-semibold text-slate-deep text-sm">Fulshear</div>
-                <div className="text-[10px] text-muted tracking-widest uppercase">Church of Christ</div>
-              </div>
+            <Link href="/" className="flex items-center" aria-label="Fulshear Church of Christ — Home">
+              <Image
+                src="/logo.jpg"
+                alt="Fulshear Church of Christ"
+                width={260}
+                height={219}
+                priority
+                className="h-10 w-auto"
+              />
             </Link>
             <Link
               href="/what-to-expect"
-              className="bg-slate text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-slate-dark transition-colors"
+              className="bg-sage text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-sage-dark transition-colors"
             >
               Plan a Visit
             </Link>
@@ -102,7 +105,7 @@ export default function RootLayout({
         <main className="flex-1 pb-16 md:pb-0">{children}</main>
 
         {/* Footer */}
-        <footer className="hidden md:block bg-slate-deep text-white/80 py-10">
+        <footer className="hidden md:block bg-sage-deep text-white/80 py-10">
           <div className="max-w-6xl mx-auto px-6 grid grid-cols-3 gap-8">
             <div>
               <div className="font-serif text-white text-lg font-semibold mb-2">Fulshear Church of Christ</div>

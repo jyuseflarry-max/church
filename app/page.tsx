@@ -4,14 +4,14 @@ import Image from "next/image";
 /* ─── Hero ─────────────────────────────────────────────────────────────────── */
 function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-slate-deep min-h-[520px] md:min-h-[620px] flex items-center">
+    <section className="relative overflow-hidden bg-sage-deep min-h-[520px] md:min-h-[620px] flex items-center">
       {/* Placeholder: AI-generated image — diverse, smiling congregation in a sun-lit modern lobby */}
       <div
         aria-hidden="true"
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(135deg, #1E3A5F 0%, #2D4F7A 40%, #4A6FA5 70%, #A67C52 100%)",
+            "linear-gradient(135deg, #2F5247 0%, #4D7770 40%, #6B9489 70%, #C97A7C 100%)",
         }}
       />
       {/* Warm light overlay */}
@@ -20,12 +20,12 @@ function HeroSection() {
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse at 70% 50%, rgba(196,149,106,0.25) 0%, transparent 65%)",
+            "radial-gradient(ellipse at 70% 50%, rgba(228,168,170,0.28) 0%, transparent 65%)",
         }}
       />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-20 md:py-28">
-        <p className="text-wood-light text-sm font-semibold tracking-[0.2em] uppercase mb-4">
+        <p className="text-rose-light text-sm font-semibold tracking-[0.2em] uppercase mb-4">
           New Here?
         </p>
         <h1 className="font-serif text-white text-4xl md:text-6xl font-bold leading-tight max-w-2xl mb-6">
@@ -40,7 +40,7 @@ function HeroSection() {
         <div className="flex flex-col sm:flex-row gap-4">
           <Link
             href="/what-to-expect"
-            className="inline-flex items-center justify-center gap-2 bg-wood text-white font-semibold px-7 py-3.5 rounded-full hover:bg-wood-dark transition-colors text-base shadow-lg"
+            className="inline-flex items-center justify-center gap-2 bg-rose text-white font-semibold px-7 py-3.5 rounded-full hover:bg-rose-dark transition-colors text-base shadow-lg"
           >
             Plan Your Visit
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
@@ -79,10 +79,10 @@ function LatestMessage() {
     <section className="bg-white py-16 md:py-20">
       <div className="max-w-6xl mx-auto px-6">
         <div className="mb-8">
-          <p className="text-wood text-sm font-semibold tracking-widest uppercase mb-2">
+          <p className="text-rose text-sm font-semibold tracking-widest uppercase mb-2">
             Latest Message
           </p>
-          <h2 className="font-serif text-slate-deep text-3xl md:text-4xl font-bold">
+          <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold">
             Watch This Week&apos;s Sermon
           </h2>
         </div>
@@ -90,7 +90,7 @@ function LatestMessage() {
         <div className="grid md:grid-cols-5 gap-8 items-start">
           {/* Video embed */}
           <div className="md:col-span-3">
-            <div className="rounded-2xl overflow-hidden shadow-xl aspect-video bg-slate-muted relative">
+            <div className="rounded-2xl overflow-hidden shadow-xl aspect-video bg-sage-muted relative">
               <iframe
                 src="https://www.youtube.com/embed/wBU6d6XULU4?rel=0&modestbranding=1"
                 title="Latest Sermon — Fulshear Church of Christ"
@@ -103,13 +103,13 @@ function LatestMessage() {
 
           {/* Sermon info */}
           <div className="md:col-span-2 flex flex-col justify-center">
-            <div className="inline-flex items-center gap-2 bg-slate-muted text-slate text-xs font-semibold px-3 py-1 rounded-full mb-4 w-fit">
+            <div className="inline-flex items-center gap-2 bg-sage-muted text-sage text-xs font-semibold px-3 py-1 rounded-full mb-4 w-fit">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
                 <path fillRule="evenodd" d="M5.75 2a.75.75 0 0 1 .75.75V4h7V2.75a.75.75 0 0 1 1.5 0V4h.25A2.75 2.75 0 0 1 18 6.75v8.5A2.75 2.75 0 0 1 15.25 18H4.75A2.75 2.75 0 0 1 2 15.25v-8.5A2.75 2.75 0 0 1 4.75 4H5V2.75A.75.75 0 0 1 5.75 2Z" clipRule="evenodd" />
               </svg>
               April 13, 2026
             </div>
-            <h3 className="font-serif text-slate-deep text-2xl font-bold mb-3 leading-snug">
+            <h3 className="font-serif text-sage-deep text-2xl font-bold mb-3 leading-snug">
               Walking By Faith, Not By Sight
             </h3>
             <p className="text-muted leading-relaxed mb-2 text-sm">
@@ -122,7 +122,7 @@ function LatestMessage() {
             </p>
             <Link
               href="/sermons"
-              className="inline-flex items-center gap-2 text-slate font-semibold text-sm hover:text-slate-dark transition-colors"
+              className="inline-flex items-center gap-2 text-sage font-semibold text-sm hover:text-sage-dark transition-colors"
             >
               Browse All Sermons
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
@@ -144,8 +144,8 @@ const ministries = [
     subtitle: "Ages 0 – 5th Grade",
     description:
       "A safe, fun, and faith-filled environment where children discover who God is and how deeply he loves them.",
-    color: "bg-wood-muted",
-    iconColor: "text-wood",
+    color: "bg-rose-muted",
+    iconColor: "text-rose",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8">
         <path d="M11.25 4.533A9.707 9.707 0 0 0 6 3a9.735 9.735 0 0 0-3.25.555.75.75 0 0 0-.5.707v14.25a.75.75 0 0 0 1 .707A8.237 8.237 0 0 1 6 18.75c1.995 0 3.823.707 5.25 1.886V4.533ZM12.75 20.636A8.214 8.214 0 0 1 18 18.75c.966 0 1.89.166 2.75.47a.75.75 0 0 0 1-.708V4.262a.75.75 0 0 0-.5-.707A9.735 9.735 0 0 0 18 3a9.707 9.707 0 0 0-5.25 1.533v16.103Z" />
@@ -158,8 +158,8 @@ const ministries = [
     subtitle: "6th – 12th Grade",
     description:
       "Middle and high schoolers finding identity, belonging, and purpose in community with Christ at the center.",
-    color: "bg-slate-muted",
-    iconColor: "text-slate",
+    color: "bg-sage-muted",
+    iconColor: "text-sage",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8">
         <path fillRule="evenodd" d="M8.25 6.75a3.75 3.75 0 1 1 7.5 0 3.75 3.75 0 0 1-7.5 0ZM15.75 9.75a3 3 0 1 1 6 0 3 3 0 0 1-6 0ZM2.25 9.75a3 3 0 1 1 6 0 3 3 0 0 1-6 0ZM6.31 15.117A6.745 6.745 0 0 1 12 12a6.745 6.745 0 0 1 6.709 7.498.75.75 0 0 1-.372.568A12.696 12.696 0 0 1 12 21.75c-2.305 0-4.47-.612-6.337-1.684a.75.75 0 0 1-.372-.568 6.787 6.787 0 0 1 1.019-4.38Z" clipRule="evenodd" />
@@ -174,7 +174,7 @@ const ministries = [
     description:
       "Deep study, real community, and meaningful service. Grow in faith alongside other believers at every season of life.",
     color: "bg-warm-white",
-    iconColor: "text-slate-dark",
+    iconColor: "text-sage-dark",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8">
         <path d="M4.5 6.375a4.125 4.125 0 1 1 8.25 0 4.125 4.125 0 0 1-8.25 0ZM14.25 8.625a3.375 3.375 0 1 1 6.75 0 3.375 3.375 0 0 1-6.75 0ZM1.5 19.125a7.125 7.125 0 0 1 14.25 0v.003l-.001.119a.75.75 0 0 1-.363.63 13.067 13.067 0 0 1-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 0 1-.364-.63l-.001-.122ZM17.25 19.128l-.001.144a2.25 2.25 0 0 1-.233.96 10.088 10.088 0 0 0 5.06-1.01.75.75 0 0 0 .42-.643 4.875 4.875 0 0 0-6.957-4.611 8.586 8.586 0 0 1 1.71 5.157v.003Z" />
@@ -188,10 +188,10 @@ function MinistryGrid() {
     <section className="bg-cream py-16 md:py-20">
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center mb-12">
-          <p className="text-wood text-sm font-semibold tracking-widest uppercase mb-2">
+          <p className="text-rose text-sm font-semibold tracking-widest uppercase mb-2">
             Ministries
           </p>
-          <h2 className="font-serif text-slate-deep text-3xl md:text-4xl font-bold">
+          <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold">
             A Place for Every Stage of Life
           </h2>
           <p className="text-muted mt-3 max-w-lg mx-auto">
@@ -207,7 +207,7 @@ function MinistryGrid() {
             >
               <div className={`${ministry.iconColor} w-fit`}>{ministry.icon}</div>
               <div>
-                <div className="font-serif font-bold text-slate-deep text-xl">{ministry.label}</div>
+                <div className="font-serif font-bold text-sage-deep text-xl">{ministry.label}</div>
                 <div className="text-muted text-xs font-medium mt-0.5">{ministry.subtitle}</div>
               </div>
               <p className="text-charcoal text-sm leading-relaxed flex-1">
@@ -215,7 +215,7 @@ function MinistryGrid() {
               </p>
               <Link
                 href={`/ministries/${ministry.key}`}
-                className="inline-flex items-center gap-1 text-slate text-sm font-semibold hover:text-slate-dark transition-colors"
+                className="inline-flex items-center gap-1 text-sage text-sm font-semibold hover:text-sage-dark transition-colors"
               >
                 Learn More
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
@@ -256,10 +256,10 @@ const beliefs = [
 
 function OurFoundation() {
   return (
-    <section className="bg-slate-deep text-white py-16 md:py-24">
+    <section className="bg-sage-deep text-white py-16 md:py-24">
       <div className="max-w-4xl mx-auto px-6">
         <div className="text-center mb-14">
-          <p className="text-wood-light text-sm font-semibold tracking-widest uppercase mb-3">
+          <p className="text-rose-light text-sm font-semibold tracking-widest uppercase mb-3">
             What We Believe
           </p>
           <h2 className="font-serif text-4xl md:text-5xl font-bold mb-4">
@@ -274,7 +274,7 @@ function OurFoundation() {
         <div className="divide-y divide-white/10">
           {beliefs.map((belief) => (
             <div key={belief.reference} className="py-6 flex flex-col sm:flex-row sm:items-start gap-4">
-              <div className="shrink-0 sm:w-36 text-wood-light font-serif text-sm font-semibold italic">
+              <div className="shrink-0 sm:w-36 text-rose-light font-serif text-sm font-semibold italic">
                 {belief.reference}
               </div>
               <p className="text-white/85 leading-relaxed">{belief.text}</p>
@@ -296,7 +296,7 @@ function CommunityBanner() {
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(160deg, #C4956A 0%, #A67C52 30%, #4A6FA5 70%, #2D4F7A 100%)",
+            "linear-gradient(160deg, #E4A8AA 0%, #C97A7C 30%, #6B9489 70%, #2F5247 100%)",
         }}
       />
       <div
@@ -304,7 +304,7 @@ function CommunityBanner() {
         className="absolute inset-0 bg-black/35"
       />
       <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
-        <p className="text-wood-light text-sm font-semibold tracking-widest uppercase mb-4">
+        <p className="text-rose-light text-sm font-semibold tracking-widest uppercase mb-4">
           Rooted in Fulshear
         </p>
         <h2 className="font-serif text-white text-3xl md:text-5xl font-bold mb-6 leading-tight">
@@ -317,7 +317,7 @@ function CommunityBanner() {
         </p>
         <Link
           href="/what-to-expect"
-          className="inline-flex items-center justify-center gap-2 bg-white text-slate-deep font-semibold px-8 py-3.5 rounded-full hover:bg-cream transition-colors shadow-lg"
+          className="inline-flex items-center justify-center gap-2 bg-white text-sage-deep font-semibold px-8 py-3.5 rounded-full hover:bg-cream transition-colors shadow-lg"
         >
           We&apos;d Love to Meet You
         </Link>

@@ -47,7 +47,7 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-slate-muted shadow-lg">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-sage-muted shadow-lg">
       <div className="grid grid-cols-4 h-16">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
@@ -57,11 +57,11 @@ export default function BottomNav() {
               href={item.href}
               className={`flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors ${
                 isActive
-                  ? 'text-slate'
-                  : 'text-muted hover:text-slate'
+                  ? 'text-sage'
+                  : 'text-muted hover:text-sage'
               }`}
             >
-              <span className={isActive ? 'text-slate' : 'text-muted'}>
+              <span className={isActive ? 'text-sage' : 'text-muted'}>
                 {item.icon}
               </span>
               <span>{item.label}</span>
