@@ -64,7 +64,7 @@ const quickInfo = [
       </svg>
     ),
     label: "Location",
-    lines: ["Fulshear Church of Christ", "Fulshear, TX 77441", "Free parking is always available"],
+    lines: ["9241 Charger Way", "Fulshear, TX 77441", "Free parking is always available"],
   },
   {
     icon: (

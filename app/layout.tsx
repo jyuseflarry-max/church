@@ -91,12 +91,8 @@ export default function RootLayout({
               ))}
             </nav>
 
-            <Link
-              href="/plan-a-visit"
-              className="hidden lg:inline-flex items-center gap-2 bg-sage px-4 py-2 rounded-full text-white text-sm font-semibold hover:bg-sage-dark transition-colors"
-            >
-              Plan Your Visit
-            </Link>
+            {/* Reserved for member login / account menu */}
+            <div className="hidden lg:block w-[140px]" aria-hidden="true" />
           </div>
         </header>
 
@@ -113,12 +109,7 @@ export default function RootLayout({
                 className="h-10 w-auto"
               />
             </Link>
-            <Link
-              href="/plan-a-visit"
-              className="bg-sage text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-sage-dark transition-colors"
-            >
-              Plan a Visit
-            </Link>
+            {/* Reserved for member login / account menu */}
           </div>
         </header>
 
@@ -139,9 +130,10 @@ export default function RootLayout({
               <p className="text-sm">Wednesday Evening: 7:00 PM</p>
             </div>
             <div>
-              <div className="font-semibold text-white text-sm mb-3 uppercase tracking-wider">Connect</div>
-              <p className="text-sm">info@fulshearcoc.org</p>
-              <p className="text-sm mt-1">Fulshear, TX 77441</p>
+              <div className="font-semibold text-white text-sm mb-3 uppercase tracking-wider">Visit Us</div>
+              <p className="text-sm">9241 Charger Way</p>
+              <p className="text-sm">Fulshear, TX 77441</p>
+              <p className="text-sm mt-3">info@fulshearcoc.org</p>
             </div>
           </div>
           <div className="max-w-6xl mx-auto px-6 mt-8 pt-6 border-t border-white/10 text-xs text-white/40 text-center">
