@@ -37,21 +37,15 @@ function HeroSection() {
           transformed by extraordinary grace — gathering to worship, grow,
           and serve together.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div>
           <Link
-            href="/what-to-expect"
+            href="/plan-a-visit"
             className="inline-flex items-center justify-center gap-2 bg-rose text-white font-semibold px-7 py-3.5 rounded-full hover:bg-rose-dark transition-colors text-base shadow-lg"
           >
             Plan Your Visit
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
               <path fillRule="evenodd" d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z" clipRule="evenodd" />
             </svg>
-          </Link>
-          <Link
-            href="/sermons"
-            className="inline-flex items-center justify-center gap-2 bg-white/10 border border-white/30 text-white font-semibold px-7 py-3.5 rounded-full hover:bg-white/20 transition-colors text-base backdrop-blur-sm"
-          >
-            Watch a Sermon
           </Link>
         </div>
 
@@ -316,7 +310,7 @@ function CommunityBanner() {
           community better than we found it.
         </p>
         <Link
-          href="/what-to-expect"
+          href="/plan-a-visit"
           className="inline-flex items-center justify-center gap-2 bg-white text-sage-deep font-semibold px-8 py-3.5 rounded-full hover:bg-cream transition-colors shadow-lg"
         >
           We&apos;d Love to Meet You

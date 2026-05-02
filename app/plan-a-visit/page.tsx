@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Plan Your Visit — Fulshear Church of Christ",
+  title: "Plan Your Visit",
   description:
     "Everything you need to know before your first visit — service times, what to wear, where to go, and how we can make you feel at home.",
 };

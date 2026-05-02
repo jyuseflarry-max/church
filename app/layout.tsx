@@ -47,7 +47,7 @@ export const metadata: Metadata = {
 
 const desktopNavLinks = [
   { href: "/", label: "Home" },
-  { href: "/what-to-expect", label: "Plan a Visit" },
+  { href: "/plan-a-visit", label: "Plan a Visit" },
   { href: "/connect", label: "Connect" },
   { href: "/ministries", label: "Ministries" },
   { href: "/about", label: "About" },
@@ -92,7 +92,7 @@ export default function RootLayout({
             </nav>
 
             <Link
-              href="/what-to-expect"
+              href="/plan-a-visit"
               className="hidden lg:inline-flex items-center gap-2 bg-sage px-4 py-2 rounded-full text-white text-sm font-semibold hover:bg-sage-dark transition-colors"
             >
               Plan Your Visit
@@ -114,7 +114,7 @@ export default function RootLayout({
               />
             </Link>
             <Link
-              href="/what-to-expect"
+              href="/plan-a-visit"
               className="bg-sage text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-sage-dark transition-colors"
             >
               Plan a Visit

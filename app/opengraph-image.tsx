@@ -8,10 +8,12 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default async function OpenGraphImage() {
-  const logoData = await readFile(
-    join(process.cwd(), "public/logo.png"),
-    "base64",
-  );
+  const tagline = "A Welcoming Community of Faith";
+
+  const [logoData, playfairData] = await Promise.all([
+    readFile(join(process.cwd(), "public/logo.png"), "base64"),
+    readFile(join(process.cwd(), "app/fonts/PlayfairDisplay-Bold.ttf")),
+  ]);
   const logoSrc = `data:image/png;base64,${logoData}`;
 
   return new ImageResponse(
@@ -55,15 +57,16 @@ export default async function OpenGraphImage() {
         {/* Tagline */}
         <div
           style={{
-            fontSize: 60,
+            fontSize: 64,
             color: "#2F5247",
+            fontFamily: "Playfair Display",
             fontWeight: 700,
             textAlign: "center",
             lineHeight: 1.2,
             marginBottom: 44,
           }}
         >
-          A Welcoming Community of Faith
+          {tagline}
         </div>
 
         {/* Service times pill */}
@@ -103,6 +106,16 @@ export default async function OpenGraphImage() {
         </div>
       </div>
     ),
-    { ...size },
+    {
+      ...size,
+      fonts: [
+        {
+          name: "Playfair Display",
+          data: playfairData,
+          style: "normal",
+          weight: 700,
+        },
+      ],
+    },
   );
 }
