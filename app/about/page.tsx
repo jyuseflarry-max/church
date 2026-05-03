@@ -200,7 +200,6 @@ const ministers = [
 ];
 
 const deacons = [
-  { name: "Paul Adams", photo: "/leaders/paul-adams.png" },
   { name: "Keith Arnold", photo: "/leaders/keith-arnold.jpg" },
   { name: "Danny DiPetta", photo: "/leaders/danny-dipetta.jpg" },
   { name: "Tommy Kuykendall", photo: "/leaders/tommy-kuykendall.jpg" },
