@@ -211,10 +211,9 @@ function PlanAVisitCallout() {
               Your First Sunday
             </h2>
             <p className="text-charcoal leading-relaxed mb-6">
-              We use a secure check-in system at every entrance. All of our
-              volunteers are background-checked and trained. Your kids will
-              be loved on, taught well, and returned safely. Plan a visit and
-              we&apos;ll meet you at the door.
+              All of our volunteers are background-checked and trained. Your
+              kids will be loved on, taught well, and returned safely. Plan a
+              visit and we&apos;ll meet you at the door.
             </p>
             <Link
               href="/plan-a-visit"
