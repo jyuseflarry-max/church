@@ -224,62 +224,6 @@ function MinistryGrid() {
   );
 }
 
-/* ─── Our Foundation ────────────────────────────────────────────────────────── */
-const beliefs = [
-  {
-    text: "We believe in the authority of Scripture as the inspired Word of God — our ultimate guide for faith and practice.",
-    reference: "2 Timothy 3:16–17",
-  },
-  {
-    text: "We confess that Jesus Christ is the Son of God, Lord, and Savior of all who place their trust in him.",
-    reference: "Romans 10:9",
-  },
-  {
-    text: "We practice baptism by immersion as a response of faith to the grace of God for the forgiveness of sins.",
-    reference: "Acts 2:38",
-  },
-  {
-    text: "We gather every Sunday to remember Jesus in the Lord's Supper, breaking bread together as one body.",
-    reference: "Acts 20:7",
-  },
-  {
-    text: "We are united in Christ alone — no creed but the Bible, no name but the name above all names.",
-    reference: "Colossians 3:17",
-  },
-];
-
-function OurFoundation() {
-  return (
-    <section className="bg-sage-deep text-white py-16 md:py-24">
-      <div className="max-w-4xl mx-auto px-6">
-        <div className="text-center mb-14">
-          <p className="text-rose-light text-sm font-semibold tracking-widest uppercase mb-3">
-            What We Believe
-          </p>
-          <h2 className="font-serif text-4xl md:text-5xl font-bold mb-4">
-            Our Foundation
-          </h2>
-          <p className="text-white/60 text-lg max-w-xl mx-auto">
-            Not a denomination — a family of believers anchored in the Word of
-            God and united in the name of Christ.
-          </p>
-        </div>
-
-        <div className="divide-y divide-white/10">
-          {beliefs.map((belief) => (
-            <div key={belief.reference} className="py-6 flex flex-col sm:flex-row sm:items-start gap-4">
-              <div className="shrink-0 sm:w-36 text-rose-light font-serif text-sm font-semibold italic">
-                {belief.reference}
-              </div>
-              <p className="text-white/85 leading-relaxed">{belief.text}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 /* ─── Community Image Banner ────────────────────────────────────────────────── */
 function CommunityBanner() {
   return (
@@ -327,7 +271,6 @@ export default function HomePage() {
       <HeroSection />
       <LatestMessage />
       <MinistryGrid />
-      <OurFoundation />
       <CommunityBanner />
     </>
   );
