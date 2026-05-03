@@ -256,34 +256,6 @@ function FAQSection() {
   );
 }
 
-/* ─── CTA Strip ─────────────────────────────────────────────────────────────── */
-function CTAStrip() {
-  return (
-    <section className="bg-sage-deep py-16 text-center">
-      <div className="max-w-2xl mx-auto px-6">
-        <h2 className="font-serif text-white text-3xl md:text-4xl font-bold mb-4">
-          Ready to Visit?
-        </h2>
-        <p className="text-white/70 text-lg mb-8 leading-relaxed">
-          We&apos;d love to reserve a seat — or just know to look out for you.
-          Fill out the short form and someone from our team will be in touch
-          before Sunday.
-        </p>
-        <a
-          href="mailto:info@fulshearcoc.org?subject=Planning%20a%20Visit"
-          className="inline-flex items-center justify-center gap-2 bg-rose text-white font-semibold px-8 py-4 rounded-full hover:bg-rose-dark transition-colors text-base shadow-lg"
-        >
-          Let Us Know You&apos;re Coming
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-            <path d="M3 4a2 2 0 0 0-2 2v1.161l8.441 4.221a1.25 1.25 0 0 0 1.118 0L19 7.162V6a2 2 0 0 0-2-2H3Z" />
-            <path d="m19 8.839-7.77 3.885a2.75 2.75 0 0 1-2.46 0L1 8.839V14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.839Z" />
-          </svg>
-        </a>
-      </div>
-    </section>
-  );
-}
-
 /* ─── Page ──────────────────────────────────────────────────────────────────── */
 export default function WhatToExpectPage() {
   return (
@@ -292,7 +264,6 @@ export default function WhatToExpectPage() {
       <QuickInfoCards />
       <WhatHappens />
       <FAQSection />
-      <CTAStrip />
     </>
   );
 }
