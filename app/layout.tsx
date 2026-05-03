@@ -98,8 +98,14 @@ export default function RootLayout({
               ))}
             </nav>
 
-            {/* Reserved for member login / account menu */}
-            <div className="hidden lg:block w-[140px]" aria-hidden="true" />
+            <a
+              href="https://www.fulshearcoc.org/members/login"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-sage rounded-full hover:bg-sage-dark transition-colors"
+            >
+              Member Login
+            </a>
           </div>
         </header>
 
@@ -116,7 +122,14 @@ export default function RootLayout({
                 className="h-10 w-auto"
               />
             </Link>
-            {/* Reserved for member login / account menu */}
+            <a
+              href="https://www.fulshearcoc.org/members/login"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold text-white bg-sage rounded-full hover:bg-sage-dark transition-colors"
+            >
+              Member Login
+            </a>
           </div>
         </header>
 
