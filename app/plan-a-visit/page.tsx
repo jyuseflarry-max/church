@@ -236,7 +236,8 @@ function FAQSection() {
             Common Questions
           </p>
           <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold">
-            Good to Know Before You Come
+            Good to Know <br className="hidden md:block" />
+            Before You Come
           </h2>
         </div>
 

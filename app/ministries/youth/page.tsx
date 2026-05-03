@@ -51,7 +51,8 @@ function Heart() {
             Our Heart
           </p>
           <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold">
-            Where Faith Becomes Their Own
+            Where Faith <br className="hidden md:block" />
+            Becomes Their Own
           </h2>
         </div>
         <div className="space-y-5 text-charcoal text-base md:text-lg leading-relaxed">

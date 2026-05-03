@@ -106,7 +106,8 @@ function WhatIsACOC() {
           A Common Question
         </p>
         <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold mb-6">
-          What&apos;s a Church of Christ?
+          What&apos;s a <br className="hidden md:block" />
+          Church of Christ?
         </h2>
         <p className="text-charcoal text-lg leading-relaxed">
           We are a group of Christians who strive to be &ldquo;just

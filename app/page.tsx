@@ -81,18 +81,161 @@ function LatestMessage() {
           </h2>
         </div>
 
-        <div className="grid md:grid-cols-5 gap-8 items-start">
-          {/* Video embed */}
+        <div className="grid md:grid-cols-5 gap-8 items-center">
+          {/* Sermon thumbnail — links to the YouTube video */}
           <div className="md:col-span-3">
-            <div className="rounded-2xl overflow-hidden shadow-xl aspect-video bg-sage-muted relative">
-              <iframe
-                src="https://www.youtube.com/embed/wBU6d6XULU4?rel=0&modestbranding=1"
-                title="Latest Sermon — Fulshear Church of Christ"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
+            <a
+              href="https://www.youtube.com/watch?v=wBU6d6XULU4"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative block aspect-video rounded-2xl overflow-hidden shadow-xl ring-1 ring-sage-deep/10"
+              aria-label="Watch this week's sermon: Walking By Faith, Not By Sight"
+            >
+              <svg
+                viewBox="0 0 1600 900"
+                preserveAspectRatio="xMidYMid slice"
                 className="absolute inset-0 w-full h-full"
-              />
-            </div>
+                aria-hidden="true"
+              >
+                <defs>
+                  <linearGradient id="sermon-sky" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#1B342D" />
+                    <stop offset="40%" stopColor="#2F5247" />
+                    <stop offset="68%" stopColor="#7A4F4F" />
+                    <stop offset="86%" stopColor="#A35C5E" />
+                    <stop offset="100%" stopColor="#E4A8AA" />
+                  </linearGradient>
+                  <radialGradient id="sermon-sun" cx="0.62" cy="0.7" r="0.55">
+                    <stop offset="0%" stopColor="#FAF9F6" stopOpacity="0.85" />
+                    <stop offset="18%" stopColor="#F8E5E6" stopOpacity="0.55" />
+                    <stop offset="42%" stopColor="#E4A8AA" stopOpacity="0.3" />
+                    <stop offset="100%" stopColor="#C97A7C" stopOpacity="0" />
+                  </radialGradient>
+                  <linearGradient id="sermon-hill-far" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#9CBCB3" stopOpacity="0.55" />
+                    <stop offset="100%" stopColor="#6B9489" stopOpacity="0.7" />
+                  </linearGradient>
+                  <linearGradient id="sermon-hill-mid" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#6B9489" stopOpacity="0.85" />
+                    <stop offset="100%" stopColor="#4D7770" />
+                  </linearGradient>
+                  <linearGradient id="sermon-hill-near" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#3D5F55" />
+                    <stop offset="100%" stopColor="#142620" />
+                  </linearGradient>
+                  <linearGradient id="sermon-path" x1="0" y1="1" x2="0" y2="0">
+                    <stop offset="0%" stopColor="#FAF9F6" stopOpacity="0.92" />
+                    <stop offset="100%" stopColor="#FAF9F6" stopOpacity="0.25" />
+                  </linearGradient>
+                  <linearGradient id="sermon-bottom-fade" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#000000" stopOpacity="0" />
+                    <stop offset="100%" stopColor="#000000" stopOpacity="0.55" />
+                  </linearGradient>
+                </defs>
+
+                {/* Sky base + sun bloom */}
+                <rect width="1600" height="900" fill="url(#sermon-sky)" />
+                <rect width="1600" height="900" fill="url(#sermon-sun)" />
+
+                {/* Stars in the upper sky */}
+                <g fill="#FAF9F6">
+                  <circle cx="120" cy="90" r="2" opacity="0.75" />
+                  <circle cx="280" cy="60" r="1.4" opacity="0.6" />
+                  <circle cx="420" cy="130" r="2.3" opacity="0.85" />
+                  <circle cx="180" cy="220" r="1.2" opacity="0.5" />
+                  <circle cx="340" cy="200" r="1.8" opacity="0.6" />
+                  <circle cx="500" cy="80" r="1.5" opacity="0.55" />
+                  <circle cx="660" cy="150" r="1.3" opacity="0.6" />
+                  <circle cx="220" cy="330" r="1.5" opacity="0.5" />
+                  <circle cx="80" cy="180" r="1.6" opacity="0.65" />
+                  <circle cx="380" cy="290" r="1.2" opacity="0.5" />
+                  <circle cx="560" cy="250" r="1.5" opacity="0.55" />
+                  <circle cx="720" cy="300" r="1.3" opacity="0.5" />
+                  <circle cx="60" cy="290" r="2" opacity="0.7" />
+                </g>
+
+                {/* Sun core at the horizon — destination of the path */}
+                <circle cx="990" cy="630" r="70" fill="#FAF9F6" opacity="0.32" />
+                <circle cx="990" cy="630" r="42" fill="#FAF9F6" opacity="0.65" />
+                <circle cx="990" cy="630" r="22" fill="#FAF9F6" opacity="0.95" />
+
+                {/* Far hills */}
+                <path
+                  d="M 0 540 C 200 510, 350 545, 500 510 C 700 470, 850 535, 1000 515 C 1200 485, 1400 530, 1600 510 L 1600 900 L 0 900 Z"
+                  fill="url(#sermon-hill-far)"
+                />
+                {/* Mid hills */}
+                <path
+                  d="M 0 645 C 180 615, 360 645, 540 620 C 720 595, 900 650, 1080 625 C 1260 600, 1440 645, 1600 620 L 1600 900 L 0 900 Z"
+                  fill="url(#sermon-hill-mid)"
+                />
+                {/* Near hills */}
+                <path
+                  d="M 0 745 C 200 725, 380 750, 560 730 C 740 710, 920 755, 1100 735 C 1280 715, 1440 750, 1600 735 L 1600 900 L 0 900 Z"
+                  fill="url(#sermon-hill-near)"
+                />
+
+                {/* Path winding from the foreground up to the horizon glow */}
+                <path
+                  d="M 740 900 C 760 820, 880 770, 950 720 C 990 690, 990 660, 990 640"
+                  stroke="url(#sermon-path)"
+                  strokeWidth="44"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+
+                {/* Anchor watermark — Anchored in Grace */}
+                <g
+                  transform="translate(1330 555) scale(0.85)"
+                  stroke="#FAF9F6"
+                  strokeWidth="11"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  fill="none"
+                  opacity="0.1"
+                >
+                  <circle cx="100" cy="35" r="22" />
+                  <line x1="100" y1="57" x2="100" y2="215" />
+                  <line x1="55" y1="85" x2="145" y2="85" />
+                  <path d="M 25 158 C 25 215 70 248 100 248 C 130 248 175 215 175 158" />
+                </g>
+
+                {/* Bottom fade so the title reads cleanly */}
+                <rect x="0" y="500" width="1600" height="400" fill="url(#sermon-bottom-fade)" />
+              </svg>
+
+              {/* Top-left series label */}
+              <div className="absolute top-4 left-5 md:top-6 md:left-7 z-10">
+                <span className="inline-flex items-center gap-2 text-rose-light text-[10px] md:text-xs font-semibold tracking-[0.25em] uppercase">
+                  <span aria-hidden="true" className="inline-block w-6 h-px bg-rose-light/60" />
+                  Anchored in Grace · Series
+                </span>
+              </div>
+
+              {/* Title block, bottom-left */}
+              <div className="absolute bottom-5 left-5 right-5 md:bottom-7 md:left-7 md:right-7 z-10">
+                <h3 className="font-serif text-white text-xl md:text-3xl lg:text-4xl font-bold leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+                  Walking By Faith,<br />
+                  Not By Sight
+                </h3>
+                <p className="font-serif italic text-rose-light text-xs md:text-sm mt-1 md:mt-2 tracking-wide">
+                  2 Corinthians 5:7
+                </p>
+              </div>
+
+              {/* Play button — slightly above center to clear the title */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none -mt-8 md:-mt-12">
+                <div className="relative">
+                  <span aria-hidden="true" className="absolute inset-0 rounded-full bg-white/25 group-hover:scale-150 transition-transform duration-500 ease-out" />
+                  <span aria-hidden="true" className="absolute -inset-2 rounded-full ring-1 ring-white/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <span className="relative bg-white/95 text-sage-deep rounded-full w-14 h-14 md:w-20 md:h-20 flex items-center justify-center shadow-2xl group-hover:bg-white group-hover:scale-110 transition-all duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 md:w-9 md:h-9 ml-0.5">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </span>
+                </div>
+              </div>
+            </a>
           </div>
 
           {/* Sermon info */}
@@ -103,9 +246,6 @@ function LatestMessage() {
               </svg>
               April 13, 2026
             </div>
-            <h3 className="font-serif text-sage-deep text-2xl font-bold mb-3 leading-snug">
-              Walking By Faith, Not By Sight
-            </h3>
             <p className="text-muted leading-relaxed mb-2 text-sm">
               Series: <span className="text-charcoal font-medium">Anchored in Grace</span>
             </p>
@@ -186,7 +326,8 @@ function MinistryGrid() {
             Ministries
           </p>
           <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold">
-            A Place for Every Stage of Life
+            A Place for Every <br className="hidden md:block" />
+            Stage of Life
           </h2>
           <p className="text-muted mt-3 max-w-lg mx-auto">
             From our youngest members to our wisest — everyone belongs here.
@@ -246,7 +387,8 @@ function CommunityBanner() {
           Rooted in Fulshear
         </p>
         <h2 className="font-serif text-white text-3xl md:text-5xl font-bold mb-6 leading-tight">
-          A Community Growing Together
+          A Community <br className="hidden md:block" />
+          Growing Together
         </h2>
         <p className="text-white/80 text-lg leading-relaxed mb-10 max-w-xl mx-auto">
           Planted in the heart of Fulshear, we&apos;re a neighborhood church

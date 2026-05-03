@@ -94,7 +94,8 @@ function SundayClasses() {
             Sunday Mornings — 9:00 AM
           </p>
           <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold">
-            Three Classes, One Family
+            Three Classes, <br className="hidden md:block" />
+            One Family
           </h2>
           <p className="text-muted mt-3 max-w-xl mx-auto">
             Pick the Sunday class that fits the season you&apos;re in.

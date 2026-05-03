@@ -76,7 +76,8 @@ function BibleClasses() {
             Learn Together
           </p>
           <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold">
-            Bible Classes for Every Age
+            Bible Classes <br className="hidden md:block" />
+            for Every Age
           </h2>
           <p className="text-muted mt-3 max-w-xl mx-auto">
             Bible study is at the heart of who we are. Visitors are always
@@ -133,7 +134,8 @@ function NewcomerDinner() {
           Meet the Family
         </p>
         <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold mb-5 leading-snug">
-          Come to Our Newcomer Dinner
+          Come to Our <br className="hidden md:block" />
+          Newcomer Dinner
         </h2>
         <p className="text-charcoal leading-relaxed text-lg mb-6 max-w-2xl mx-auto">
           A few times a year we set aside an evening just for newer faces — a
@@ -336,7 +338,8 @@ function TalkToMinister() {
           Talk to a Minister
         </p>
         <h2 className="font-serif text-white text-3xl md:text-4xl font-bold mb-4">
-          We&apos;d Love to Hear from You
+          We&apos;d Love to <br className="hidden md:block" />
+          Hear from You
         </h2>
         <p className="text-white/75 text-lg leading-relaxed mb-8">
           Big question, small question, or anything in between — Paul
