@@ -58,9 +58,7 @@ const desktopNavLinks = [
   { href: "/", label: "Home" },
   { href: "/plan-a-visit", label: "Plan a Visit" },
   { href: "/connect", label: "Connect" },
-  { href: "/ministries", label: "Ministries" },
   { href: "/about", label: "About" },
-  { href: "/sermons", label: "Sermons" },
 ];
 
 export default function RootLayout({
@@ -123,12 +121,13 @@ export default function RootLayout({
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 pb-16 md:pb-0">{children}</main>
+        <main className="flex-1">{children}</main>
 
-        {/* Footer */}
-        <footer className="hidden md:block bg-sage-deep text-white/80 py-10">
-          <div className="max-w-6xl mx-auto px-6 grid grid-cols-3 gap-8">
-            <div>
+        {/* Footer — visible on all sizes; extra bottom padding on mobile to
+            clear the fixed bottom nav (h-16 = 64px). */}
+        <footer className="bg-sage-deep text-white/80 py-10 pb-24 md:pb-10">
+          <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+            <div className="flex flex-col items-center md:items-start">
               <div className="inline-block bg-cream/95 rounded-2xl p-3 mb-4">
                 <Image
                   src="/logo.png"
