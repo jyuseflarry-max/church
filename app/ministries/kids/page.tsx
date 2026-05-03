@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -192,37 +191,24 @@ function SpecialEvents() {
 function PlanAVisitCallout() {
   return (
     <section className="bg-white py-16 md:py-20">
-      <div className="max-w-5xl mx-auto px-6">
-        <div className="grid md:grid-cols-2 gap-8 items-center">
-          <div className="relative rounded-2xl overflow-hidden h-64 md:h-80 shadow-sm">
-            <Image
-              src="/kids.jpg"
-              alt="Children enjoying Kids Ministry at Fulshear Church of Christ"
-              fill
-              className="object-cover"
-              sizes="(min-width: 768px) 50vw, 100vw"
-            />
-          </div>
-          <div>
-            <p className="text-rose text-sm font-semibold tracking-widest uppercase mb-2">
-              Visiting?
-            </p>
-            <h2 className="font-serif text-sage-deep text-3xl font-bold mb-4 leading-snug">
-              Your First Sunday
-            </h2>
-            <p className="text-charcoal leading-relaxed mb-6">
-              All of our volunteers are background-checked and trained. Your
-              kids will be loved on, taught well, and returned safely. Plan a
-              visit and we&apos;ll meet you at the door.
-            </p>
-            <Link
-              href="/plan-a-visit"
-              className="inline-flex items-center justify-center gap-2 bg-sage text-white font-semibold px-6 py-3 rounded-full hover:bg-sage-dark transition-colors text-base shadow-sm"
-            >
-              Plan Your Visit
-            </Link>
-          </div>
-        </div>
+      <div className="max-w-2xl mx-auto px-6 text-center">
+        <p className="text-rose text-sm font-semibold tracking-widest uppercase mb-2">
+          Visiting?
+        </p>
+        <h2 className="font-serif text-sage-deep text-3xl font-bold mb-4 leading-snug">
+          Your First Sunday
+        </h2>
+        <p className="text-charcoal leading-relaxed mb-6">
+          All of our volunteers are background-checked and trained. Your
+          kids will be loved on, taught well, and returned safely. Plan a
+          visit and we&apos;ll meet you at the door.
+        </p>
+        <Link
+          href="/plan-a-visit"
+          className="inline-flex items-center justify-center gap-2 bg-sage text-white font-semibold px-6 py-3 rounded-full hover:bg-sage-dark transition-colors text-base shadow-sm"
+        >
+          Plan Your Visit
+        </Link>
       </div>
     </section>
   );

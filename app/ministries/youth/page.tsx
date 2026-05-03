@@ -123,18 +123,31 @@ function WeeklyRhythms() {
 function MonthlyActivities() {
   return (
     <section className="bg-white py-16 md:py-20">
-      <div className="max-w-3xl mx-auto px-6 text-center">
-        <p className="text-rose text-sm font-semibold tracking-widest uppercase mb-2">
-          Once a Month
-        </p>
-        <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold mb-5">
-          Beyond the Building
-        </h2>
-        <p className="text-charcoal text-lg leading-relaxed">
-          Each month we get out of the classroom — service projects,
-          fellowship hangouts, game nights, and the kinds of low-pressure
-          gatherings where the best friendships actually happen.
-        </p>
+      <div className="max-w-5xl mx-auto px-6">
+        <div className="grid md:grid-cols-2 gap-8 md:gap-10 items-center">
+          <div className="relative rounded-2xl overflow-hidden aspect-[4/3] shadow-sm">
+            <Image
+              src="/kids.jpg"
+              alt="Youth Ministry at Fulshear Church of Christ"
+              fill
+              className="object-cover"
+              sizes="(min-width: 768px) 50vw, 100vw"
+            />
+          </div>
+          <div>
+            <p className="text-rose text-sm font-semibold tracking-widest uppercase mb-2">
+              Once a Month
+            </p>
+            <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold mb-5 leading-snug">
+              Beyond the Building
+            </h2>
+            <p className="text-charcoal text-lg leading-relaxed">
+              Each month we get out of the classroom — service projects,
+              fellowship hangouts, game nights, and the kinds of low-pressure
+              gatherings where the best friendships actually happen.
+            </p>
+          </div>
+        </div>
       </div>
     </section>
   );

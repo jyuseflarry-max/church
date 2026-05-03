@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -256,62 +255,6 @@ function FAQSection() {
   );
 }
 
-/* ─── Kids Ministry Callout ─────────────────────────────────────────────────── */
-function KidsCallout() {
-  return (
-    <section className="bg-rose-muted py-16 md:py-20">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="grid md:grid-cols-2 gap-10 items-center">
-          <div className="relative rounded-2xl overflow-hidden h-64 md:h-80">
-            <Image
-              src="/kids.jpg"
-              alt="Children enjoying Kids Ministry at Fulshear Church of Christ"
-              fill
-              className="object-cover"
-            />
-          </div>
-
-          <div>
-            <p className="text-rose-dark text-sm font-semibold tracking-widest uppercase mb-3">
-              Kids Ministry
-            </p>
-            <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold mb-5 leading-snug">
-              Your Kids Will Love It Here
-            </h2>
-            <p className="text-charcoal leading-relaxed mb-4">
-              We invest deeply in our youngest members. Every Sunday, trained
-              volunteers lead age-appropriate classes built around Scripture,
-              worship, and community — from our nursery all the way through 5th
-              grade.
-            </p>
-            <ul className="space-y-2 mb-8">
-              {[
-                "Secure check-in system for every child",
-                "Age-grouped classes: Nursery, Pre-K, K–2nd, 3rd–5th",
-                "Background-checked, trained volunteers",
-                "Fun, engaging lessons rooted in the Bible",
-              ].map((item) => (
-                <li key={item} className="flex items-center gap-2 text-sm text-charcoal">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-rose shrink-0">
-                    <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clipRule="evenodd" />
-                  </svg>
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <Link
-              href="/ministries/kids"
-              className="inline-flex items-center gap-2 bg-sage text-white font-semibold px-6 py-3 rounded-full hover:bg-sage-dark transition-colors"
-            >
-              Learn About Kids Ministry
-            </Link>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 /* ─── CTA Strip ─────────────────────────────────────────────────────────────── */
 function CTAStrip() {
   return (
@@ -348,7 +291,6 @@ export default function WhatToExpectPage() {
       <QuickInfoCards />
       <WhatHappens />
       <FAQSection />
-      <KidsCallout />
       <CTAStrip />
     </>
   );

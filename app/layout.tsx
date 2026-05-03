@@ -128,15 +128,7 @@ export default function RootLayout({
         <footer className="bg-sage-deep text-white/80 py-10 pb-24 md:pb-10">
           <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
             <div className="flex flex-col items-center md:items-start">
-              <div className="inline-block bg-cream/95 rounded-2xl p-3 mb-4">
-                <Image
-                  src="/logo.png"
-                  alt="Fulshear Church of Christ"
-                  width={150}
-                  height={126}
-                  className="h-16 w-auto"
-                />
-              </div>
+              <div className="font-serif text-white text-lg mb-3">Fulshear Church of Christ</div>
               <p className="text-sm leading-relaxed">A welcoming community of faith in Fulshear, TX.</p>
             </div>
             <div>
