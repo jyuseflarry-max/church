@@ -269,9 +269,9 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
-      <LatestMessage />
       <MinistryGrid />
       <CommunityBanner />
+      <LatestMessage />
     </>
   );
 }

@@ -17,7 +17,16 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
-const SITE_URL = "https://fulshearcoc.org";
+// Resolves to the Vercel production URL automatically (e.g. project.vercel.app)
+// while the custom domain is still on the old host. Once fulshearcoc.org is
+// migrated to Vercel, set NEXT_PUBLIC_SITE_URL=https://fulshearcoc.org in the
+// Vercel project settings to make that the canonical OG / metadata URL.
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "http://localhost:3000");
+
 const SITE_NAME = "Fulshear Church of Christ";
 const SITE_DESCRIPTION =
   "A welcoming community of faith in Fulshear, TX. Join us for worship, community, and a life transformed by grace.";
@@ -120,7 +129,15 @@ export default function RootLayout({
         <footer className="hidden md:block bg-sage-deep text-white/80 py-10">
           <div className="max-w-6xl mx-auto px-6 grid grid-cols-3 gap-8">
             <div>
-              <div className="font-serif text-white text-lg font-semibold mb-2">Fulshear Church of Christ</div>
+              <div className="inline-block bg-cream/95 rounded-2xl p-3 mb-4">
+                <Image
+                  src="/logo.png"
+                  alt="Fulshear Church of Christ"
+                  width={150}
+                  height={126}
+                  className="h-16 w-auto"
+                />
+              </div>
               <p className="text-sm leading-relaxed">A welcoming community of faith in Fulshear, TX.</p>
             </div>
             <div>
