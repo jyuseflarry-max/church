@@ -131,9 +131,20 @@ export default function RootLayout({
             </div>
             <div>
               <div className="font-semibold text-white text-sm mb-3 uppercase tracking-wider">Visit Us</div>
-              <p className="text-sm">9241 Charger Way</p>
-              <p className="text-sm">Fulshear, TX 77441</p>
-              <p className="text-sm mt-3">info@fulshearcoc.org</p>
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=9241+Charger+Way+Fulshear+TX+77441"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm hover:text-white transition-colors block"
+              >
+                9241 Charger Way<br />
+                Fulshear, TX 77441
+              </a>
+              <p className="text-sm mt-3">
+                <a href="mailto:info@fulshearcoc.org" className="hover:text-white transition-colors">
+                  info@fulshearcoc.org
+                </a>
+              </p>
             </div>
           </div>
           <div className="max-w-6xl mx-auto px-6 mt-8 pt-6 border-t border-white/10 text-xs text-white/40 text-center">

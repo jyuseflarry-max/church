@@ -47,7 +47,16 @@ function PageHero() {
 }
 
 /* ─── Quick Info Cards ──────────────────────────────────────────────────────── */
-const quickInfo = [
+const MAPS_URL =
+  "https://www.google.com/maps/search/?api=1&query=9241+Charger+Way+Fulshear+TX+77441";
+
+type QuickInfoItem = {
+  icon: React.ReactNode;
+  label: string;
+  body: React.ReactNode;
+};
+
+const quickInfo: QuickInfoItem[] = [
   {
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
@@ -55,7 +64,13 @@ const quickInfo = [
       </svg>
     ),
     label: "Service Times",
-    lines: ["Sunday Bible Class: 9:00 AM", "Sunday Worship: 10:00 AM", "Wednesday Evening: 7:00 PM"],
+    body: (
+      <>
+        <p className="text-sm text-muted leading-relaxed">Sunday Bible Class: 9:00 AM</p>
+        <p className="text-sm text-muted leading-relaxed">Sunday Worship: 10:00 AM</p>
+        <p className="text-sm text-muted leading-relaxed">Wednesday Evening: 7:00 PM</p>
+      </>
+    ),
   },
   {
     icon: (
@@ -64,7 +79,20 @@ const quickInfo = [
       </svg>
     ),
     label: "Location",
-    lines: ["9241 Charger Way", "Fulshear, TX 77441", "Free parking is always available"],
+    body: (
+      <>
+        <a
+          href={MAPS_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-muted leading-relaxed hover:text-sage transition-colors block"
+        >
+          9241 Charger Way<br />
+          Fulshear, TX 77441
+        </a>
+        <p className="text-sm text-muted leading-relaxed mt-1">Free parking is always available</p>
+      </>
+    ),
   },
   {
     icon: (
@@ -74,7 +102,17 @@ const quickInfo = [
       </svg>
     ),
     label: "Get in Touch",
-    lines: ["info@fulshearcoc.org", "Questions? We love to hear from you.", "We'll get back to you quickly."],
+    body: (
+      <>
+        <p className="text-sm text-muted leading-relaxed">
+          <a href="mailto:info@fulshearcoc.org" className="hover:text-sage transition-colors">
+            info@fulshearcoc.org
+          </a>
+        </p>
+        <p className="text-sm text-muted leading-relaxed">Questions? We love to hear from you.</p>
+        <p className="text-sm text-muted leading-relaxed">We&apos;ll get back to you quickly.</p>
+      </>
+    ),
   },
 ];
 
@@ -88,11 +126,7 @@ function QuickInfoCards() {
               <div className="text-rose shrink-0 mt-0.5">{card.icon}</div>
               <div>
                 <div className="font-semibold text-sage-deep mb-2">{card.label}</div>
-                {card.lines.map((line) => (
-                  <p key={line} className="text-sm text-muted leading-relaxed">
-                    {line}
-                  </p>
-                ))}
+                {card.body}
               </div>
             </div>
           ))}

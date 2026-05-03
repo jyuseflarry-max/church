@@ -181,8 +181,8 @@ function OurFoundation() {
 /* ─── Leadership ────────────────────────────────────────────────────────────── */
 const elders = [
   { name: "Mike Pawlik", photo: "/leaders/mike-pawlik.jpg" },
-  { name: "Keith Williams", photo: "/leaders/keith-williams.jpg" },
   { name: "Mark Pierce", photo: "/leaders/mark-pierce.jpg" },
+  { name: "Keith Williams", photo: "/leaders/keith-williams.jpg" },
 ];
 
 const ministers = [
@@ -321,10 +321,22 @@ function WhereWeGather() {
           <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold mb-3">
             Where We Gather
           </h2>
-          <p className="text-muted leading-relaxed max-w-xl mx-auto">
+          <p className="text-muted leading-relaxed max-w-xl mx-auto mb-4">
             We&apos;d love to meet you on Sunday — pull into the lot,
             we&apos;ll be looking out for you.
           </p>
+          <a
+            href="https://www.google.com/maps/search/?api=1&query=9241+Charger+Way+Fulshear+TX+77441"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-sage font-semibold text-sm hover:text-sage-dark transition-colors"
+          >
+            9241 Charger Way, Fulshear, TX 77441
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+              <path fillRule="evenodd" d="M4.25 5.5a.75.75 0 0 0-.75.75v8.5c0 .414.336.75.75.75h8.5a.75.75 0 0 0 .75-.75v-4a.75.75 0 0 1 1.5 0v4A2.25 2.25 0 0 1 12.75 17h-8.5A2.25 2.25 0 0 1 2 14.75v-8.5A2.25 2.25 0 0 1 4.25 4h5a.75.75 0 0 1 0 1.5h-5Z" clipRule="evenodd" />
+              <path fillRule="evenodd" d="M6.194 12.753a.75.75 0 0 0 1.06.053L16.5 4.44v2.81a.75.75 0 0 0 1.5 0v-4.5a.75.75 0 0 0-.75-.75h-4.5a.75.75 0 0 0 0 1.5h2.553l-9.056 8.194a.75.75 0 0 0-.053 1.06Z" clipRule="evenodd" />
+            </svg>
+          </a>
         </div>
 
         <div className="rounded-2xl overflow-hidden shadow-lg">
