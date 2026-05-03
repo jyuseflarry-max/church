@@ -197,10 +197,11 @@ function FindYourPlace() {
             Find Your Place
           </h2>
           <p className="text-muted mt-3 max-w-xl mx-auto">
-            Every ministry is open to anyone willing to serve — whether
-            you&apos;ve been here a month or a decade. Curious about a
-            specific area? Email us and we&apos;ll connect you with the team
-            lead.
+            Every ministry has a place for those willing to serve — and, for
+            the roles where Scripture sets specific qualifications, those who
+            meet them. Whether you&apos;ve been here a month or a decade, your
+            gifts have a home here. Curious about a specific area? Email us
+            and we&apos;ll connect you with the team lead.
           </p>
         </div>
 
