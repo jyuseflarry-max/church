@@ -145,7 +145,7 @@ const steps = [
   {
     number: "02",
     title: "Check In Your Kids",
-    body: "Our Kids Ministry team will get your children checked in and settled into a safe, age-appropriate class. We use a secure check-in system so you can worship with complete peace of mind.",
+    body: "Our Kids Ministry team will get your children checked in and settled into a safe, age-appropriate class.",
   },
   {
     number: "03",
