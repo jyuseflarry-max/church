@@ -12,7 +12,6 @@ export const metadata: Metadata = {
 export const revalidate = 3600;
 
 const SHOWCASE_LIMIT = 9;
-const ARCHIVE_URL = "https://fulshearcoc-org.us.stackstaging.com/sermons/";
 const PODCAST_URL =
   "https://westparkchurchofchrist.congregatecloud.com/lessons/all-lessons/podcast";
 
@@ -186,17 +185,9 @@ function EmptyState() {
       <p className="font-serif text-sage-deep text-xl mb-2">
         Sermons aren&apos;t loading right now.
       </p>
-      <p className="text-muted text-sm mb-6">
-        You can still browse the full archive on our legacy site.
+      <p className="text-muted text-sm">
+        Please check back in a little while.
       </p>
-      <a
-        href={ARCHIVE_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 bg-rose text-white font-semibold px-6 py-3 rounded-full hover:bg-rose-dark transition-colors"
-      >
-        Open the Sermon Archive
-      </a>
     </div>
   );
 }
@@ -261,23 +252,12 @@ export default async function SermonsPage() {
               Looking for Older Sermons?
             </p>
             <h3 className="font-serif text-sage-deep text-xl font-bold mb-3">
-              The Full Archive Is in the Member Portal
+              The Full Archive Lives in the Member Portal
             </h3>
-            <p className="text-sm text-charcoal mb-4 leading-relaxed">
-              Members can search every sermon by speaker, series, or year. In
-              the meantime, you can browse the public archive here.
+            <p className="text-sm text-charcoal leading-relaxed">
+              Members can search every sermon by speaker, series, or year. The
+              member portal is coming soon.
             </p>
-            <a
-              href={ARCHIVE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sage font-semibold text-sm hover:text-sage-dark transition-colors"
-            >
-              Browse the public archive
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                <path fillRule="evenodd" d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z" clipRule="evenodd" />
-              </svg>
-            </a>
           </div>
         </div>
       </section>
