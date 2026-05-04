@@ -67,6 +67,63 @@ function HeroSection() {
   );
 }
 
+/* ─── VBS Announcement ──────────────────────────────────────────────────────── */
+function VBSAnnouncement() {
+  return (
+    <section className="relative overflow-hidden">
+      <div
+        aria-hidden="true"
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(110deg, #5BA8DD 0%, #8DC76F 55%, #F4C969 100%)",
+        }}
+      />
+      <div className="relative z-10 max-w-6xl mx-auto px-6 py-10 md:py-12 flex flex-col md:flex-row items-center gap-6 md:gap-10 text-center md:text-left">
+        <div className="flex-1">
+          <p className="inline-block text-white text-xs font-bold tracking-widest uppercase mb-2 bg-rose px-3 py-1 rounded-full shadow">
+            VBS 2026 — Now Registering
+          </p>
+          <h2 className="font-serif text-white text-3xl md:text-4xl font-bold leading-tight drop-shadow-[0_2px_6px_rgba(0,0,0,0.2)]">
+            Camp Faith
+          </h2>
+          <p className="font-serif italic text-white/90 text-base md:text-lg mt-1 drop-shadow-[0_1px_3px_rgba(0,0,0,0.15)]">
+            Gathering Around God&apos;s Light · June 1–4, 2026 · Ages 3 – 5th Grade
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+          <Link
+            href="/vbs"
+            className="inline-flex items-center justify-center gap-2 bg-white text-sage-deep font-semibold px-6 py-3 rounded-full hover:bg-cream transition-colors shadow-lg"
+          >
+            Learn More
+          </Link>
+          <a
+            href="https://docs.google.com/forms/d/e/1FAIpQLSekebZlMH6PQlZRl8hX-b74GuYUsyZruq1ERc9wic-XUzH83g/viewform?usp=send_form"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 bg-rose text-white font-semibold px-6 py-3 rounded-full hover:bg-rose-dark transition-colors shadow-lg"
+          >
+            Register Now
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className="w-4 h-4"
+            >
+              <path
+                fillRule="evenodd"
+                d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ─── Latest Message ────────────────────────────────────────────────────────── */
 function LatestMessage() {
   return (
@@ -411,6 +468,7 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
+      <VBSAnnouncement />
       <MinistryGrid />
       <CommunityBanner />
       <LatestMessage />
