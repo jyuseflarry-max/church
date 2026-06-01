@@ -270,6 +270,12 @@ export default function BenevolenceForm() {
         </div>
         <div className="flex gap-2">
           <a
+            href="/benevolence/reports"
+            className="rounded-md border border-sage px-4 py-2 text-sm font-semibold text-sage-deep hover:bg-sage-muted"
+          >
+            Reports
+          </a>
+          <a
             href="/benevolence.pdf"
             target="_blank"
             className="rounded-md border border-sage px-4 py-2 text-sm font-semibold text-sage-deep hover:bg-sage-muted"

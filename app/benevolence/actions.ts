@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@supabase/supabase-js";
+import { getSupabaseAdmin } from "@/app/lib/supabaseAdmin";
 
 type ActionState = {
   status: "idle" | "success" | "error";
@@ -47,26 +47,6 @@ type BenevolencePayload = {
   formCompletedBy?: string;
   comments?: string;
 };
-
-function getSupabaseAdmin() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
-  const key =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ??
-    process.env.SUPABASE_SERVICE_KEY;
-
-  if (!url || !key) {
-    throw new Error(
-      "Missing Supabase server configuration. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.",
-    );
-  }
-
-  return createClient(url, key, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-  });
-}
 
 function clean(value: unknown) {
   return typeof value === "string" && value.trim() ? value.trim() : null;
