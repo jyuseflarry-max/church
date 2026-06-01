@@ -166,6 +166,32 @@ function monthKey(value: string | null) {
   return value.slice(0, 7);
 }
 
+function requestListHref(
+  params: {
+    start: string;
+    end: string;
+    includeDemo: boolean;
+  },
+  filters: Record<string, string | number | boolean | null | undefined> = {},
+) {
+  const query = new URLSearchParams();
+
+  query.set("demo", params.includeDemo ? "yes" : "no");
+
+  if (!filters.seasonMonth) {
+    query.set("start", params.start);
+    query.set("end", params.end);
+  }
+
+  for (const [key, value] of Object.entries(filters)) {
+    if (value !== undefined && value !== null && value !== "") {
+      query.set(key, String(value));
+    }
+  }
+
+  return `/benevolence/requests?${query}`;
+}
+
 function person(row: RequestRow) {
   return Array.isArray(row.benevolence_people)
     ? row.benevolence_people[0]
@@ -301,15 +327,16 @@ function Bar({
   value,
   max,
   label,
+  href,
 }: {
   value: number;
   max: number;
   label: string;
+  href?: string;
 }) {
   const width = max > 0 ? Math.max(4, Math.round((value / max) * 100)) : 0;
-
-  return (
-    <div className="space-y-1">
+  const content = (
+    <>
       <div className="flex items-center justify-between gap-4 text-sm">
         <span className="font-medium text-charcoal">{label}</span>
         <span className="tabular-nums text-muted">{value}</span>
@@ -320,7 +347,15 @@ function Bar({
           style={{ width: `${width}%` }}
         />
       </div>
-    </div>
+    </>
+  );
+
+  return href ? (
+    <Link href={href} className="block space-y-1 rounded-sm hover:bg-cream">
+      {content}
+    </Link>
+  ) : (
+    <div className="space-y-1">{content}</div>
   );
 }
 
@@ -328,16 +363,28 @@ function Card({
   label,
   value,
   note,
+  href,
 }: {
   label: string;
   value: string;
   note: string;
+  href?: string;
 }) {
-  return (
-    <div className="border border-sage-muted bg-white p-4">
+  const content = (
+    <>
       <div className="text-xs font-semibold uppercase tracking-wide text-muted">{label}</div>
       <div className="mt-2 text-2xl font-bold text-sage-deep">{value}</div>
       <div className="mt-1 text-sm text-charcoal">{note}</div>
+    </>
+  );
+
+  return href ? (
+    <Link href={href} className="block border border-sage-muted bg-white p-4 hover:border-sage hover:bg-sage-muted/40">
+      {content}
+    </Link>
+  ) : (
+    <div className="border border-sage-muted bg-white p-4">
+      {content}
     </div>
   );
 }
@@ -368,6 +415,7 @@ export default async function BenevolenceReportsPage({
   const start = first(params.start) || yearStartIso();
   const end = first(params.end) || todayIso();
   const includeDemo = first(params.demo) !== "no";
+  const reportFilter = { start, end, includeDemo };
 
   let rows: RequestRow[] = [];
   let historyRows: RequestRow[] = [];
@@ -501,22 +549,35 @@ export default async function BenevolenceReportsPage({
         ) : null}
 
         <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-          <Card label="Requests" value={totalRequests.toLocaleString()} note={`${start} to ${end}`} />
-          <Card label="Provided" value={money(totalProvided)} note="Total direct assistance" />
+          <Card
+            label="Requests"
+            value={totalRequests.toLocaleString()}
+            note={`${start} to ${end}`}
+            href={requestListHref(reportFilter)}
+          />
+          <Card
+            label="Provided"
+            value={money(totalProvided)}
+            note="Total direct assistance"
+            href={requestListHref(reportFilter, { money: "provided" })}
+          />
           <Card
             label="Fulfillment"
             value={percent(totalRequested ? (totalProvided / totalRequested) * 100 : 0)}
             note={`${money(totalRequested)} requested`}
+            href={requestListHref(reportFilter, { money: "unfunded" })}
           />
           <Card
             label="Approved"
             value={percent(totalRequests ? (approvedCount / totalRequests) * 100 : 0)}
             note={`${approvedCount} approved requests`}
+            href={requestListHref(reportFilter, { status: "approved" })}
           />
           <Card
             label="Pending"
             value={pendingCount.toLocaleString()}
             note="Needs a decision or follow-up"
+            href={requestListHref(reportFilter, { status: "pending" })}
           />
         </div>
 
@@ -531,6 +592,11 @@ export default async function BenevolenceReportsPage({
                   label="Highest Demand Month"
                   value={topDemandMonth?.monthName ?? "None"}
                   note={topDemandMonth ? `${topDemandMonth.requests} historical requests` : "No historical data"}
+                  href={
+                    topDemandMonth
+                      ? requestListHref(reportFilter, { seasonMonth: topDemandMonth.monthNumber })
+                      : undefined
+                  }
                 />
                 <Card
                   label="History Analyzed"
@@ -560,7 +626,14 @@ export default async function BenevolenceReportsPage({
                     {seasonality.map((month, index) => (
                       <tr key={month.monthNumber} className="border-b border-sage-muted/70">
                         <td className="py-2 pr-4 font-semibold text-muted">{index + 1}</td>
-                        <td className="py-2 pr-4 font-semibold text-charcoal">{month.monthName}</td>
+                        <td className="py-2 pr-4 font-semibold">
+                          <Link
+                            href={requestListHref(reportFilter, { seasonMonth: month.monthNumber })}
+                            className="text-sage-deep hover:text-sage-dark"
+                          >
+                            {month.monthName}
+                          </Link>
+                        </td>
                         <td className="py-2 pr-4">
                           <div className="flex items-center gap-3">
                             <div className="h-2 w-24 rounded-full bg-sage-muted">
@@ -601,7 +674,12 @@ export default async function BenevolenceReportsPage({
             <div className="space-y-3">
               {trend.slice(-18).map((item) => (
                 <div key={item.month} className="grid gap-2 md:grid-cols-[6rem_1fr_7rem] md:items-center">
-                  <div className="text-sm font-semibold text-charcoal">{item.month}</div>
+                  <Link
+                    href={requestListHref(reportFilter, { month: item.month })}
+                    className="text-sm font-semibold text-sage-deep hover:text-sage-dark"
+                  >
+                    {item.month}
+                  </Link>
                   <div className="h-3 rounded-full bg-sage-muted">
                     <div
                       className="h-3 rounded-full bg-sage"
@@ -622,7 +700,13 @@ export default async function BenevolenceReportsPage({
           <ReportPanel title="Decision Status">
             <div className="space-y-4">
               {statusCounts.map((item) => (
-                <Bar key={item.name} label={item.name} value={item.count} max={maxStatusCount} />
+                <Bar
+                  key={item.name}
+                  label={item.name}
+                  value={item.count}
+                  max={maxStatusCount}
+                  href={requestListHref(reportFilter, { status: item.name })}
+                />
               ))}
             </div>
           </ReportPanel>
@@ -632,7 +716,13 @@ export default async function BenevolenceReportsPage({
           <ReportPanel title="Need Mix Requested">
             <div className="space-y-4">
               {requestedNeeds.slice(0, 10).map((item) => (
-                <Bar key={item.name} label={item.name} value={item.count} max={maxNeedCount} />
+                <Bar
+                  key={item.name}
+                  label={item.name}
+                  value={item.count}
+                  max={maxNeedCount}
+                  href={requestListHref(reportFilter, { need: item.name })}
+                />
               ))}
             </div>
           </ReportPanel>
@@ -641,7 +731,12 @@ export default async function BenevolenceReportsPage({
             <div className="space-y-3">
               {providedNeeds.slice(0, 10).map((item) => (
                 <div key={item.name} className="flex items-center justify-between gap-4 border-b border-sage-muted pb-2 text-sm">
-                  <span className="font-medium text-charcoal">{item.name}</span>
+                  <Link
+                    href={requestListHref(reportFilter, { need: item.name })}
+                    className="font-medium text-sage-deep hover:text-sage-dark"
+                  >
+                    {item.name}
+                  </Link>
                   <span className="text-right tabular-nums text-muted">
                     {item.count} / {money(item.amount)}
                   </span>
@@ -656,10 +751,14 @@ export default async function BenevolenceReportsPage({
                 <h3 className="text-sm font-bold text-charcoal">Urgency</h3>
                 <div className="mt-2 space-y-2">
                   {urgencyCounts.map((item) => (
-                    <div key={item.name} className="flex justify-between text-sm">
+                    <Link
+                      key={item.name}
+                      href={requestListHref(reportFilter, { urgency: item.name })}
+                      className="flex justify-between text-sm hover:text-sage-deep"
+                    >
                       <span>{item.name}</span>
                       <span className="tabular-nums text-muted">{item.count}</span>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -667,10 +766,14 @@ export default async function BenevolenceReportsPage({
                 <h3 className="text-sm font-bold text-charcoal">Follow-Up</h3>
                 <div className="mt-2 space-y-2">
                   {followUpCounts.map((item) => (
-                    <div key={item.name} className="flex justify-between text-sm">
+                    <Link
+                      key={item.name}
+                      href={requestListHref(reportFilter, { followUp: item.name })}
+                      className="flex justify-between text-sm hover:text-sage-deep"
+                    >
                       <span>{item.name}</span>
                       <span className="tabular-nums text-muted">{item.count}</span>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -694,7 +797,12 @@ export default async function BenevolenceReportsPage({
                   {repeatHouseholds.slice(0, 12).map((household) => (
                     <tr key={household.personId} className="border-b border-sage-muted/70">
                       <td className="py-2 pr-4 font-medium text-charcoal">
-                        {household.name}
+                        <Link
+                          href={`/benevolence/people/${household.personId}`}
+                          className="text-sage-deep hover:text-sage-dark"
+                        >
+                          {household.name}
+                        </Link>
                         {household.demo ? <span className="ml-2 text-xs text-muted">demo</span> : null}
                       </td>
                       <td className="py-2 pr-4 tabular-nums">{household.count}</td>
@@ -715,7 +823,12 @@ export default async function BenevolenceReportsPage({
                   <div key={row.id} className="border-b border-sage-muted pb-3">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="font-semibold text-charcoal">
-                        {household?.full_name ?? "Unknown household"}
+                        <Link
+                          href={`/benevolence/requests/${row.id}`}
+                          className="text-sage-deep hover:text-sage-dark"
+                        >
+                          {household?.full_name ?? "Unknown household"}
+                        </Link>
                       </div>
                       <div className="text-xs font-semibold uppercase tracking-wide text-rose-dark">
                         {row.urgency_level ?? "unspecified"} / {row.decision_status ?? "pending"}
@@ -741,10 +854,14 @@ export default async function BenevolenceReportsPage({
           <ReportPanel title="Referral Sources">
             <div className="space-y-2">
               {referralCounts.slice(0, 8).map((item) => (
-                <div key={item.name} className="flex justify-between text-sm">
+                <Link
+                  key={item.name}
+                  href={requestListHref(reportFilter, { referral: item.name })}
+                  className="flex justify-between text-sm hover:text-sage-deep"
+                >
                   <span>{item.name}</span>
                   <span className="tabular-nums text-muted">{item.count}</span>
-                </div>
+                </Link>
               ))}
             </div>
           </ReportPanel>
@@ -756,13 +873,23 @@ export default async function BenevolenceReportsPage({
                 <span className="font-semibold tabular-nums text-sage-deep">{money(avgGap(rows))}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-charcoal">Budget training interest</span>
+                <Link
+                  href={requestListHref(reportFilter, { ministry: "budget" })}
+                  className="text-charcoal hover:text-sage-deep"
+                >
+                  Budget training interest
+                </Link>
                 <span className="font-semibold tabular-nums text-sage-deep">
                   {rows.filter((row) => row.budget_training === "Yes").length}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-charcoal">Bible study interest</span>
+                <Link
+                  href={requestListHref(reportFilter, { ministry: "study" })}
+                  className="text-charcoal hover:text-sage-deep"
+                >
+                  Bible study interest
+                </Link>
                 <span className="font-semibold tabular-nums text-sage-deep">
                   {rows.filter((row) => row.wants_study === "Yes").length}
                 </span>
