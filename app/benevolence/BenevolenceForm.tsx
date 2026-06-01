@@ -197,6 +197,8 @@ function NeedChecks({
 
 export default function BenevolenceForm() {
   const [values, setValues] = useState<FormValues>(initialValues);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const [downloadError, setDownloadError] = useState("");
   const [state, action, pending] = useActionState(saveBenevolenceRequest, {
     status: "idle",
     message: "",
@@ -215,6 +217,44 @@ export default function BenevolenceForm() {
         childIndex === index ? { ...child, [key]: value } : child,
       ),
     }));
+  }
+
+  async function downloadFilledPdf() {
+    setIsDownloadingPdf(true);
+    setDownloadError("");
+
+    try {
+      const response = await fetch("/api/benevolence/pdf", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) {
+        throw new Error("Unable to generate the completed PDF.");
+      }
+
+      const blob = await response.blob();
+      const disposition = response.headers.get("Content-Disposition");
+      const filename =
+        disposition?.match(/filename="([^"]+)"/)?.[1] ?? "benevolence-request.pdf";
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      setDownloadError(
+        error instanceof Error ? error.message : "Unable to generate the completed PDF.",
+      );
+    } finally {
+      setIsDownloadingPdf(false);
+    }
   }
 
   return (
@@ -244,6 +284,14 @@ export default function BenevolenceForm() {
             Print
           </button>
           <button
+            type="button"
+            onClick={downloadFilledPdf}
+            disabled={isDownloadingPdf}
+            className="rounded-md border border-sage px-4 py-2 text-sm font-semibold text-sage-deep hover:bg-sage-muted disabled:opacity-60"
+          >
+            {isDownloadingPdf ? "Preparing..." : "Download Filled PDF"}
+          </button>
+          <button
             type="submit"
             disabled={pending}
             className="rounded-md bg-sage px-5 py-2 text-sm font-semibold text-white hover:bg-sage-dark disabled:opacity-60"
@@ -263,6 +311,12 @@ export default function BenevolenceForm() {
         >
           {state.message}
           {state.requestId ? <span className="ml-2 font-normal">ID: {state.requestId}</span> : null}
+        </div>
+      ) : null}
+
+      {downloadError ? (
+        <div className="mb-5 rounded-md bg-rose-muted px-4 py-3 text-sm font-semibold text-rose-dark print:hidden">
+          {downloadError}
         </div>
       ) : null}
 
