@@ -61,6 +61,50 @@ type HouseholdMetric = {
   demo: boolean;
 };
 
+type SeasonalityMetric = {
+  monthNumber: number;
+  monthName: string;
+  requests: number;
+  requested: number;
+  provided: number;
+  topNeeds: NamedMetric[];
+};
+
+const reportSelect = `
+  id,
+  person_id,
+  request_made_date,
+  amount_requested,
+  amount_provided,
+  requested_needs,
+  provided_needs,
+  decision_status,
+  urgency_level,
+  follow_up_status,
+  referral_source,
+  assistance_outcome,
+  household_size,
+  monthly_income,
+  monthly_expenses,
+  is_member,
+  wants_study,
+  previous_assistance,
+  other_assistance,
+  budget_training,
+  comments,
+  is_demo_data,
+  created_at,
+  benevolence_people (
+    full_name,
+    current_address,
+    cell_phone,
+    home_phone,
+    email_address,
+    family_members_in_home,
+    is_demo_data
+  )
+`;
+
 function first(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
@@ -191,6 +235,52 @@ function monthlyTrend(rows: RequestRow[]) {
   return [...months.values()].sort((a, b) => a.month.localeCompare(b.month));
 }
 
+function seasonalDemand(rows: RequestRow[]) {
+  const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "long" });
+  const months = Array.from({ length: 12 }, (_, index): SeasonalityMetric => ({
+    monthNumber: index + 1,
+    monthName: monthFormatter.format(new Date(2026, index, 1)),
+    requests: 0,
+    requested: 0,
+    provided: 0,
+    topNeeds: [],
+  }));
+  const needMaps = new Map<number, Map<string, NamedMetric>>();
+
+  for (const row of rows) {
+    if (!row.request_made_date) {
+      continue;
+    }
+
+    const monthIndex = Number(row.request_made_date.slice(5, 7)) - 1;
+    const metric = months[monthIndex];
+    if (!metric) {
+      continue;
+    }
+
+    metric.requests += 1;
+    metric.requested += Number(row.amount_requested ?? 0);
+    metric.provided += Number(row.amount_provided ?? 0);
+
+    const monthNeeds = needMaps.get(metric.monthNumber) ?? new Map<string, NamedMetric>();
+    for (const need of row.requested_needs ?? []) {
+      const needMetric = monthNeeds.get(need) ?? { name: need, count: 0, amount: 0 };
+      needMetric.count += 1;
+      needMetric.amount += Number(row.amount_requested ?? 0);
+      monthNeeds.set(need, needMetric);
+    }
+    needMaps.set(metric.monthNumber, monthNeeds);
+  }
+
+  for (const metric of months) {
+    metric.topNeeds = [...(needMaps.get(metric.monthNumber)?.values() ?? [])]
+      .sort((a, b) => b.count - a.count || b.amount - a.amount)
+      .slice(0, 3);
+  }
+
+  return months.sort((a, b) => b.requests - a.requests || b.requested - a.requested);
+}
+
 function avgGap(rows: RequestRow[]) {
   const withGap = rows.filter(
     (row) => row.monthly_income !== null && row.monthly_expenses !== null,
@@ -255,12 +345,14 @@ function Card({
 function ReportPanel({
   title,
   children,
+  className = "",
 }: {
   title: string;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <section className="border border-sage-muted bg-white p-5">
+    <section className={`border border-sage-muted bg-white p-5 ${className}`}>
       <h2 className="text-lg font-bold text-sage-deep">{title}</h2>
       <div className="mt-4">{children}</div>
     </section>
@@ -278,60 +370,37 @@ export default async function BenevolenceReportsPage({
   const includeDemo = first(params.demo) !== "no";
 
   let rows: RequestRow[] = [];
+  let historyRows: RequestRow[] = [];
   let errorMessage = "";
 
   try {
     let query = getSupabaseAdmin()
       .from("benevolence_requests")
-      .select(
-        `
-        id,
-        person_id,
-        request_made_date,
-        amount_requested,
-        amount_provided,
-        requested_needs,
-        provided_needs,
-        decision_status,
-        urgency_level,
-        follow_up_status,
-        referral_source,
-        assistance_outcome,
-        household_size,
-        monthly_income,
-        monthly_expenses,
-        is_member,
-        wants_study,
-        previous_assistance,
-        other_assistance,
-        budget_training,
-        comments,
-        is_demo_data,
-        created_at,
-        benevolence_people (
-          full_name,
-          current_address,
-          cell_phone,
-          home_phone,
-          email_address,
-          family_members_in_home,
-          is_demo_data
-        )
-      `,
-      )
+      .select(reportSelect)
       .gte("request_made_date", start)
       .lte("request_made_date", end)
       .order("request_made_date", { ascending: false });
 
+    let historyQuery = getSupabaseAdmin()
+      .from("benevolence_requests")
+      .select(reportSelect)
+      .not("request_made_date", "is", null);
+
     if (!includeDemo) {
       query = query.eq("is_demo_data", false);
+      historyQuery = historyQuery.eq("is_demo_data", false);
     }
 
-    const { data, error } = await query;
+    const [{ data, error }, { data: historyData, error: historyError }] =
+      await Promise.all([query, historyQuery]);
     if (error) {
       throw error;
     }
+    if (historyError) {
+      throw historyError;
+    }
     rows = (data ?? []) as RequestRow[];
+    historyRows = (historyData ?? []) as RequestRow[];
   } catch (error) {
     errorMessage = errorText(error);
   }
@@ -352,6 +421,9 @@ export default async function BenevolenceReportsPage({
   const maxMonthlyRequests = Math.max(...trend.map((item) => item.requests), 0);
   const maxStatusCount = Math.max(...statusCounts.map((item) => item.count), 0);
   const maxNeedCount = Math.max(...requestedNeeds.map((item) => item.count), 0);
+  const seasonality = seasonalDemand(historyRows);
+  const maxSeasonalRequests = Math.max(...seasonality.map((item) => item.requests), 0);
+  const topDemandMonth = seasonality[0];
   const highPriorityQueue = rows
     .filter(
       (row) =>
@@ -449,6 +521,82 @@ export default async function BenevolenceReportsPage({
         </div>
 
         <div className="mt-6 grid gap-4 xl:grid-cols-[1.25fr_1fr]">
+          <ReportPanel
+            title="Program History: Monthly Demand Seasonality"
+            className="xl:col-span-2"
+          >
+            <div className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-3">
+                <Card
+                  label="Highest Demand Month"
+                  value={topDemandMonth?.monthName ?? "None"}
+                  note={topDemandMonth ? `${topDemandMonth.requests} historical requests` : "No historical data"}
+                />
+                <Card
+                  label="History Analyzed"
+                  value={historyRows.length.toLocaleString()}
+                  note={includeDemo ? "Including demo records" : "Real records only"}
+                />
+                <Card
+                  label="Peak Month Provided"
+                  value={money(topDemandMonth?.provided ?? 0)}
+                  note="Assistance provided in peak month"
+                />
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[760px] text-left text-sm">
+                  <thead className="border-b border-sage-muted text-xs uppercase tracking-wide text-muted">
+                    <tr>
+                      <th className="py-2 pr-4">Rank</th>
+                      <th className="py-2 pr-4">Month</th>
+                      <th className="py-2 pr-4">Demand</th>
+                      <th className="py-2 pr-4">Requested</th>
+                      <th className="py-2 pr-4">Provided</th>
+                      <th className="py-2 pr-4">Most Common Needs</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {seasonality.map((month, index) => (
+                      <tr key={month.monthNumber} className="border-b border-sage-muted/70">
+                        <td className="py-2 pr-4 font-semibold text-muted">{index + 1}</td>
+                        <td className="py-2 pr-4 font-semibold text-charcoal">{month.monthName}</td>
+                        <td className="py-2 pr-4">
+                          <div className="flex items-center gap-3">
+                            <div className="h-2 w-24 rounded-full bg-sage-muted">
+                              <div
+                                className="h-2 rounded-full bg-sage"
+                                style={{
+                                  width: `${maxSeasonalRequests ? Math.max(4, (month.requests / maxSeasonalRequests) * 100) : 0}%`,
+                                }}
+                              />
+                            </div>
+                            <span className="tabular-nums">{month.requests}</span>
+                          </div>
+                        </td>
+                        <td className="py-2 pr-4 tabular-nums">{money(month.requested)}</td>
+                        <td className="py-2 pr-4 tabular-nums">{money(month.provided)}</td>
+                        <td className="py-2 pr-4 text-muted">
+                          {month.topNeeds.length
+                            ? month.topNeeds
+                                .map((need) => `${need.name} (${need.count})`)
+                                .join(", ")
+                            : "No need data"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <p className="text-sm leading-6 text-muted">
+                This report uses all historical requests, not just the selected date range, so it
+                can reveal recurring seasonal pressure points for staffing, budget planning, and
+                proactive outreach.
+              </p>
+            </div>
+          </ReportPanel>
+
           <ReportPanel title="Monthly Assistance Trend">
             <div className="space-y-3">
               {trend.slice(-18).map((item) => (
