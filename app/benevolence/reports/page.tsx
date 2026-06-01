@@ -65,6 +65,23 @@ function first(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
+function errorText(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (
+    error &&
+    typeof error === "object" &&
+    "message" in error &&
+    typeof error.message === "string"
+  ) {
+    return error.message;
+  }
+
+  return "Unable to load benevolence report data.";
+}
+
 function todayIso() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -316,10 +333,7 @@ export default async function BenevolenceReportsPage({
     }
     rows = (data ?? []) as RequestRow[];
   } catch (error) {
-    errorMessage =
-      error instanceof Error
-        ? error.message
-        : "Unable to load benevolence report data.";
+    errorMessage = errorText(error);
   }
 
   const totalRequests = rows.length;

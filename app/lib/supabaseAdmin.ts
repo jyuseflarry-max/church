@@ -1,5 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 
+function normalizeSupabaseUrl(url: string) {
+  return url.replace(/\/rest\/v1\/?$/, "").replace(/\/+$/, "");
+}
+
 export function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
   const key =
@@ -12,7 +16,7 @@ export function getSupabaseAdmin() {
     );
   }
 
-  return createClient(url, key, {
+  return createClient(normalizeSupabaseUrl(url), key, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
