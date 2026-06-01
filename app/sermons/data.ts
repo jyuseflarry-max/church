@@ -88,9 +88,8 @@ function parseItem(itemXml: string): Sermon | null {
       .filter(Boolean)
       .pop() || link;
 
-  let dateIso: string;
   const parsed = new Date(pubDate);
-  dateIso = isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString();
+  const dateIso = isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString();
 
   return {
     id,
