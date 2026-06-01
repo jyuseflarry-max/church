@@ -67,10 +67,18 @@ function filenameFromName(name: string) {
   return `benevolence-${slug || "request"}.pdf`;
 }
 
-function setText(form: ReturnType<PDFDocument["getForm"]>, name: string, value: unknown) {
+function setText(
+  form: ReturnType<PDFDocument["getForm"]>,
+  name: string,
+  value: unknown,
+  fontSize?: number,
+) {
   const field = form.getFieldMaybe(name);
   if (field instanceof PDFTextField) {
     field.setText(clean(value));
+    if (fontSize) {
+      field.setFontSize(fontSize);
+    }
   }
 }
 
@@ -123,7 +131,7 @@ export async function POST(request: Request) {
     setText(form, "Name - Required", payload.applicantName);
     setText(form, "Age", payload.age);
     setText(form, "Family Members in Home", payload.familyMembersInHome);
-    setText(form, "Current Address", payload.currentAddress);
+    setText(form, "Current Address", payload.currentAddress, 10);
     setText(form, "Home Phone", payload.homePhone);
     setText(form, "Work Phone", payload.workPhone);
     setText(form, "Cell Phone", payload.cellPhone);
