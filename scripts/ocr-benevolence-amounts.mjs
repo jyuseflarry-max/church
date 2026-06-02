@@ -15,6 +15,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
 const archiveDir = path.join(rootDir, "public", "archive");
 const importDir = path.join(rootDir, "tmp", "benevolence-import");
+const tesseractCacheDir = path.join(rootDir, "tmp", "tesseract-cache");
 const inputCsv = path.join(importDir, "planned-import.csv");
 const outputCsv = path.join(importDir, "ocr-amount-candidates.csv");
 const args = new Set(process.argv.slice(2));
@@ -91,7 +92,8 @@ function parseMoney(value) {
   return Number.isFinite(amount) ? amount.toFixed(2) : null;
 }
 
-function extractAmount(text, labelPattern) {
+function extractAmount(text, labelPattern, options = {}) {
+  const { requireUppercaseLabel = false } = options;
   const normalized = text
     .replace(/\r/g, "\n")
     .replace(/[|_[\](){}]/g, " ")
@@ -105,6 +107,9 @@ function extractAmount(text, labelPattern) {
   const moneyPattern = String.raw`(?:\$|S|§)?\s*(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d{2})?`;
 
   for (const line of lines) {
+    if (requireUppercaseLabel && !/\b(?:PROVIDED|AMOUNT\s*PROVIDED)\b/.test(line)) {
+      continue;
+    }
     if (/\brequest\s*(?:approved|made|completed|response|call)\b/i.test(line)) {
       continue;
     }
@@ -117,6 +122,10 @@ function extractAmount(text, labelPattern) {
         confidence: autoApplySafeAmount(amount) ? "high" : "review",
       };
     }
+  }
+
+  if (requireUppercaseLabel && !/\b(?:PROVIDED|AMOUNT\s*PROVIDED)\b/.test(normalized)) {
+    return { amount: null, snippet: "", confidence: "" };
   }
 
   const match = normalized.match(new RegExp(`${labelPattern}.{0,45}?(${moneyPattern})`, "i"));
@@ -189,30 +198,58 @@ async function applyCandidates(candidates) {
   });
   let updated = 0;
 
-  for (const candidate of candidates.filter((row) => row.amountRequested && row.confidence === "high")) {
+  for (const candidate of candidates) {
+    const requestedConfidence = candidate.requestedConfidence || candidate.confidence;
+    const providedConfidence = candidate.providedConfidence;
+    const hasRequestedUpdate = candidate.amountRequested && requestedConfidence === "high";
+    const hasProvidedUpdate = candidate.amountProvided && providedConfidence === "high";
+    if (!hasRequestedUpdate && !hasProvidedUpdate) continue;
+
     const { data: existing, error: existingError } = await supabase
       .from("benevolence_requests")
-      .select("id, raw_form_data")
+      .select("id, amount_requested, amount_provided, raw_form_data")
       .filter("raw_form_data->archiveImport->>sourceKey", "eq", candidate.sourceKey)
       .maybeSingle();
     if (existingError) throw existingError;
     if (!existing) continue;
 
+    const updateFields = {};
+    if (hasRequestedUpdate && existing.amount_requested === null) {
+      updateFields.amount_requested = candidate.amountRequested;
+    }
+    if (hasProvidedUpdate && existing.amount_provided === null) {
+      updateFields.amount_provided = candidate.amountProvided;
+    }
+    if (!Object.keys(updateFields).length) continue;
+
     const rawFormData = existing.raw_form_data ?? {};
     const archiveImport = rawFormData.archiveImport ?? {};
+    const ocrAmountExtraction = archiveImport.ocrAmountExtraction ?? {};
     const { error } = await supabase
       .from("benevolence_requests")
       .update({
-        amount_requested: candidate.amountRequested,
+        ...updateFields,
         raw_form_data: {
           ...rawFormData,
           archiveImport: {
             ...archiveImport,
             ocrAmountExtraction: {
-              amountRequested: candidate.amountRequested,
-              requestedSnippet: candidate.requestedSnippet,
+              ...ocrAmountExtraction,
+              ...(updateFields.amount_requested
+                ? {
+                    amountRequested: candidate.amountRequested,
+                    requestedSnippet: candidate.requestedSnippet,
+                    requestedConfidence,
+                  }
+                : {}),
+              ...(updateFields.amount_provided
+                ? {
+                    amountProvided: candidate.amountProvided,
+                    providedSnippet: candidate.providedSnippet,
+                    providedConfidence,
+                  }
+                : {}),
               document: candidate.document,
-              confidence: candidate.confidence,
               appliedAt: new Date().toISOString(),
             },
           },
@@ -234,9 +271,10 @@ if (applyExisting) {
 }
 
 const rows = parseCsv(await readFile(inputCsv, "utf8"))
-  .filter((row) => !row.amountRequested)
+  .filter((row) => !row.amountRequested || !row.amountProvided)
   .slice(0, limit && Number.isFinite(limit) ? limit : undefined);
-const worker = await createWorker("eng");
+await mkdir(tesseractCacheDir, { recursive: true });
+const worker = await createWorker("eng", 1, { cachePath: tesseractCacheDir });
 const candidates = [];
 let scanned = 0;
 
@@ -257,17 +295,21 @@ for (const [index, row] of rows.entries()) {
         text,
         String.raw`(?:REQUESTED'?S?|REQUEST\s*FOR|TOTAL\s+REQUESTED|REQUEST\s+REIMBURSEMENT\s+FOR)`,
       );
-      const provided = extractAmount(text, String.raw`(?:PROVIDED|AMOUNT\s*PROVIDED)`);
+      const provided = extractAmount(text, String.raw`(?:PROVIDED|AMOUNT\s*PROVIDED)`, {
+        requireUppercaseLabel: true,
+      });
       scanned += 1;
 
-      if (requested.amount) {
+      if (requested.amount || provided.amount) {
         best = {
           personName: row.personName,
           requestDate: row.requestDate,
           sourceKey: sourceKey(row),
-          amountRequested: requested.amount,
+          amountRequested: requested.amount ?? "",
           amountProvided: provided.amount ?? "",
-          confidence: requested.confidence,
+          confidence: requested.confidence || provided.confidence,
+          requestedConfidence: requested.confidence,
+          providedConfidence: provided.confidence,
           requestedSnippet: requested.snippet,
           providedSnippet: provided.snippet,
           document,
@@ -294,16 +336,19 @@ await writeCsv(outputCsv, candidates, [
   "amountRequested",
   "amountProvided",
   "confidence",
+  "requestedConfidence",
+  "providedConfidence",
   "requestedSnippet",
   "providedSnippet",
   "document",
   "documents",
 ]);
 
-console.log(`Rows missing requested amount: ${rows.length}`);
+console.log(`Rows missing requested or provided amount: ${rows.length}`);
 console.log(`PDFs OCR scanned: ${scanned}`);
-console.log(`OCR requested amount candidates: ${candidates.length}`);
-console.log(`High-confidence candidates: ${candidates.filter((row) => row.confidence === "high").length}`);
+console.log(`OCR amount candidates: ${candidates.length}`);
+console.log(`High-confidence requested candidates: ${candidates.filter((row) => row.requestedConfidence === "high").length}`);
+console.log(`High-confidence provided candidates: ${candidates.filter((row) => row.providedConfidence === "high").length}`);
 console.log(`Candidate CSV: ${outputCsv}`);
 
 if (apply) {
