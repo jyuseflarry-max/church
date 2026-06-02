@@ -59,9 +59,19 @@ type RequestRow = {
   children: { name?: string; age?: string }[] | null;
   comments: string | null;
   risk_notes: string | null;
+  raw_form_data: ArchiveRawData | null;
   is_demo_data: boolean | null;
   created_at: string;
   benevolence_people: PersonRow | PersonRow[] | null;
+};
+
+type ArchiveRawData = {
+  archiveImport?: {
+    publicPath?: string;
+    publicPaths?: string[];
+    originalPath?: string;
+    originalPaths?: string[];
+  };
 };
 
 function person(row: RequestRow) {
@@ -94,6 +104,19 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
       <div className="mt-1 text-sm text-charcoal">{value || "Not recorded"}</div>
     </div>
   );
+}
+
+function archiveDocuments(row: RequestRow) {
+  const archiveImport = row.raw_form_data?.archiveImport;
+  const publicPaths =
+    archiveImport?.publicPaths ?? (archiveImport?.publicPath ? [archiveImport.publicPath] : []);
+  const originalPaths =
+    archiveImport?.originalPaths ?? (archiveImport?.originalPath ? [archiveImport.originalPath] : []);
+
+  return publicPaths.map((href, index) => ({
+    href,
+    label: originalPaths[index] ?? href,
+  }));
 }
 
 export default async function BenevolenceRequestDetailPage({
@@ -140,6 +163,7 @@ export default async function BenevolenceRequestDetailPage({
       children,
       comments,
       risk_notes,
+      raw_form_data,
       is_demo_data,
       created_at,
       benevolence_people (
@@ -168,6 +192,7 @@ export default async function BenevolenceRequestDetailPage({
 
   const request = data as RequestRow;
   const household = person(request);
+  const documents = archiveDocuments(request);
 
   return (
     <div className="bg-cream">
@@ -270,6 +295,24 @@ export default async function BenevolenceRequestDetailPage({
             </div>
           </section>
         </div>
+
+        {documents.length ? (
+          <section className="mt-4 border border-sage-muted bg-white p-5">
+            <h2 className="text-lg font-bold text-sage-deep">Archive PDFs</h2>
+            <div className="mt-3 grid gap-2">
+              {documents.map((document) => (
+                <Link
+                  key={document.href}
+                  href={document.href}
+                  target="_blank"
+                  className="text-sm font-semibold text-sage-deep hover:text-sage-dark"
+                >
+                  {document.label}
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
       </div>
     </div>
   );

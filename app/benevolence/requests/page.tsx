@@ -39,9 +39,19 @@ type RequestRow = {
   budget_training: string | null;
   wants_study: string | null;
   comments: string | null;
+  raw_form_data: ArchiveRawData | null;
   is_demo_data: boolean | null;
   created_at: string;
   benevolence_people: PersonRow | PersonRow[] | null;
+};
+
+type ArchiveRawData = {
+  archiveImport?: {
+    publicPath?: string;
+    publicPaths?: string[];
+    originalPath?: string;
+    originalPaths?: string[];
+  };
 };
 
 const requestSelect = `
@@ -63,6 +73,7 @@ const requestSelect = `
   budget_training,
   wants_study,
   comments,
+  raw_form_data,
   is_demo_data,
   created_at,
   benevolence_people (
@@ -177,6 +188,11 @@ function buildReportsHref(params: SearchParams) {
   if (end) query.set("end", end);
   if (demo) query.set("demo", demo);
   return `/benevolence/reports${query.toString() ? `?${query}` : ""}`;
+}
+
+function archiveDocumentCount(row: RequestRow) {
+  const archiveImport = row.raw_form_data?.archiveImport;
+  return archiveImport?.publicPaths?.length ?? (archiveImport?.publicPath ? 1 : 0);
 }
 
 export default async function BenevolenceRequestsPage({
@@ -427,6 +443,7 @@ export default async function BenevolenceRequestsPage({
                 <th className="px-4 py-3">Urgency</th>
                 <th className="px-4 py-3">Follow-Up</th>
                 <th className="px-4 py-3">Needs</th>
+                <th className="px-4 py-3">Archive</th>
                 <th className="px-4 py-3 text-right">Requested</th>
                 <th className="px-4 py-3 text-right">Provided</th>
               </tr>
@@ -457,6 +474,18 @@ export default async function BenevolenceRequestsPage({
                     <td className="px-4 py-3">{row.urgency_level ?? "Unspecified"}</td>
                     <td className="px-4 py-3">{row.follow_up_status ?? "Unspecified"}</td>
                     <td className="px-4 py-3">{(row.requested_needs ?? []).join(", ") || "None"}</td>
+                    <td className="px-4 py-3">
+                      {archiveDocumentCount(row) ? (
+                        <Link
+                          href={`/benevolence/requests/${row.id}`}
+                          className="font-semibold text-sage-deep hover:text-sage-dark"
+                        >
+                          {archiveDocumentCount(row)} PDF{archiveDocumentCount(row) === 1 ? "" : "s"}
+                        </Link>
+                      ) : (
+                        "None"
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-right tabular-nums">{money(row.amount_requested)}</td>
                     <td className="px-4 py-3 text-right tabular-nums">{money(row.amount_provided)}</td>
                   </tr>
