@@ -103,8 +103,70 @@ const providedNeedFields = [
   ["PROutility_bill", "Utility Bill"],
 ];
 
-const amountRequestedFields = ["$ Requested", "REQUESTED"];
-const amountProvidedFields = ["$ Provided", "PROVIDED"];
+const amountRequestedFields = ["$ Requested", "REQUESTED", "Request For", "Amount Requested"];
+const amountProvidedFields = ["$ Provided", "PROVIDED", "Amount Provided"];
+
+const fieldAliases = {
+  applicantName: ["Name - Required", "Name"],
+  age: ["Age"],
+  currentAddress: ["Current Address"],
+  addressLine1: ["AddressRow1"],
+  addressLine2: ["AddressRow2"],
+  workPhone: ["Work Phone"],
+  homePhone: ["Home Phone"],
+  cellPhone: ["Cell Phone"],
+  emailAddress: ["Email Address", "Email"],
+  spouseName: ["Spouse's Name", "Spouses Name if applicable", "Spouses Name if applicableRow2"],
+  familyMembersInHome: ["Family Members in Home", "In home"],
+  requestMadeDate: ["Request Made_af_date", "DateRequest Made", "Date Request Made"],
+  requestApprovedDate: ["Request Approved_af_date", "DateRequest Approved", "Date Request Approved", "DateRequest Completed", "Date Request Completed"],
+  responseCallDate: ["Response Call_af_date", "DateResponse Call", "Response Call"],
+  followUpInterviewDate: ["Follow-Up Interview_af_date", "DateFollow up Interview", "Follow Up Interview"],
+  howLong: ["How Long"],
+  memberWhere: ["Member Where", "If Yes A Member Where", "If yes A Member Where"],
+  attendsWhere: ["Attends Where", "If No A Member Where", "No - Where"],
+  previousAssistanceAmount: ["How Much", "How Much if Yes", "Amt_from_PrevAssist", "PrevAmountGiven"],
+  previousAssistancePurpose: ["What Was It For?", "What was it for", "What for"],
+  otherAssistanceAmount: ["How Much #2", "Amt_from_others", "OtherAgencyAmountGiven"],
+  otherAssistancePurpose: ["What Was It For 2?", "What was it for_2"],
+  approvalMadeBy: ["Approval made by", "Approval By"],
+  formCompletedBy: ["Form Completed By", "Filled Out by", "Request Form Filled Out By", "Request Completed and Follow Up Interview By"],
+  comments: ["Comments"],
+};
+
+const choiceFields = {
+  gender: [
+    ["Male", ["Male", "Male_chkbx"]],
+    ["Female", ["Female", "Female_chkbx"]],
+  ],
+  familyStatus: [
+    ["Family", ["Family", "Family_chkbx"]],
+  ],
+  isMember: [
+    ["Yes", ["Yes Member", "Member_Yes", "MemberYes", "Yes Mem"]],
+    ["No", ["No Member", "Member_No", "MemberNo", "No Mem"]],
+  ],
+  wantsStudy: [
+    ["Yes", ["Yes Study", "StudyYes", "BibleStudyYes"]],
+    ["No", ["No Study", "StudyNo", "BibleStudyNO"]],
+  ],
+  previousAssistance: [
+    ["Yes", ["Yes Prev Assistance", "PrevAssist_Yes", "PrevAssistYes", "Yes Previous"]],
+    ["No", ["No Previous Assistance", "PrevAssist_No", "PrevAsistNO", "No Previous"]],
+  ],
+  otherAssistance: [
+    ["Yes", ["Yes Other", "Assist_from_other_Yes", "OthrChurchYes"]],
+    ["No", ["No Other", "Assist_from_others_No", "OthrChurchNO"]],
+  ],
+  budgetTraining: [
+    ["Yes", ["Yes Budget", "BudgetYes", "BudgetTrnYes", "Yes budget"]],
+    ["No", ["No Budget", "BudgetNo", "BudgetTrnNO", "No budget"]],
+  ],
+  contactAllowed: [
+    ["Yes", ["Yes Contact", "ContactYes", "BTContactYes", "BudgetContact_Yes"]],
+    ["No", ["No Contact", "ContactNo", "ContactNO", "BTContactNO", "BudgetContact_No"]],
+  ],
+};
 
 function csvEscape(value) {
   const text = value === null || value === undefined ? "" : String(value);
@@ -155,7 +217,7 @@ function skipReason(relativePath) {
 
 function sourceKey(row) {
   const datePart =
-    row.requestDate ??
+    row.sourceDate ??
     row.relative
       .toLowerCase()
       .replace(/\bread\s*only\b/g, "")
@@ -180,12 +242,28 @@ function parseMoney(value) {
   if (value === null || value === undefined) {
     return null;
   }
-  const cleaned = String(value).replace(/[$,\s]/g, "");
-  if (!cleaned || !/^-?\d*(?:\.\d+)?$/.test(cleaned)) {
+
+  const text = String(value).trim();
+  const cleaned = text.replace(/[$,\s]/g, "").replace(/\*+$/g, "");
+  if (cleaned && /^-?\d*(?:\.\d+)?$/.test(cleaned)) {
+    const amount = Number(cleaned);
+    return Number.isFinite(amount) ? amount.toFixed(2) : null;
+  }
+
+  const strongAmounts = [
+    ...text.matchAll(/(?:\$\s*)?\d{1,3}(?:,\d{3})+(?:\.\d+)?|\$\s*\d+(?:\.\d+)?|\d+\.\d{2}/g),
+  ].map((match) => Number(match[0].replace(/[$,\s]/g, "")));
+  const amounts = strongAmounts.filter((amount) => Number.isFinite(amount));
+  if (!amounts.length) {
     return null;
   }
-  const amount = Number(cleaned);
-  return Number.isFinite(amount) ? amount.toFixed(2) : null;
+
+  const plusExpression = text.includes("+") && text.split("+").every((part) => parseMoney(part) !== null);
+  if (plusExpression) {
+    return amounts.reduce((total, amount) => total + amount, 0).toFixed(2);
+  }
+
+  return amounts[0].toFixed(2);
 }
 
 function firstValue(...values) {
@@ -199,6 +277,174 @@ function firstValue(...values) {
 
 function mergeUnique(...arrays) {
   return [...new Set(arrays.flat().filter(Boolean))];
+}
+
+function cleanText(value) {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+function textField(fieldValues, fields) {
+  for (const field of fields) {
+    const value = cleanText(fieldValues.get(field));
+    if (value) {
+      return value;
+    }
+  }
+  return null;
+}
+
+function checkboxChoice(fieldValues, choices) {
+  for (const [value, fields] of choices) {
+    if (fields.some((field) => fieldValues.get(field) === true)) {
+      return value;
+    }
+  }
+  return null;
+}
+
+function parseDateValue(value, fallbackYear = null) {
+  const text = cleanText(value);
+  if (!text) {
+    return null;
+  }
+
+  const numeric = text.match(/\b(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})\b/);
+  if (numeric) {
+    const [, month, day, rawYear] = numeric;
+    const year = rawYear.length === 2 ? `20${rawYear}` : rawYear;
+    return isoDate(year, month, day);
+  }
+
+  const normalized = text.replace(/\./g, "").replace(/,/g, " ").replace(/\s+/g, " ").trim();
+  const monthNumber = (monthName) => {
+    const month = [
+      "jan",
+      "feb",
+      "mar",
+      "apr",
+      "may",
+      "jun",
+      "jul",
+      "aug",
+      "sep",
+      "oct",
+      "nov",
+      "dec",
+    ].findIndex((name) => monthName.toLowerCase().startsWith(name));
+    return month >= 0 ? String(month + 1) : null;
+  };
+  const dayMonthYear = normalized.match(/\b(\d{1,2})[-\s]([A-Za-z]{3,})[-\s](\d{2,4})\b/);
+  if (dayMonthYear) {
+    const [, day, rawMonth, rawYear] = dayMonthYear;
+    const month = monthNumber(rawMonth);
+    const year = rawYear.length === 2 ? `20${rawYear}` : rawYear;
+    return month ? isoDate(year, month, day) : null;
+  }
+
+  const monthDayYear = normalized.match(/\b([A-Za-z]{3,})\s+(\d{1,2})(?:\s+(\d{2,4}))?\b/);
+  if (monthDayYear) {
+    const [, rawMonth, day, rawYear] = monthDayYear;
+    const month = monthNumber(rawMonth);
+    const year = rawYear ? (rawYear.length === 2 ? `20${rawYear}` : rawYear) : fallbackYear;
+    return month && year ? isoDate(year, month, day) : null;
+  }
+
+  const hasYear = /\b(?:19|20)\d{2}\b/.test(normalized);
+  const parseText = !hasYear && fallbackYear ? `${normalized} ${fallbackYear}` : normalized;
+  const parsed = new Date(`${parseText} 00:00:00`);
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+  return isoDate(String(parsed.getFullYear()), String(parsed.getMonth() + 1), String(parsed.getDate()));
+}
+
+function dateField(fieldValues, fields, fallbackYear = null) {
+  for (const field of fields) {
+    const value = parseDateValue(fieldValues.get(field), fallbackYear);
+    if (value) {
+      return value;
+    }
+  }
+  return null;
+}
+
+function addressFromFields(fieldValues) {
+  return firstValue(
+    textField(fieldValues, fieldAliases.currentAddress),
+    [textField(fieldValues, fieldAliases.addressLine1), textField(fieldValues, fieldAliases.addressLine2)]
+      .filter(Boolean)
+      .join(", "),
+  );
+}
+
+function childrenFromFields(fieldValues) {
+  const children = [];
+  for (let index = 1; index <= 6; index += 1) {
+    const child = {
+      name: textField(fieldValues, [`Child ${index}`]),
+      age: textField(fieldValues, [`Age ${index}`]),
+    };
+    if (child.name || child.age) {
+      children.push(child);
+    }
+  }
+
+  for (const suffix of ["a", "b", "c", "d", "e", "f"]) {
+    const child = {
+      name: textField(fieldValues, [`Child Name ${suffix}`]),
+      age: textField(fieldValues, [`Child Age ${suffix}`]),
+    };
+    if (child.name || child.age) {
+      children.push(child);
+    }
+  }
+
+  for (const field of [
+    "Childrens NamesAges",
+    "Childrens NamesAges2",
+    "Childrens NamesAges3",
+    "Childrens NamesAges4",
+    "Childrens NamesAges5",
+    "Childrens NamesAges6",
+    "Childrens NamesAges7",
+  ]) {
+    const value = textField(fieldValues, [field]);
+    if (value) {
+      children.push({ name: value, age: "" });
+    }
+  }
+
+  return children;
+}
+
+function mergeChildren(...childLists) {
+  const seen = new Set();
+  const children = [];
+  for (const child of childLists.flat()) {
+    if (!child || (!child.name && !child.age)) {
+      continue;
+    }
+    const normalized = `${child.name ?? ""}|${child.age ?? ""}`.toLowerCase();
+    if (!seen.has(normalized)) {
+      seen.add(normalized);
+      children.push({ name: child.name ?? "", age: child.age ?? "" });
+    }
+  }
+  return children;
+}
+
+function mergeObjectFirstValue(...objects) {
+  const merged = {};
+  for (const object of objects) {
+    for (const [key, value] of Object.entries(object ?? {})) {
+      if (key === "children") {
+        merged.children = mergeChildren(merged.children ?? [], value ?? []);
+      } else {
+        merged[key] = firstValue(merged[key], value);
+      }
+    }
+  }
+  return merged;
 }
 
 function checkedNeeds(fieldValues, fields) {
@@ -221,7 +467,7 @@ function moneyField(fieldValues, fields) {
   return null;
 }
 
-async function readPdfFormData(filePath) {
+async function readPdfFormData(filePath, fallbackDate = null) {
   try {
     const pdf = await PDFDocument.load(await readFile(filePath), { ignoreEncryption: true });
     const form = pdf.getForm();
@@ -235,18 +481,84 @@ async function readPdfFormData(filePath) {
       }
     }
 
+    const fallbackYear = fallbackDate ? fallbackDate.slice(0, 4) : null;
+
     return {
+      applicantName: textField(values, fieldAliases.applicantName),
+      age: textField(values, fieldAliases.age),
+      gender: checkboxChoice(values, choiceFields.gender),
+      familyStatus: firstValue(checkboxChoice(values, choiceFields.familyStatus), textField(values, ["Other"])),
+      currentAddress: addressFromFields(values),
+      workPhone: textField(values, fieldAliases.workPhone),
+      homePhone: textField(values, fieldAliases.homePhone),
+      cellPhone: textField(values, fieldAliases.cellPhone),
+      emailAddress: textField(values, fieldAliases.emailAddress),
+      spouseName: textField(values, fieldAliases.spouseName),
+      familyMembersInHome: textField(values, fieldAliases.familyMembersInHome),
+      requestMadeDate: dateField(values, fieldAliases.requestMadeDate, fallbackYear),
+      requestApprovedDate: dateField(values, fieldAliases.requestApprovedDate, fallbackYear),
+      responseCallDate: dateField(values, fieldAliases.responseCallDate, fallbackYear),
+      followUpInterviewDate: dateField(values, fieldAliases.followUpInterviewDate, fallbackYear),
       amountRequested: moneyField(values, amountRequestedFields),
       amountProvided: moneyField(values, amountProvidedFields),
       requestedNeeds: checkedNeeds(values, requestedNeedFields),
       providedNeeds: checkedNeeds(values, providedNeedFields),
+      isMember: checkboxChoice(values, choiceFields.isMember),
+      howLong: textField(values, fieldAliases.howLong),
+      memberWhere: textField(values, fieldAliases.memberWhere),
+      attendsWhere: textField(values, fieldAliases.attendsWhere),
+      wantsStudy: checkboxChoice(values, choiceFields.wantsStudy),
+      previousAssistance: checkboxChoice(values, choiceFields.previousAssistance),
+      previousAssistanceAmount: moneyField(values, fieldAliases.previousAssistanceAmount),
+      previousAssistancePurpose: textField(values, fieldAliases.previousAssistancePurpose),
+      otherAssistance: checkboxChoice(values, choiceFields.otherAssistance),
+      otherAssistanceAmount: moneyField(values, fieldAliases.otherAssistanceAmount),
+      otherAssistancePurpose: textField(values, fieldAliases.otherAssistancePurpose),
+      budgetTraining: checkboxChoice(values, choiceFields.budgetTraining),
+      contactAllowed: checkboxChoice(values, choiceFields.contactAllowed),
+      approvalMadeBy: textField(values, fieldAliases.approvalMadeBy),
+      formCompletedBy: textField(values, fieldAliases.formCompletedBy),
+      children: childrenFromFields(values),
+      comments: textField(values, fieldAliases.comments),
     };
   } catch {
     return {
+      applicantName: null,
+      age: null,
+      gender: null,
+      familyStatus: null,
+      currentAddress: null,
+      workPhone: null,
+      homePhone: null,
+      cellPhone: null,
+      emailAddress: null,
+      spouseName: null,
+      familyMembersInHome: null,
+      requestMadeDate: null,
+      requestApprovedDate: null,
+      responseCallDate: null,
+      followUpInterviewDate: null,
       amountRequested: null,
       amountProvided: null,
       requestedNeeds: [],
       providedNeeds: [],
+      isMember: null,
+      howLong: null,
+      memberWhere: null,
+      attendsWhere: null,
+      wantsStudy: null,
+      previousAssistance: null,
+      previousAssistanceAmount: null,
+      previousAssistancePurpose: null,
+      otherAssistance: null,
+      otherAssistanceAmount: null,
+      otherAssistancePurpose: null,
+      budgetTraining: null,
+      contactAllowed: null,
+      approvalMadeBy: null,
+      formCompletedBy: null,
+      children: [],
+      comments: null,
     };
   }
 }
@@ -351,18 +663,57 @@ async function buildPlan() {
     }
 
     const requestDate = parseDateFromName(relative);
-    const formData = await readPdfFormData(filePath);
+    const formData = await readPdfFormData(filePath, requestDate);
     const requestedNeeds = mergeUnique(formData.requestedNeeds, inferNeeds(relative));
     const providedNeeds = formData.providedNeeds;
+    const personData = {
+      fullName: formData.applicantName,
+      age: formData.age,
+      gender: formData.gender,
+      familyStatus: formData.familyStatus,
+      currentAddress: formData.currentAddress,
+      workPhone: formData.workPhone,
+      homePhone: formData.homePhone,
+      cellPhone: formData.cellPhone,
+      emailAddress: formData.emailAddress,
+      spouseName: formData.spouseName,
+      familyMembersInHome: formData.familyMembersInHome,
+    };
+    const requestData = {
+      requestMadeDate: formData.requestMadeDate ?? requestDate,
+      requestApprovedDate: formData.requestApprovedDate,
+      responseCallDate: formData.responseCallDate,
+      followUpInterviewDate: formData.followUpInterviewDate,
+      isMember: formData.isMember,
+      howLong: formData.howLong,
+      memberWhere: formData.memberWhere,
+      attendsWhere: formData.attendsWhere,
+      wantsStudy: formData.wantsStudy,
+      previousAssistance: formData.previousAssistance,
+      previousAssistanceAmount: formData.previousAssistanceAmount,
+      previousAssistancePurpose: formData.previousAssistancePurpose,
+      otherAssistance: formData.otherAssistance,
+      otherAssistanceAmount: formData.otherAssistanceAmount,
+      otherAssistancePurpose: formData.otherAssistancePurpose,
+      budgetTraining: formData.budgetTraining,
+      contactAllowed: formData.contactAllowed,
+      approvalMadeBy: formData.approvalMadeBy,
+      formCompletedBy: formData.formCompletedBy,
+      children: formData.children,
+      comments: formData.comments,
+    };
     const row = {
       personName,
       normalizedName: normalizeName(personName),
-      requestDate,
+      sourceDate: requestDate,
+      requestDate: requestData.requestMadeDate,
       decisionStatus: inferDecisionStatus(relative),
       needs: requestedNeeds,
       providedNeeds,
       amountRequested: formData.amountRequested,
       amountProvided: formData.amountProvided,
+      personData,
+      requestData,
       relative,
       publicPath: publicPath(filePath),
     };
@@ -374,6 +725,9 @@ async function buildPlan() {
       existing.providedNeeds = mergeUnique(existing.providedNeeds, row.providedNeeds);
       existing.amountRequested = firstValue(existing.amountRequested, row.amountRequested);
       existing.amountProvided = firstValue(existing.amountProvided, row.amountProvided);
+      existing.personData = mergeObjectFirstValue(existing.personData, row.personData);
+      existing.requestData = mergeObjectFirstValue(existing.requestData, row.requestData);
+      existing.requestDate = firstValue(existing.requestDate, row.requestDate);
       existing.documents.push({ relative: row.relative, publicPath: row.publicPath });
       if (row.decisionStatus === "declined") {
         existing.decisionStatus = "declined";
@@ -430,19 +784,75 @@ async function removeDemoData(supabase) {
   };
 }
 
+function compactObject(object) {
+  return Object.fromEntries(
+    Object.entries(object).filter(([, value]) => value !== null && value !== undefined && value !== ""),
+  );
+}
+
+function personPayload(person) {
+  return compactObject({
+    normalized_name: person.normalizedName,
+    full_name: person.personData.fullName ?? person.personName,
+    age: person.personData.age,
+    gender: person.personData.gender,
+    family_status: person.personData.familyStatus,
+    current_address: person.personData.currentAddress,
+    work_phone: person.personData.workPhone,
+    home_phone: person.personData.homePhone,
+    cell_phone: person.personData.cellPhone,
+    email_address: person.personData.emailAddress,
+    spouse_name: person.personData.spouseName,
+    family_members_in_home: person.personData.familyMembersInHome,
+    is_demo_data: false,
+    updated_at: new Date().toISOString(),
+  });
+}
+
+function requestPayload(row) {
+  return compactObject({
+    request_made_date: row.requestData.requestMadeDate,
+    request_approved_date: row.requestData.requestApprovedDate,
+    response_call_date: row.requestData.responseCallDate,
+    follow_up_interview_date: row.requestData.followUpInterviewDate,
+    amount_requested: row.amountRequested,
+    amount_provided: row.amountProvided,
+    is_member: row.requestData.isMember,
+    how_long: row.requestData.howLong,
+    member_where: row.requestData.memberWhere,
+    attends_where: row.requestData.attendsWhere,
+    wants_study: row.requestData.wantsStudy,
+    previous_assistance: row.requestData.previousAssistance,
+    previous_assistance_amount: row.requestData.previousAssistanceAmount,
+    previous_assistance_purpose: row.requestData.previousAssistancePurpose,
+    other_assistance: row.requestData.otherAssistance,
+    other_assistance_amount: row.requestData.otherAssistanceAmount,
+    other_assistance_purpose: row.requestData.otherAssistancePurpose,
+    budget_training: row.requestData.budgetTraining,
+    contact_allowed: row.requestData.contactAllowed,
+    approval_made_by: row.requestData.approvalMadeBy,
+    form_completed_by: row.requestData.formCompletedBy,
+    comments: row.requestData.comments,
+  });
+}
+
 async function importRows(supabase, rows) {
-  const people = [...new Map(rows.map((row) => [row.normalizedName, row])).values()];
+  const people = [
+    ...rows
+      .reduce((map, row) => {
+        const existing = map.get(row.normalizedName);
+        if (existing) {
+          existing.personData = mergeObjectFirstValue(existing.personData, row.personData);
+        } else {
+          map.set(row.normalizedName, { ...row });
+        }
+        return map;
+      }, new Map())
+      .values(),
+  ];
   const { data: upsertedPeople, error: peopleError } = await supabase
     .from("benevolence_people")
-    .upsert(
-      people.map((person) => ({
-        normalized_name: person.normalizedName,
-        full_name: person.personName,
-        is_demo_data: false,
-        updated_at: new Date().toISOString(),
-      })),
-      { onConflict: "normalized_name" },
-    )
+    .upsert(people.map(personPayload), { onConflict: "normalized_name" })
     .select("id, normalized_name");
 
   if (peopleError) {
@@ -457,7 +867,7 @@ async function importRows(supabase, rows) {
   for (const row of rows) {
     const { data: existing, error: existingError } = await supabase
       .from("benevolence_requests")
-      .select("id, amount_requested, amount_provided")
+      .select("id, amount_requested, amount_provided, children, raw_form_data")
       .filter("raw_form_data->archiveImport->>sourceKey", "eq", row.sourceKey)
       .maybeSingle();
     if (existingError) {
@@ -466,10 +876,24 @@ async function importRows(supabase, rows) {
     if (existing) {
       duplicates += 1;
       const updates = {
-        amount_requested: row.amountRequested ?? existing.amount_requested,
-        amount_provided: row.amountProvided ?? existing.amount_provided,
+        ...requestPayload(row),
         requested_needs: row.needs,
         provided_needs: row.decisionStatus === "approved" ? mergeUnique(row.providedNeeds, row.needs) : row.providedNeeds,
+        children: row.requestData.children?.length ? row.requestData.children : existing.children,
+        raw_form_data: {
+          ...(existing.raw_form_data ?? {}),
+          archiveImport: {
+            ...(existing.raw_form_data?.archiveImport ?? {}),
+            extractedFormFields: {
+              person: row.personData,
+              request: row.requestData,
+              amountRequested: row.amountRequested,
+              amountProvided: row.amountProvided,
+              requestedNeeds: row.needs,
+              providedNeeds: row.providedNeeds,
+            },
+          },
+        },
       };
       const { error: updateError } = await supabase
         .from("benevolence_requests")
@@ -485,18 +909,25 @@ async function importRows(supabase, rows) {
     const { error: insertError } = await supabase.from("benevolence_requests").insert({
       person_id: peopleByName.get(row.normalizedName),
       entered_by_name: "Archive import",
-      request_made_date: row.requestDate,
-      amount_requested: row.amountRequested,
+      ...requestPayload(row),
       requested_needs: row.needs,
-      amount_provided: row.amountProvided,
       provided_needs: row.decisionStatus === "approved" ? mergeUnique(row.providedNeeds, row.needs) : row.providedNeeds,
-      comments: "Imported from public benevolence PDF archive. Detailed form fields may require manual review.",
+      children: row.requestData.children,
+      comments: row.requestData.comments ?? "Imported from public benevolence PDF archive. Detailed form fields may require manual review.",
       raw_form_data: {
         archiveImport: {
           importedAt: new Date().toISOString(),
           sourceKey: row.sourceKey,
           amountRequested: row.amountRequested,
           amountProvided: row.amountProvided,
+          extractedFormFields: {
+            person: row.personData,
+            request: row.requestData,
+            amountRequested: row.amountRequested,
+            amountProvided: row.amountProvided,
+            requestedNeeds: row.needs,
+            providedNeeds: row.providedNeeds,
+          },
           publicPath: row.publicPath,
           publicPaths: row.documents.map((document) => document.publicPath),
           originalPath: row.relative,
@@ -523,11 +954,25 @@ const importCsv = await writeCsv(
   "planned-import.csv",
   rows.map((row) => ({
       personName: row.personName,
+      sourceKey: row.sourceKey,
       requestDate: row.requestDate ?? "",
       decisionStatus: row.decisionStatus,
       needs: row.needs.join("; "),
       amountRequested: row.amountRequested ?? "",
       amountProvided: row.amountProvided ?? "",
+      applicantName: row.personData.fullName ?? "",
+      currentAddress: row.personData.currentAddress ?? "",
+      cellPhone: row.personData.cellPhone ?? "",
+      emailAddress: row.personData.emailAddress ?? "",
+      requestApprovedDate: row.requestData.requestApprovedDate ?? "",
+      isMember: row.requestData.isMember ?? "",
+      wantsStudy: row.requestData.wantsStudy ?? "",
+      previousAssistance: row.requestData.previousAssistance ?? "",
+      otherAssistance: row.requestData.otherAssistance ?? "",
+      budgetTraining: row.requestData.budgetTraining ?? "",
+      approvalMadeBy: row.requestData.approvalMadeBy ?? "",
+      formCompletedBy: row.requestData.formCompletedBy ?? "",
+      children: (row.requestData.children ?? []).map((child) => [child.name, child.age].filter(Boolean).join(" ")).join("; "),
       publicPath: row.publicPath,
       documentCount: row.documents.length,
       documents: row.documents.map((document) => document.relative).join("; "),
@@ -535,11 +980,25 @@ const importCsv = await writeCsv(
     })),
   [
     "personName",
+    "sourceKey",
     "requestDate",
     "decisionStatus",
     "needs",
     "amountRequested",
     "amountProvided",
+    "applicantName",
+    "currentAddress",
+    "cellPhone",
+    "emailAddress",
+    "requestApprovedDate",
+    "isMember",
+    "wantsStudy",
+    "previousAssistance",
+    "otherAssistance",
+    "budgetTraining",
+    "approvalMadeBy",
+    "formCompletedBy",
+    "children",
     "publicPath",
     "documentCount",
     "documents",

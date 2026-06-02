@@ -58,7 +58,6 @@ type HouseholdMetric = {
   count: number;
   amount: number;
   lastDate: string;
-  demo: boolean;
 };
 
 type SeasonalityMetric = {
@@ -170,13 +169,10 @@ function requestListHref(
   params: {
     start: string;
     end: string;
-    includeDemo: boolean;
   },
   filters: Record<string, string | number | boolean | null | undefined> = {},
 ) {
   const query = new URLSearchParams();
-
-  query.set("demo", params.includeDemo ? "yes" : "no");
 
   if (!filters.seasonMonth) {
     query.set("start", params.start);
@@ -234,7 +230,6 @@ function householdMetrics(rows: RequestRow[]) {
       count: 0,
       amount: 0,
       lastDate: row.request_made_date ?? "",
-      demo: Boolean(row.is_demo_data || household?.is_demo_data),
     };
 
     current.count += 1;
@@ -414,30 +409,26 @@ export default async function BenevolenceReportsPage({
   const params = await searchParams;
   const start = first(params.start) || yearStartIso();
   const end = first(params.end) || todayIso();
-  const includeDemo = first(params.demo) !== "no";
-  const reportFilter = { start, end, includeDemo };
+  const reportFilter = { start, end };
 
   let rows: RequestRow[] = [];
   let historyRows: RequestRow[] = [];
   let errorMessage = "";
 
   try {
-    let query = getSupabaseAdmin()
+    const query = getSupabaseAdmin()
       .from("benevolence_requests")
       .select(reportSelect)
+      .eq("is_demo_data", false)
       .gte("request_made_date", start)
       .lte("request_made_date", end)
       .order("request_made_date", { ascending: false });
 
-    let historyQuery = getSupabaseAdmin()
+    const historyQuery = getSupabaseAdmin()
       .from("benevolence_requests")
       .select(reportSelect)
+      .eq("is_demo_data", false)
       .not("request_made_date", "is", null);
-
-    if (!includeDemo) {
-      query = query.eq("is_demo_data", false);
-      historyQuery = historyQuery.eq("is_demo_data", false);
-    }
 
     const [{ data, error }, { data: historyData, error: historyError }] =
       await Promise.all([query, historyQuery]);
@@ -504,7 +495,7 @@ export default async function BenevolenceReportsPage({
           </Link>
         </div>
 
-        <form className="mt-6 grid gap-3 border border-sage-muted bg-white p-4 md:grid-cols-[1fr_1fr_1fr_auto]">
+        <form className="mt-6 grid gap-3 border border-sage-muted bg-white p-4 md:grid-cols-[1fr_1fr_auto]">
           <label className="text-xs font-semibold uppercase tracking-wide text-charcoal">
             Start Date
             <input
@@ -522,17 +513,6 @@ export default async function BenevolenceReportsPage({
               defaultValue={end}
               className="mt-1 w-full rounded-md border border-sage-muted px-3 py-2 text-sm font-normal"
             />
-          </label>
-          <label className="text-xs font-semibold uppercase tracking-wide text-charcoal">
-            Demo Data
-            <select
-              name="demo"
-              defaultValue={includeDemo ? "yes" : "no"}
-              className="mt-1 w-full rounded-md border border-sage-muted px-3 py-2 text-sm font-normal"
-            >
-              <option value="yes">Include demo data</option>
-              <option value="no">Exclude demo data</option>
-            </select>
           </label>
           <button
             type="submit"
@@ -601,7 +581,7 @@ export default async function BenevolenceReportsPage({
                 <Card
                   label="History Analyzed"
                   value={historyRows.length.toLocaleString()}
-                  note={includeDemo ? "Including demo records" : "Real records only"}
+                  note="Real records only"
                 />
                 <Card
                   label="Peak Month Provided"
@@ -803,7 +783,6 @@ export default async function BenevolenceReportsPage({
                         >
                           {household.name}
                         </Link>
-                        {household.demo ? <span className="ml-2 text-xs text-muted">demo</span> : null}
                       </td>
                       <td className="py-2 pr-4 tabular-nums">{household.count}</td>
                       <td className="py-2 pr-4 tabular-nums">{money(household.amount)}</td>
@@ -906,7 +885,6 @@ export default async function BenevolenceReportsPage({
               <li>Referral source and outreach effectiveness</li>
               <li>Financial pressure and budget-training opportunities</li>
               <li>Member, study interest, and ministry-care signals</li>
-              <li>Demo-data filtered reporting for production review</li>
             </ul>
           </ReportPanel>
         </div>

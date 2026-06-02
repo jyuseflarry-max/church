@@ -171,7 +171,7 @@ function activeFilters(params: SearchParams) {
   const filters: string[] = [];
   for (const [key, rawValue] of Object.entries(params)) {
     const value = first(rawValue);
-    if (!value || ["start", "end", "demo"].includes(key)) {
+    if (!value || ["start", "end"].includes(key)) {
       continue;
     }
     filters.push(`${titleCase(key)}: ${value}`);
@@ -183,10 +183,8 @@ function buildReportsHref(params: SearchParams) {
   const query = new URLSearchParams();
   const start = first(params.start);
   const end = first(params.end);
-  const demo = first(params.demo);
   if (start) query.set("start", start);
   if (end) query.set("end", end);
-  if (demo) query.set("demo", demo);
   return `/benevolence/reports${query.toString() ? `?${query}` : ""}`;
 }
 
@@ -213,7 +211,6 @@ export default async function BenevolenceRequestsPage({
   const moneyFilter = first(params.money);
   const ministry = first(params.ministry);
   const pressure = first(params.pressure);
-  const includeDemo = first(params.demo) !== "no";
   const start = first(params.start) || yearStartIso();
   const end = first(params.end) || todayIso();
   const useDateRange = !seasonMonth;
@@ -225,15 +222,13 @@ export default async function BenevolenceRequestsPage({
     let query = getSupabaseAdmin()
       .from("benevolence_requests")
       .select(requestSelect)
+      .eq("is_demo_data", false)
       .order("request_made_date", { ascending: false });
 
     if (useDateRange) {
       query = query.gte("request_made_date", start).lte("request_made_date", end);
     }
 
-    if (!includeDemo) {
-      query = query.eq("is_demo_data", false);
-    }
     if (status) {
       query = query.eq("decision_status", status);
     }
@@ -337,7 +332,7 @@ export default async function BenevolenceRequestsPage({
           </div>
         </div>
 
-        <form className="mt-6 grid gap-3 border border-sage-muted bg-white p-4 md:grid-cols-[1fr_1fr_1fr_auto]">
+        <form className="mt-6 grid gap-3 border border-sage-muted bg-white p-4 md:grid-cols-[1fr_1fr_auto]">
           <label className="text-xs font-semibold uppercase tracking-wide text-charcoal">
             Start Date
             <input
@@ -357,17 +352,6 @@ export default async function BenevolenceRequestsPage({
               disabled={Boolean(seasonMonth)}
               className="mt-1 w-full rounded-md border border-sage-muted px-3 py-2 text-sm font-normal disabled:bg-sage-muted"
             />
-          </label>
-          <label className="text-xs font-semibold uppercase tracking-wide text-charcoal">
-            Demo Data
-            <select
-              name="demo"
-              defaultValue={includeDemo ? "yes" : "no"}
-              className="mt-1 w-full rounded-md border border-sage-muted px-3 py-2 text-sm font-normal"
-            >
-              <option value="yes">Include demo data</option>
-              <option value="no">Exclude demo data</option>
-            </select>
           </label>
           <button
             type="submit"
