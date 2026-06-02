@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { PDFCheckBox, PDFDocument, PDFTextField } from "pdf-lib";
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -53,6 +54,57 @@ const needRules = [
   ["camp", "Camp"],
   ["plumbing", "Home Repair"],
 ];
+
+const requestedNeedFields = [
+  ["Food", "Food"],
+  ["REQfood", "Food"],
+  ["Rent / Mortgage", "Rent / Mortgage"],
+  ["RentMort", "Rent / Mortgage"],
+  ["REQrent_mortg", "Rent / Mortgage"],
+  ["Hotel", "Hotel"],
+  ["REQhotel", "Hotel"],
+  ["Gas", "Gas"],
+  ["REQgas", "Gas"],
+  ["Auto Repair", "Auto Repair"],
+  ["AutoRepair", "Auto Repair"],
+  ["REQauto_rep", "Auto Repair"],
+  ["Medicine", "Medicine"],
+  ["Meds", "Medicine"],
+  ["REQmeds", "Medicine"],
+  ["Medical Expenses", "Medical Expenses"],
+  ["MedExp", "Medical Expenses"],
+  ["REQmedExp", "Medical Expenses"],
+  ["Auto Payment", "Auto Payment"],
+  ["AutoPymt", "Auto Payment"],
+  ["REQautoPymnt", "Auto Payment"],
+  ["Prayers", "Prayers"],
+  ["REQprayers", "Prayers"],
+  ["Budget Training", "Budget Training"],
+  ["BudgetTraining", "Budget Training"],
+  ["REQbudget_training", "Budget Training"],
+  ["Utility Bill", "Utility Bill"],
+  ["Utility Payment", "Utility Bill"],
+  ["Utility", "Utility Bill"],
+  ["REQutilityBill", "Utility Bill"],
+];
+
+const providedNeedFields = [
+  ...requestedNeedFields.map(([field, need]) => [`${field} 2`, need]),
+  ["PROfood", "Food"],
+  ["PROrent_mort", "Rent / Mortgage"],
+  ["PROhotel", "Hotel"],
+  ["PROgas", "Gas"],
+  ["PROauto_repair", "Auto Repair"],
+  ["PROmeds", "Medicine"],
+  ["PROmedExpenses", "Medical Expenses"],
+  ["PROauto_pymnt", "Auto Payment"],
+  ["PROprayers", "Prayers"],
+  ["PRObudget_training", "Budget Training"],
+  ["PROutility_bill", "Utility Bill"],
+];
+
+const amountRequestedFields = ["$ Requested", "REQUESTED"];
+const amountProvidedFields = ["$ Provided", "PROVIDED"];
 
 function csvEscape(value) {
   const text = value === null || value === undefined ? "" : String(value);
@@ -122,6 +174,81 @@ function inferNeeds(relativePath) {
     }
   }
   return [...needs];
+}
+
+function parseMoney(value) {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  const cleaned = String(value).replace(/[$,\s]/g, "");
+  if (!cleaned || !/^-?\d*(?:\.\d+)?$/.test(cleaned)) {
+    return null;
+  }
+  const amount = Number(cleaned);
+  return Number.isFinite(amount) ? amount.toFixed(2) : null;
+}
+
+function firstValue(...values) {
+  for (const value of values) {
+    if (value !== null && value !== undefined && value !== "") {
+      return value;
+    }
+  }
+  return null;
+}
+
+function mergeUnique(...arrays) {
+  return [...new Set(arrays.flat().filter(Boolean))];
+}
+
+function checkedNeeds(fieldValues, fields) {
+  const needs = [];
+  for (const [fieldName, need] of fields) {
+    if (fieldValues.get(fieldName) === true) {
+      needs.push(need);
+    }
+  }
+  return needs;
+}
+
+function moneyField(fieldValues, fields) {
+  for (const field of fields) {
+    const amount = parseMoney(fieldValues.get(field));
+    if (amount !== null) {
+      return amount;
+    }
+  }
+  return null;
+}
+
+async function readPdfFormData(filePath) {
+  try {
+    const pdf = await PDFDocument.load(await readFile(filePath), { ignoreEncryption: true });
+    const form = pdf.getForm();
+    const values = new Map();
+
+    for (const field of form.getFields()) {
+      if (field instanceof PDFTextField) {
+        values.set(field.getName(), field.getText());
+      } else if (field instanceof PDFCheckBox) {
+        values.set(field.getName(), field.isChecked());
+      }
+    }
+
+    return {
+      amountRequested: moneyField(values, amountRequestedFields),
+      amountProvided: moneyField(values, amountProvidedFields),
+      requestedNeeds: checkedNeeds(values, requestedNeedFields),
+      providedNeeds: checkedNeeds(values, providedNeedFields),
+    };
+  } catch {
+    return {
+      amountRequested: null,
+      amountProvided: null,
+      requestedNeeds: [],
+      providedNeeds: [],
+    };
+  }
 }
 
 function inferDecisionStatus(relativePath) {
@@ -224,12 +351,18 @@ async function buildPlan() {
     }
 
     const requestDate = parseDateFromName(relative);
+    const formData = await readPdfFormData(filePath);
+    const requestedNeeds = mergeUnique(formData.requestedNeeds, inferNeeds(relative));
+    const providedNeeds = formData.providedNeeds;
     const row = {
       personName,
       normalizedName: normalizeName(personName),
       requestDate,
       decisionStatus: inferDecisionStatus(relative),
-      needs: inferNeeds(relative),
+      needs: requestedNeeds,
+      providedNeeds,
+      amountRequested: formData.amountRequested,
+      amountProvided: formData.amountProvided,
       relative,
       publicPath: publicPath(filePath),
     };
@@ -237,7 +370,10 @@ async function buildPlan() {
     const existing = rowMap.get(key);
 
     if (existing) {
-      existing.needs = [...new Set([...existing.needs, ...row.needs])];
+      existing.needs = mergeUnique(existing.needs, row.needs);
+      existing.providedNeeds = mergeUnique(existing.providedNeeds, row.providedNeeds);
+      existing.amountRequested = firstValue(existing.amountRequested, row.amountRequested);
+      existing.amountProvided = firstValue(existing.amountProvided, row.amountProvided);
       existing.documents.push({ relative: row.relative, publicPath: row.publicPath });
       if (row.decisionStatus === "declined") {
         existing.decisionStatus = "declined";
@@ -316,11 +452,12 @@ async function importRows(supabase, rows) {
   const peopleByName = new Map(upsertedPeople.map((person) => [person.normalized_name, person.id]));
   let inserted = 0;
   let duplicates = 0;
+  let updated = 0;
 
   for (const row of rows) {
     const { data: existing, error: existingError } = await supabase
       .from("benevolence_requests")
-      .select("id")
+      .select("id, amount_requested, amount_provided")
       .filter("raw_form_data->archiveImport->>sourceKey", "eq", row.sourceKey)
       .maybeSingle();
     if (existingError) {
@@ -328,6 +465,20 @@ async function importRows(supabase, rows) {
     }
     if (existing) {
       duplicates += 1;
+      const updates = {
+        amount_requested: row.amountRequested ?? existing.amount_requested,
+        amount_provided: row.amountProvided ?? existing.amount_provided,
+        requested_needs: row.needs,
+        provided_needs: row.decisionStatus === "approved" ? mergeUnique(row.providedNeeds, row.needs) : row.providedNeeds,
+      };
+      const { error: updateError } = await supabase
+        .from("benevolence_requests")
+        .update(updates)
+        .eq("id", existing.id);
+      if (updateError) {
+        throw updateError;
+      }
+      updated += 1;
       continue;
     }
 
@@ -335,15 +486,17 @@ async function importRows(supabase, rows) {
       person_id: peopleByName.get(row.normalizedName),
       entered_by_name: "Archive import",
       request_made_date: row.requestDate,
-      amount_requested: null,
+      amount_requested: row.amountRequested,
       requested_needs: row.needs,
-      amount_provided: null,
-      provided_needs: row.decisionStatus === "approved" ? row.needs : [],
-      comments: "Imported from public benevolence PDF archive. Amounts and detailed form fields require manual review.",
+      amount_provided: row.amountProvided,
+      provided_needs: row.decisionStatus === "approved" ? mergeUnique(row.providedNeeds, row.needs) : row.providedNeeds,
+      comments: "Imported from public benevolence PDF archive. Detailed form fields may require manual review.",
       raw_form_data: {
         archiveImport: {
           importedAt: new Date().toISOString(),
           sourceKey: row.sourceKey,
+          amountRequested: row.amountRequested,
+          amountProvided: row.amountProvided,
           publicPath: row.publicPath,
           publicPaths: row.documents.map((document) => document.publicPath),
           originalPath: row.relative,
@@ -362,7 +515,7 @@ async function importRows(supabase, rows) {
     inserted += 1;
   }
 
-  return { inserted, duplicates, people: people.length };
+  return { inserted, duplicates, updated, people: people.length };
 }
 
 const { pdfFiles, rows, skipped } = await buildPlan();
@@ -373,12 +526,25 @@ const importCsv = await writeCsv(
       requestDate: row.requestDate ?? "",
       decisionStatus: row.decisionStatus,
       needs: row.needs.join("; "),
+      amountRequested: row.amountRequested ?? "",
+      amountProvided: row.amountProvided ?? "",
       publicPath: row.publicPath,
       documentCount: row.documents.length,
       documents: row.documents.map((document) => document.relative).join("; "),
       relative: row.relative,
     })),
-  ["personName", "requestDate", "decisionStatus", "needs", "publicPath", "documentCount", "documents", "relative"],
+  [
+    "personName",
+    "requestDate",
+    "decisionStatus",
+    "needs",
+    "amountRequested",
+    "amountProvided",
+    "publicPath",
+    "documentCount",
+    "documents",
+    "relative",
+  ],
 );
 const skippedCsv = await writeCsv("skipped-pdfs.csv", skipped, ["relative", "reason"]);
 
@@ -414,4 +580,5 @@ console.log(`Demo requests removed: ${removed.requests}`);
 console.log(`Demo people removed: ${removed.people}`);
 console.log(`People upserted: ${imported.people}`);
 console.log(`Requests inserted: ${imported.inserted}`);
+console.log(`Existing archive rows updated: ${imported.updated}`);
 console.log(`Duplicate archive rows skipped: ${imported.duplicates}`);
