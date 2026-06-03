@@ -52,6 +52,11 @@ type NamedMetric = {
   amount: number;
 };
 
+type CountMetric = {
+  name: string;
+  count: number;
+};
+
 type HouseholdMetric = {
   personId: string;
   name: string;
@@ -143,6 +148,13 @@ function money(value: number) {
 
 function percent(value: number) {
   return `${Math.round(value)}%`;
+}
+
+function shortMoney(value: number) {
+  return new Intl.NumberFormat("en-US", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(value);
 }
 
 function dateLabel(value: string | null) {
@@ -401,6 +413,299 @@ function ReportPanel({
   );
 }
 
+const chartPalette = ["#6B9489", "#C97A7C", "#D7A84F", "#5D7FA3", "#8F6AA8", "#7A8665"];
+
+function TrendChart({
+  data,
+  reportFilter,
+}: {
+  data: { month: string; requests: number; provided: number }[];
+  reportFilter: { start: string; end: string };
+}) {
+  const chartData = data.slice(-12);
+  const maxRequests = Math.max(...chartData.map((item) => item.requests), 0);
+  const maxProvided = Math.max(...chartData.map((item) => item.provided), 0);
+  const width = 720;
+  const height = 260;
+  const pad = { top: 26, right: 28, bottom: 46, left: 46 };
+  const innerWidth = width - pad.left - pad.right;
+  const innerHeight = height - pad.top - pad.bottom;
+  const step = chartData.length > 1 ? innerWidth / (chartData.length - 1) : innerWidth;
+  const barWidth = chartData.length ? Math.max(16, Math.min(36, innerWidth / chartData.length - 12)) : 24;
+  const points = chartData.map((item, index) => {
+    const x = pad.left + (chartData.length > 1 ? index * step : innerWidth / 2);
+    const y =
+      pad.top +
+      innerHeight -
+      (maxProvided ? (item.provided / maxProvided) * innerHeight : 0);
+    return `${x},${y}`;
+  });
+
+  if (!chartData.length) {
+    return <p className="text-sm text-muted">No requests in this date range.</p>;
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        className="min-h-[260px] min-w-[680px] text-sm"
+        role="img"
+        aria-label="Monthly request count and dollars provided"
+      >
+        <line
+          x1={pad.left}
+          y1={pad.top + innerHeight}
+          x2={pad.left + innerWidth}
+          y2={pad.top + innerHeight}
+          stroke="#D9E3DF"
+        />
+        {[0.25, 0.5, 0.75, 1].map((tick) => (
+          <line
+            key={tick}
+            x1={pad.left}
+            y1={pad.top + innerHeight - innerHeight * tick}
+            x2={pad.left + innerWidth}
+            y2={pad.top + innerHeight - innerHeight * tick}
+            stroke="#EEF3F0"
+          />
+        ))}
+        {chartData.map((item, index) => {
+          const x = pad.left + (chartData.length > 1 ? index * step : innerWidth / 2);
+          const barHeight = maxRequests ? (item.requests / maxRequests) * innerHeight : 0;
+          return (
+            <a key={item.month} href={requestListHref(reportFilter, { month: item.month })}>
+              <g className="focus:outline-none">
+                <rect
+                  x={x - barWidth / 2}
+                  y={pad.top + innerHeight - barHeight}
+                  width={barWidth}
+                  height={barHeight}
+                  fill="#6B9489"
+                  opacity="0.82"
+                  rx="4"
+                />
+                <circle
+                  cx={x}
+                  cy={
+                    pad.top +
+                    innerHeight -
+                    (maxProvided ? (item.provided / maxProvided) * innerHeight : 0)
+                  }
+                  r="5"
+                  fill="#C97A7C"
+                />
+                <title>
+                  {item.month}: {item.requests} requests, {money(item.provided)} provided
+                </title>
+                <text
+                  x={x}
+                  y={height - 18}
+                  textAnchor="middle"
+                  className="fill-muted text-[11px]"
+                >
+                  {item.month.slice(5)}
+                </text>
+              </g>
+            </a>
+          );
+        })}
+        {points.length > 1 ? (
+          <polyline points={points.join(" ")} fill="none" stroke="#C97A7C" strokeWidth="3" />
+        ) : null}
+        <text x={pad.left} y="16" className="fill-muted text-[11px]">
+          Bars: requests
+        </text>
+        <text x={pad.left + 130} y="16" className="fill-muted text-[11px]">
+          Line: dollars provided
+        </text>
+        <text x="8" y={pad.top + 6} className="fill-muted text-[11px]">
+          {maxRequests}
+        </text>
+        <text x={width - 72} y={pad.top + 6} className="fill-muted text-[11px]">
+          {shortMoney(maxProvided)}
+        </text>
+      </svg>
+    </div>
+  );
+}
+
+function FundingBars({
+  requested,
+  provided,
+}: {
+  requested: number;
+  provided: number;
+}) {
+  const gap = Math.max(0, requested - provided);
+  const max = Math.max(requested, provided, gap, 1);
+  const items = [
+    { label: "Requested", value: requested, color: "bg-sage" },
+    { label: "Provided", value: provided, color: "bg-rose" },
+    { label: "Gap", value: gap, color: "bg-[#D7A84F]" },
+  ];
+
+  return (
+    <div className="space-y-4">
+      {items.map((item) => (
+        <div key={item.label}>
+          <div className="flex items-center justify-between text-sm">
+            <span className="font-semibold text-charcoal">{item.label}</span>
+            <span className="tabular-nums text-muted">{money(item.value)}</span>
+          </div>
+          <div className="mt-2 h-4 rounded-full bg-sage-muted">
+            <div
+              className={`h-4 rounded-full ${item.color}`}
+              style={{ width: `${Math.max(3, (item.value / max) * 100)}%` }}
+            />
+          </div>
+        </div>
+      ))}
+      <div className="border-t border-sage-muted pt-3 text-sm text-muted">
+        {requested ? percent((provided / requested) * 100) : "0%"} of requested assistance has been
+        provided in the selected range.
+      </div>
+    </div>
+  );
+}
+
+function DonutChart({
+  data,
+  reportFilter,
+  filterKey,
+  title,
+}: {
+  data: CountMetric[];
+  reportFilter: { start: string; end: string };
+  filterKey: "status" | "urgency";
+  title: string;
+}) {
+  const total = data.reduce((sum, item) => sum + item.count, 0);
+  const radius = 48;
+  const circumference = 2 * Math.PI * radius;
+  const segments = data.reduce<
+    Array<CountMetric & { color: string; dashLength: number; dashOffset: number; percentValue: number }>
+  >((items, item, index) => {
+    const previousOffset = items.reduce((sum, segment) => sum + segment.dashLength, 0);
+    const percentValue = total ? item.count / total : 0;
+    return [
+      ...items,
+      {
+        ...item,
+        color: chartPalette[index % chartPalette.length],
+        dashLength: percentValue * circumference,
+        dashOffset: previousOffset,
+        percentValue,
+      },
+    ];
+  }, []);
+
+  if (!total) {
+    return <p className="text-sm text-muted">No {title.toLowerCase()} data in this date range.</p>;
+  }
+
+  return (
+    <div className="grid gap-4 md:grid-cols-[150px_1fr] md:items-center">
+      <svg viewBox="0 0 130 130" className="h-36 w-36" role="img" aria-label={title}>
+        <circle cx="65" cy="65" r={radius} fill="none" stroke="#E5EFEB" strokeWidth="18" />
+        {segments.map((item) => (
+            <a
+              key={item.name}
+              href={requestListHref(reportFilter, { [filterKey]: item.name })}
+            >
+              <circle
+                cx="65"
+                cy="65"
+                r={radius}
+                fill="none"
+                stroke={item.color}
+                strokeWidth="18"
+                strokeDasharray={`${item.dashLength} ${circumference - item.dashLength}`}
+                strokeDashoffset={-item.dashOffset}
+                transform="rotate(-90 65 65)"
+              >
+                <title>
+                  {item.name}: {item.count} ({percent(item.percentValue * 100)})
+                </title>
+              </circle>
+            </a>
+        ))}
+        <text x="65" y="60" textAnchor="middle" className="fill-sage-deep text-[22px] font-bold">
+          {total}
+        </text>
+        <text x="65" y="78" textAnchor="middle" className="fill-muted text-[10px] uppercase">
+          total
+        </text>
+      </svg>
+      <div className="space-y-2">
+        {segments.map((item) => (
+          <Link
+            key={item.name}
+            href={requestListHref(reportFilter, { [filterKey]: item.name })}
+            className="flex items-center justify-between gap-3 text-sm hover:text-sage-deep"
+          >
+            <span className="flex min-w-0 items-center gap-2">
+              <span
+                className="h-3 w-3 shrink-0 rounded-full"
+                style={{ backgroundColor: item.color }}
+              />
+              <span className="truncate">{item.name}</span>
+            </span>
+            <span className="shrink-0 tabular-nums text-muted">
+              {item.count} / {percent(item.percentValue * 100)}
+            </span>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function NeedTreemap({
+  data,
+  reportFilter,
+}: {
+  data: NamedMetric[];
+  reportFilter: { start: string; end: string };
+}) {
+  const topNeeds = data.slice(0, 6);
+  const total = topNeeds.reduce((sum, item) => sum + item.count, 0);
+
+  if (!topNeeds.length) {
+    return <p className="text-sm text-muted">No need data in this date range.</p>;
+  }
+
+  return (
+    <div className="grid min-h-52 grid-cols-2 gap-2 md:grid-cols-3">
+      {topNeeds.map((item, index) => {
+        const share = total ? item.count / total : 0;
+        const sizeClass =
+          index === 0
+            ? "md:col-span-2 md:row-span-2"
+            : index === 1
+              ? "md:row-span-2"
+              : "";
+        return (
+          <Link
+            key={item.name}
+            href={requestListHref(reportFilter, { need: item.name })}
+            className={`flex min-h-24 flex-col justify-between rounded-md p-3 text-white shadow-sm hover:brightness-95 ${sizeClass}`}
+            style={{ backgroundColor: chartPalette[index % chartPalette.length] }}
+          >
+            <span className="text-sm font-semibold leading-tight">{item.name}</span>
+            <span>
+              <span className="block text-2xl font-bold">{item.count}</span>
+              <span className="text-xs uppercase tracking-wide text-white/85">
+                {percent(share * 100)} of top needs
+              </span>
+            </span>
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
 export default async function BenevolenceReportsPage({
   searchParams,
 }: {
@@ -559,6 +864,42 @@ export default async function BenevolenceReportsPage({
             note="Needs a decision or follow-up"
             href={requestListHref(reportFilter, { status: "pending" })}
           />
+        </div>
+
+        <div className="mt-6 grid gap-4 xl:grid-cols-[1.4fr_1fr]">
+          <ReportPanel title="Visual Snapshot: Requests And Dollars">
+            <TrendChart data={trend} reportFilter={reportFilter} />
+          </ReportPanel>
+
+          <div className="grid gap-4">
+            <ReportPanel title="Funding Picture">
+              <FundingBars requested={totalRequested} provided={totalProvided} />
+            </ReportPanel>
+
+            <ReportPanel title="Status Mix">
+              <DonutChart
+                data={statusCounts}
+                reportFilter={reportFilter}
+                filterKey="status"
+                title="Decision status mix"
+              />
+            </ReportPanel>
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_1fr]">
+          <ReportPanel title="Urgency Mix">
+            <DonutChart
+              data={urgencyCounts}
+              reportFilter={reportFilter}
+              filterKey="urgency"
+              title="Urgency mix"
+            />
+          </ReportPanel>
+
+          <ReportPanel title="Top Requested Needs">
+            <NeedTreemap data={requestedNeeds} reportFilter={reportFilter} />
+          </ReportPanel>
         </div>
 
         <div className="mt-6 grid gap-4 xl:grid-cols-[1.25fr_1fr]">
