@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/app/lib/supabaseAdmin";
 
 type ActionState = {
@@ -48,6 +49,61 @@ type BenevolencePayload = {
   comments?: string;
 };
 
+type EditState = {
+  status: "idle" | "success" | "error";
+  message: string;
+};
+
+type EditableField = {
+  table: "benevolence_people" | "benevolence_requests";
+  kind: "text" | "number" | "money" | "date" | "textarea" | "list";
+};
+
+const editableFields: Record<string, EditableField> = {
+  "benevolence_people.full_name": { table: "benevolence_people", kind: "text" },
+  "benevolence_people.age": { table: "benevolence_people", kind: "text" },
+  "benevolence_people.gender": { table: "benevolence_people", kind: "text" },
+  "benevolence_people.family_status": { table: "benevolence_people", kind: "text" },
+  "benevolence_people.current_address": { table: "benevolence_people", kind: "text" },
+  "benevolence_people.work_phone": { table: "benevolence_people", kind: "text" },
+  "benevolence_people.home_phone": { table: "benevolence_people", kind: "text" },
+  "benevolence_people.cell_phone": { table: "benevolence_people", kind: "text" },
+  "benevolence_people.email_address": { table: "benevolence_people", kind: "text" },
+  "benevolence_people.spouse_name": { table: "benevolence_people", kind: "text" },
+  "benevolence_people.family_members_in_home": { table: "benevolence_people", kind: "textarea" },
+  "benevolence_requests.entered_by_name": { table: "benevolence_requests", kind: "text" },
+  "benevolence_requests.request_made_date": { table: "benevolence_requests", kind: "date" },
+  "benevolence_requests.request_approved_date": { table: "benevolence_requests", kind: "date" },
+  "benevolence_requests.response_call_date": { table: "benevolence_requests", kind: "date" },
+  "benevolence_requests.follow_up_interview_date": { table: "benevolence_requests", kind: "date" },
+  "benevolence_requests.amount_requested": { table: "benevolence_requests", kind: "money" },
+  "benevolence_requests.amount_provided": { table: "benevolence_requests", kind: "money" },
+  "benevolence_requests.requested_needs": { table: "benevolence_requests", kind: "list" },
+  "benevolence_requests.provided_needs": { table: "benevolence_requests", kind: "list" },
+  "benevolence_requests.decision_status": { table: "benevolence_requests", kind: "text" },
+  "benevolence_requests.urgency_level": { table: "benevolence_requests", kind: "text" },
+  "benevolence_requests.follow_up_status": { table: "benevolence_requests", kind: "text" },
+  "benevolence_requests.referral_source": { table: "benevolence_requests", kind: "text" },
+  "benevolence_requests.assistance_outcome": { table: "benevolence_requests", kind: "text" },
+  "benevolence_requests.household_size": { table: "benevolence_requests", kind: "number" },
+  "benevolence_requests.monthly_income": { table: "benevolence_requests", kind: "money" },
+  "benevolence_requests.monthly_expenses": { table: "benevolence_requests", kind: "money" },
+  "benevolence_requests.is_member": { table: "benevolence_requests", kind: "text" },
+  "benevolence_requests.wants_study": { table: "benevolence_requests", kind: "text" },
+  "benevolence_requests.previous_assistance": { table: "benevolence_requests", kind: "text" },
+  "benevolence_requests.previous_assistance_amount": { table: "benevolence_requests", kind: "money" },
+  "benevolence_requests.previous_assistance_purpose": { table: "benevolence_requests", kind: "textarea" },
+  "benevolence_requests.other_assistance": { table: "benevolence_requests", kind: "text" },
+  "benevolence_requests.other_assistance_amount": { table: "benevolence_requests", kind: "money" },
+  "benevolence_requests.other_assistance_purpose": { table: "benevolence_requests", kind: "textarea" },
+  "benevolence_requests.budget_training": { table: "benevolence_requests", kind: "text" },
+  "benevolence_requests.contact_allowed": { table: "benevolence_requests", kind: "text" },
+  "benevolence_requests.approval_made_by": { table: "benevolence_requests", kind: "text" },
+  "benevolence_requests.form_completed_by": { table: "benevolence_requests", kind: "text" },
+  "benevolence_requests.comments": { table: "benevolence_requests", kind: "textarea" },
+  "benevolence_requests.risk_notes": { table: "benevolence_requests", kind: "textarea" },
+};
+
 function clean(value: unknown) {
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
@@ -63,6 +119,31 @@ function money(value: unknown) {
 
 function normalizeName(name: string) {
   return name.trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+function editableValue(value: FormDataEntryValue | null, kind: EditableField["kind"]) {
+  const raw = typeof value === "string" ? value.trim() : "";
+
+  if (!raw) {
+    return null;
+  }
+
+  if (kind === "money" || kind === "number") {
+    const parsed = Number(raw.replace(/[$,]/g, ""));
+    if (!Number.isFinite(parsed)) {
+      throw new Error("Enter a valid number.");
+    }
+    return kind === "number" ? Math.trunc(parsed) : parsed;
+  }
+
+  if (kind === "list") {
+    return raw
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return raw;
 }
 
 export async function saveBenevolenceRequest(
@@ -162,6 +243,53 @@ export async function saveBenevolenceRequest(
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to save the form.";
+    return { status: "error", message };
+  }
+}
+
+export async function updateBenevolenceField(
+  _previousState: EditState,
+  formData: FormData,
+): Promise<EditState> {
+  try {
+    const table = formData.get("table");
+    const field = formData.get("field");
+    const id = formData.get("id");
+    const returnPath = formData.get("returnPath");
+
+    if (typeof table !== "string" || typeof field !== "string" || typeof id !== "string") {
+      return { status: "error", message: "This field could not be saved." };
+    }
+
+    const editable = editableFields[`${table}.${field}`];
+    if (!editable || editable.table !== table) {
+      return { status: "error", message: "This field is not editable." };
+    }
+
+    const value = editableValue(formData.get("value"), editable.kind);
+    const update: Record<string, unknown> = { [field]: value };
+
+    if (table === "benevolence_people") {
+      update.updated_at = new Date().toISOString();
+      if (field === "full_name" && typeof value === "string") {
+        update.normalized_name = normalizeName(value);
+      }
+    }
+
+    const { error } = await getSupabaseAdmin().from(table).update(update).eq("id", id);
+    if (error) {
+      throw error;
+    }
+
+    revalidatePath("/benevolence/reports");
+    revalidatePath("/benevolence/requests");
+    if (typeof returnPath === "string" && returnPath.startsWith("/benevolence/")) {
+      revalidatePath(returnPath);
+    }
+
+    return { status: "success", message: "Saved." };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unable to save this field.";
     return { status: "error", message };
   }
 }

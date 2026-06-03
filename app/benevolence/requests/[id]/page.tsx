@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSupabaseAdmin } from "@/app/lib/supabaseAdmin";
+import EditableBenevolenceField from "../../EditableBenevolenceField";
 
 export const metadata: Metadata = {
   title: "Benevolence Request Detail",
@@ -97,11 +98,42 @@ function money(value: number | null | undefined) {
   }).format(Number(value ?? 0));
 }
 
-function Field({ label, value }: { label: string; value: React.ReactNode }) {
+type EditableConfig = {
+  table: "benevolence_people" | "benevolence_requests";
+  field: string;
+  id: string;
+  rawValue: string | number | string[] | null | undefined;
+  inputType?: "text" | "number" | "date" | "money" | "textarea" | "list" | "select";
+  options?: { label: string; value: string }[];
+};
+
+function Field({
+  label,
+  value,
+  edit,
+}: {
+  label: string;
+  value: React.ReactNode;
+  edit?: EditableConfig;
+}) {
   return (
     <div className="border-b border-sage-muted py-3">
       <div className="text-xs font-semibold uppercase tracking-wide text-muted">{label}</div>
-      <div className="mt-1 text-sm text-charcoal">{value || "Not recorded"}</div>
+      <div className="mt-1 text-sm text-charcoal">
+        {edit ? (
+          <EditableBenevolenceField
+            table={edit.table}
+            field={edit.field}
+            id={edit.id}
+            value={edit.rawValue}
+            displayValue={value}
+            inputType={edit.inputType}
+            options={edit.options}
+          />
+        ) : (
+          value || "Not recorded"
+        )}
+      </div>
     </div>
   );
 }
@@ -118,6 +150,31 @@ function archiveDocuments(row: RequestRow) {
     label: originalPaths[index] ?? href,
   }));
 }
+
+const yesNoOptions = [
+  { label: "Yes", value: "Yes" },
+  { label: "No", value: "No" },
+];
+
+const statusOptions = [
+  { label: "Pending", value: "pending" },
+  { label: "Approved", value: "approved" },
+  { label: "Denied", value: "denied" },
+];
+
+const urgencyOptions = [
+  { label: "Critical", value: "critical" },
+  { label: "High", value: "high" },
+  { label: "Medium", value: "medium" },
+  { label: "Low", value: "low" },
+];
+
+const followUpOptions = [
+  { label: "Needed", value: "needed" },
+  { label: "In Progress", value: "in_progress" },
+  { label: "Completed", value: "completed" },
+  { label: "Not Needed", value: "not_needed" },
+];
 
 export default async function BenevolenceRequestDetailPage({
   params,
@@ -228,19 +285,55 @@ export default async function BenevolenceRequestDetailPage({
         <div className="mt-6 grid gap-4 md:grid-cols-4">
           <div className="border border-sage-muted bg-white p-4">
             <div className="text-xs font-semibold uppercase tracking-wide text-muted">Requested</div>
-            <div className="mt-2 text-2xl font-bold text-sage-deep">{money(request.amount_requested)}</div>
+            <div className="mt-2 text-2xl font-bold text-sage-deep">
+              <EditableBenevolenceField
+                table="benevolence_requests"
+                field="amount_requested"
+                id={request.id}
+                value={request.amount_requested}
+                displayValue={money(request.amount_requested)}
+                inputType="money"
+              />
+            </div>
           </div>
           <div className="border border-sage-muted bg-white p-4">
             <div className="text-xs font-semibold uppercase tracking-wide text-muted">Provided</div>
-            <div className="mt-2 text-2xl font-bold text-sage-deep">{money(request.amount_provided)}</div>
+            <div className="mt-2 text-2xl font-bold text-sage-deep">
+              <EditableBenevolenceField
+                table="benevolence_requests"
+                field="amount_provided"
+                id={request.id}
+                value={request.amount_provided}
+                displayValue={money(request.amount_provided)}
+                inputType="money"
+              />
+            </div>
           </div>
           <div className="border border-sage-muted bg-white p-4">
             <div className="text-xs font-semibold uppercase tracking-wide text-muted">Follow-Up</div>
-            <div className="mt-2 text-2xl font-bold text-sage-deep">{request.follow_up_status ?? "None"}</div>
+            <div className="mt-2 text-2xl font-bold text-sage-deep">
+              <EditableBenevolenceField
+                table="benevolence_requests"
+                field="follow_up_status"
+                id={request.id}
+                value={request.follow_up_status}
+                emptyLabel="None"
+                inputType="select"
+                options={followUpOptions}
+              />
+            </div>
           </div>
           <div className="border border-sage-muted bg-white p-4">
             <div className="text-xs font-semibold uppercase tracking-wide text-muted">Outcome</div>
-            <div className="mt-2 text-2xl font-bold text-sage-deep">{request.assistance_outcome ?? "Open"}</div>
+            <div className="mt-2 text-2xl font-bold text-sage-deep">
+              <EditableBenevolenceField
+                table="benevolence_requests"
+                field="assistance_outcome"
+                id={request.id}
+                value={request.assistance_outcome}
+                emptyLabel="Open"
+              />
+            </div>
           </div>
         </div>
 
@@ -248,22 +341,155 @@ export default async function BenevolenceRequestDetailPage({
           <section className="border border-sage-muted bg-white p-5">
             <h2 className="text-lg font-bold text-sage-deep">Household</h2>
             <div className="mt-3">
-              <Field label="Address" value={household?.current_address} />
-              <Field label="Phone" value={household?.cell_phone || household?.home_phone || household?.work_phone} />
-              <Field label="Email" value={household?.email_address} />
-              <Field label="Family Members" value={household?.family_members_in_home} />
-              <Field label="Spouse" value={household?.spouse_name} />
+              {household ? (
+                <>
+                  <Field
+                    label="Name"
+                    value={household.full_name}
+                    edit={{
+                      table: "benevolence_people",
+                      field: "full_name",
+                      id: household.id,
+                      rawValue: household.full_name,
+                    }}
+                  />
+                  <Field
+                    label="Address"
+                    value={household.current_address}
+                    edit={{
+                      table: "benevolence_people",
+                      field: "current_address",
+                      id: household.id,
+                      rawValue: household.current_address,
+                    }}
+                  />
+                  <Field
+                    label="Cell Phone"
+                    value={household.cell_phone}
+                    edit={{
+                      table: "benevolence_people",
+                      field: "cell_phone",
+                      id: household.id,
+                      rawValue: household.cell_phone,
+                    }}
+                  />
+                  <Field
+                    label="Home Phone"
+                    value={household.home_phone}
+                    edit={{
+                      table: "benevolence_people",
+                      field: "home_phone",
+                      id: household.id,
+                      rawValue: household.home_phone,
+                    }}
+                  />
+                  <Field
+                    label="Email"
+                    value={household.email_address}
+                    edit={{
+                      table: "benevolence_people",
+                      field: "email_address",
+                      id: household.id,
+                      rawValue: household.email_address,
+                    }}
+                  />
+                  <Field
+                    label="Family Members"
+                    value={household.family_members_in_home}
+                    edit={{
+                      table: "benevolence_people",
+                      field: "family_members_in_home",
+                      id: household.id,
+                      rawValue: household.family_members_in_home,
+                      inputType: "textarea",
+                    }}
+                  />
+                  <Field
+                    label="Spouse"
+                    value={household.spouse_name}
+                    edit={{
+                      table: "benevolence_people",
+                      field: "spouse_name",
+                      id: household.id,
+                      rawValue: household.spouse_name,
+                    }}
+                  />
+                </>
+              ) : (
+                <Field label="Household" value="Not recorded" />
+              )}
             </div>
           </section>
 
           <section className="border border-sage-muted bg-white p-5">
             <h2 className="text-lg font-bold text-sage-deep">Decision</h2>
             <div className="mt-3">
-              <Field label="Status" value={request.decision_status} />
-              <Field label="Urgency" value={request.urgency_level} />
-              <Field label="Referral Source" value={request.referral_source} />
-              <Field label="Approved Date" value={dateLabel(request.request_approved_date)} />
-              <Field label="Approved By" value={request.approval_made_by} />
+              <Field
+                label="Status"
+                value={request.decision_status}
+                edit={{
+                  table: "benevolence_requests",
+                  field: "decision_status",
+                  id: request.id,
+                  rawValue: request.decision_status,
+                  inputType: "select",
+                  options: statusOptions,
+                }}
+              />
+              <Field
+                label="Urgency"
+                value={request.urgency_level}
+                edit={{
+                  table: "benevolence_requests",
+                  field: "urgency_level",
+                  id: request.id,
+                  rawValue: request.urgency_level,
+                  inputType: "select",
+                  options: urgencyOptions,
+                }}
+              />
+              <Field
+                label="Referral Source"
+                value={request.referral_source}
+                edit={{
+                  table: "benevolence_requests",
+                  field: "referral_source",
+                  id: request.id,
+                  rawValue: request.referral_source,
+                }}
+              />
+              <Field
+                label="Request Date"
+                value={dateLabel(request.request_made_date)}
+                edit={{
+                  table: "benevolence_requests",
+                  field: "request_made_date",
+                  id: request.id,
+                  rawValue: request.request_made_date,
+                  inputType: "date",
+                }}
+              />
+              <Field
+                label="Approved Date"
+                value={dateLabel(request.request_approved_date)}
+                edit={{
+                  table: "benevolence_requests",
+                  field: "request_approved_date",
+                  id: request.id,
+                  rawValue: request.request_approved_date,
+                  inputType: "date",
+                }}
+              />
+              <Field
+                label="Approved By"
+                value={request.approval_made_by}
+                edit={{
+                  table: "benevolence_requests",
+                  field: "approval_made_by",
+                  id: request.id,
+                  rawValue: request.approval_made_by,
+                }}
+              />
             </div>
           </section>
         </div>
@@ -272,12 +498,98 @@ export default async function BenevolenceRequestDetailPage({
           <section className="border border-sage-muted bg-white p-5">
             <h2 className="text-lg font-bold text-sage-deep">Needs And Assistance</h2>
             <div className="mt-3">
-              <Field label="Requested Needs" value={(request.requested_needs ?? []).join(", ")} />
-              <Field label="Provided Needs" value={(request.provided_needs ?? []).join(", ")} />
-              <Field label="Previous Assistance" value={request.previous_assistance} />
-              <Field label="Other Assistance" value={request.other_assistance} />
-              <Field label="Budget Training" value={request.budget_training} />
-              <Field label="Bible Study" value={request.wants_study} />
+              <Field
+                label="Requested Needs"
+                value={(request.requested_needs ?? []).join(", ")}
+                edit={{
+                  table: "benevolence_requests",
+                  field: "requested_needs",
+                  id: request.id,
+                  rawValue: request.requested_needs ?? [],
+                  inputType: "list",
+                }}
+              />
+              <Field
+                label="Provided Needs"
+                value={(request.provided_needs ?? []).join(", ")}
+                edit={{
+                  table: "benevolence_requests",
+                  field: "provided_needs",
+                  id: request.id,
+                  rawValue: request.provided_needs ?? [],
+                  inputType: "list",
+                }}
+              />
+              <Field
+                label="Previous Assistance"
+                value={request.previous_assistance}
+                edit={{
+                  table: "benevolence_requests",
+                  field: "previous_assistance",
+                  id: request.id,
+                  rawValue: request.previous_assistance,
+                  inputType: "select",
+                  options: yesNoOptions,
+                }}
+              />
+              <Field
+                label="Previous Assistance Amount"
+                value={money(request.previous_assistance_amount)}
+                edit={{
+                  table: "benevolence_requests",
+                  field: "previous_assistance_amount",
+                  id: request.id,
+                  rawValue: request.previous_assistance_amount,
+                  inputType: "money",
+                }}
+              />
+              <Field
+                label="Other Assistance"
+                value={request.other_assistance}
+                edit={{
+                  table: "benevolence_requests",
+                  field: "other_assistance",
+                  id: request.id,
+                  rawValue: request.other_assistance,
+                  inputType: "select",
+                  options: yesNoOptions,
+                }}
+              />
+              <Field
+                label="Other Assistance Amount"
+                value={money(request.other_assistance_amount)}
+                edit={{
+                  table: "benevolence_requests",
+                  field: "other_assistance_amount",
+                  id: request.id,
+                  rawValue: request.other_assistance_amount,
+                  inputType: "money",
+                }}
+              />
+              <Field
+                label="Budget Training"
+                value={request.budget_training}
+                edit={{
+                  table: "benevolence_requests",
+                  field: "budget_training",
+                  id: request.id,
+                  rawValue: request.budget_training,
+                  inputType: "select",
+                  options: yesNoOptions,
+                }}
+              />
+              <Field
+                label="Bible Study"
+                value={request.wants_study}
+                edit={{
+                  table: "benevolence_requests",
+                  field: "wants_study",
+                  id: request.id,
+                  rawValue: request.wants_study,
+                  inputType: "select",
+                  options: yesNoOptions,
+                }}
+              />
             </div>
           </section>
 
@@ -286,11 +598,29 @@ export default async function BenevolenceRequestDetailPage({
             <div className="mt-3 space-y-4 text-sm text-charcoal">
               <div>
                 <div className="text-xs font-semibold uppercase tracking-wide text-muted">Comments</div>
-                <p className="mt-1 whitespace-pre-wrap">{request.comments || "No comments recorded."}</p>
+                <div className="mt-1 whitespace-pre-wrap">
+                  <EditableBenevolenceField
+                    table="benevolence_requests"
+                    field="comments"
+                    id={request.id}
+                    value={request.comments}
+                    displayValue={request.comments || "No comments recorded."}
+                    inputType="textarea"
+                  />
+                </div>
               </div>
               <div>
                 <div className="text-xs font-semibold uppercase tracking-wide text-muted">Risk Notes</div>
-                <p className="mt-1 whitespace-pre-wrap">{request.risk_notes || "No risk notes recorded."}</p>
+                <div className="mt-1 whitespace-pre-wrap">
+                  <EditableBenevolenceField
+                    table="benevolence_requests"
+                    field="risk_notes"
+                    id={request.id}
+                    value={request.risk_notes}
+                    displayValue={request.risk_notes || "No risk notes recorded."}
+                    inputType="textarea"
+                  />
+                </div>
               </div>
             </div>
           </section>

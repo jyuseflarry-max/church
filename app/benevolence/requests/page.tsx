@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSupabaseAdmin } from "@/app/lib/supabaseAdmin";
+import EditableBenevolenceField from "../EditableBenevolenceField";
 
 export const metadata: Metadata = {
   title: "Benevolence Requests",
@@ -192,6 +193,26 @@ function archiveDocumentCount(row: RequestRow) {
   const archiveImport = row.raw_form_data?.archiveImport;
   return archiveImport?.publicPaths?.length ?? (archiveImport?.publicPath ? 1 : 0);
 }
+
+const statusOptions = [
+  { label: "Pending", value: "pending" },
+  { label: "Approved", value: "approved" },
+  { label: "Denied", value: "denied" },
+];
+
+const urgencyOptions = [
+  { label: "Critical", value: "critical" },
+  { label: "High", value: "high" },
+  { label: "Medium", value: "medium" },
+  { label: "Low", value: "low" },
+];
+
+const followUpOptions = [
+  { label: "Needed", value: "needed" },
+  { label: "In Progress", value: "in_progress" },
+  { label: "Completed", value: "completed" },
+  { label: "Not Needed", value: "not_needed" },
+];
 
 export default async function BenevolenceRequestsPage({
   searchParams,
@@ -446,18 +467,57 @@ export default async function BenevolenceRequestsPage({
                         {household?.full_name ?? "Unknown household"}
                       </Link>
                       <div className="text-xs text-muted">{household?.current_address}</div>
-                    </td>
-                    <td className="px-4 py-3">
                       <Link
                         href={`/benevolence/requests/${row.id}`}
-                        className="rounded-full bg-sage-muted px-2 py-1 text-xs font-semibold text-sage-deep hover:bg-sage-light"
+                        className="mt-1 inline-block text-xs font-semibold text-sage-deep hover:text-sage-dark"
                       >
-                        {row.decision_status ?? "pending"}
+                        Open request
                       </Link>
                     </td>
-                    <td className="px-4 py-3">{row.urgency_level ?? "Unspecified"}</td>
-                    <td className="px-4 py-3">{row.follow_up_status ?? "Unspecified"}</td>
-                    <td className="px-4 py-3">{(row.requested_needs ?? []).join(", ") || "None"}</td>
+                    <td className="px-4 py-3">
+                      <EditableBenevolenceField
+                        table="benevolence_requests"
+                        field="decision_status"
+                        id={row.id}
+                        value={row.decision_status ?? "pending"}
+                        inputType="select"
+                        options={statusOptions}
+                        buttonClassName="rounded-full bg-sage-muted px-2 py-1 text-xs font-semibold text-sage-deep hover:bg-sage-light"
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <EditableBenevolenceField
+                        table="benevolence_requests"
+                        field="urgency_level"
+                        id={row.id}
+                        value={row.urgency_level}
+                        emptyLabel="Unspecified"
+                        inputType="select"
+                        options={urgencyOptions}
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <EditableBenevolenceField
+                        table="benevolence_requests"
+                        field="follow_up_status"
+                        id={row.id}
+                        value={row.follow_up_status}
+                        emptyLabel="Unspecified"
+                        inputType="select"
+                        options={followUpOptions}
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <EditableBenevolenceField
+                        table="benevolence_requests"
+                        field="requested_needs"
+                        id={row.id}
+                        value={row.requested_needs ?? []}
+                        displayValue={(row.requested_needs ?? []).join(", ")}
+                        emptyLabel="None"
+                        inputType="list"
+                      />
+                    </td>
                     <td className="px-4 py-3">
                       {archiveDocumentCount(row) ? (
                         <Link
@@ -470,8 +530,28 @@ export default async function BenevolenceRequestsPage({
                         "None"
                       )}
                     </td>
-                    <td className="px-4 py-3 text-right tabular-nums">{money(row.amount_requested)}</td>
-                    <td className="px-4 py-3 text-right tabular-nums">{money(row.amount_provided)}</td>
+                    <td className="px-4 py-3 text-right tabular-nums">
+                      <EditableBenevolenceField
+                        table="benevolence_requests"
+                        field="amount_requested"
+                        id={row.id}
+                        value={row.amount_requested}
+                        displayValue={money(row.amount_requested)}
+                        inputType="money"
+                        align="right"
+                      />
+                    </td>
+                    <td className="px-4 py-3 text-right tabular-nums">
+                      <EditableBenevolenceField
+                        table="benevolence_requests"
+                        field="amount_provided"
+                        id={row.id}
+                        value={row.amount_provided}
+                        displayValue={money(row.amount_provided)}
+                        inputType="money"
+                        align="right"
+                      />
+                    </td>
                   </tr>
                 );
               })}
