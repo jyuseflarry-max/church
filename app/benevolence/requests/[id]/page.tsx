@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSupabaseAdmin } from "@/app/lib/supabaseAdmin";
 import EditableBenevolenceField from "../../EditableBenevolenceField";
+import PrintButton from "../../PrintButton";
 
 export const metadata: Metadata = {
   title: "Benevolence Request Detail",
@@ -252,7 +253,7 @@ export default async function BenevolenceRequestDetailPage({
   const documents = archiveDocuments(request);
 
   return (
-    <div className="bg-cream">
+    <div className="benevolence-detail bg-cream">
       <div className="mx-auto max-w-6xl px-4 py-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -266,7 +267,8 @@ export default async function BenevolenceRequestDetailPage({
               {dateLabel(request.request_made_date)} · {request.decision_status ?? "pending"} · {request.urgency_level ?? "no urgency"}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 print:hidden">
+            <PrintButton />
             <Link
               href="/benevolence/requests"
               className="rounded-md border border-sage px-4 py-2 text-sm font-semibold text-sage-deep hover:bg-sage-muted"

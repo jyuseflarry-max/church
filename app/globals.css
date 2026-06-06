@@ -94,4 +94,25 @@ h1, h2, h3 {
   .benevolence-form textarea {
     min-height: 0.45in;
   }
+
+  .benevolence-detail {
+    background: white;
+    font-size: 9pt;
+    line-height: 1.2;
+  }
+
+  .benevolence-detail section,
+  .benevolence-detail .grid > div {
+    page-break-inside: avoid;
+  }
+
+  .benevolence-detail button {
+    min-height: 0 !important;
+    border: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    color: black !important;
+    text-align: inherit !important;
+    box-shadow: none !important;
+  }
 }

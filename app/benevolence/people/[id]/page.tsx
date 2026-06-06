@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSupabaseAdmin } from "@/app/lib/supabaseAdmin";
+import PrintButton from "../../PrintButton";
 
 export const metadata: Metadata = {
   title: "Benevolence Household History",
@@ -95,7 +96,7 @@ export default async function BenevolencePersonPage({
   const lastRequest = rows[0];
 
   return (
-    <div className="bg-cream">
+    <div className="benevolence-detail bg-cream">
       <div className="mx-auto max-w-6xl px-4 py-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -109,7 +110,8 @@ export default async function BenevolencePersonPage({
               {household.current_address || "No address recorded"}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 print:hidden">
+            <PrintButton />
             <Link
               href={`/benevolence/requests?person=${household.id}`}
               className="rounded-md border border-sage px-4 py-2 text-sm font-semibold text-sage-deep hover:bg-sage-muted"

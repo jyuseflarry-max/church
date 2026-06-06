@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSupabaseAdmin } from "@/app/lib/supabaseAdmin";
+import PrintButton from "../PrintButton";
 
 export const metadata: Metadata = {
   title: "Benevolence Reports",
@@ -779,7 +780,7 @@ export default async function BenevolenceReportsPage({
     .slice(0, 12);
 
   return (
-    <div className="bg-cream">
+    <div className="benevolence-detail bg-cream">
       <div className="mx-auto max-w-7xl px-4 py-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -792,15 +793,18 @@ export default async function BenevolenceReportsPage({
               urgency, follow-up, referrals, and ministry opportunities.
             </p>
           </div>
-          <Link
-            href="/benevolence"
-            className="rounded-md border border-sage px-4 py-2 text-sm font-semibold text-sage-deep hover:bg-sage-muted"
-          >
-            New Request
-          </Link>
+          <div className="flex flex-wrap gap-2 print:hidden">
+            <PrintButton />
+            <Link
+              href="/benevolence"
+              className="rounded-md border border-sage px-4 py-2 text-sm font-semibold text-sage-deep hover:bg-sage-muted"
+            >
+              New Request
+            </Link>
+          </div>
         </div>
 
-        <form className="mt-6 grid gap-3 border border-sage-muted bg-white p-4 md:grid-cols-[1fr_1fr_auto]">
+        <form className="mt-6 grid gap-3 border border-sage-muted bg-white p-4 print:hidden md:grid-cols-[1fr_1fr_auto]">
           <label className="text-xs font-semibold uppercase tracking-wide text-charcoal">
             Start Date
             <input
