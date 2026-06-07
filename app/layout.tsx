@@ -61,7 +61,7 @@ const navLinks = [
   { href: "/plan-a-visit", label: "Plan Your Visit" },
   { href: "/ministries/kids", label: "Kids" },
   { href: "/ministries/youth", label: "Youth" },
-  { href: "/sermons", label: "Sermons" },
+  { href: "/sermons", label: "Teaching" },
   { href: "/about", label: "About" },
   { href: "/connect", label: "Connect" },
 ];
