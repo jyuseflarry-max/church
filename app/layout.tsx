@@ -59,6 +59,7 @@ export const metadata: Metadata = {
 
 const navLinks = [
   { href: "/plan-a-visit", label: "Plan Your Visit" },
+  { href: "/live", label: "Live" },
   { href: "/ministries/kids", label: "Kids" },
   { href: "/ministries/youth", label: "Youth" },
   { href: "/sermons", label: "Teaching" },

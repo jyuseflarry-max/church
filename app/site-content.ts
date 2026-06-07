@@ -6,7 +6,7 @@ export const church = {
   email: "office@fulshearcoc.org",
   mapsUrl:
     "https://www.google.com/maps/search/?api=1&query=9241+Charger+Way+Fulshear+TX+77441",
-  livestreamUrl: "/sermons",
+  livestreamUrl: "/live",
   memberUrl: "https://www.fulshearcoc.org/members/login",
 };
 

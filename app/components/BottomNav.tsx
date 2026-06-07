@@ -24,8 +24,8 @@ const navItems = [
     ),
   },
   {
-    href: "/sermons",
-    label: "Watch",
+    href: "/live",
+    label: "Live",
     icon: (
       <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden="true">
         <path d="M8 5.75v12.5L18.5 12 8 5.75Z" />

@@ -44,7 +44,7 @@ function Hero() {
               <ArrowIcon />
             </Link>
             <Link
-              href="/sermons"
+              href={church.livestreamUrl}
               className="inline-flex items-center justify-center gap-2 rounded-full border border-line bg-white px-6 py-3.5 text-base font-bold text-sage-deep transition-colors hover:border-sage-light hover:bg-sage-muted focus-ring"
             >
               Watch Online

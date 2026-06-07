@@ -90,7 +90,7 @@ function Hero() {
               <ArrowIcon />
             </a>
             <Link
-              href="/sermons"
+              href={church.livestreamUrl}
               className="inline-flex items-center justify-center rounded-full border border-white/20 px-6 py-3.5 text-base font-bold text-white hover:bg-white/10 focus-ring"
             >
               Watch First
