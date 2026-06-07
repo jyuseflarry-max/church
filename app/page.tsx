@@ -27,7 +27,7 @@ function Hero() {
       <div className="container-wide grid min-h-[calc(100vh-4rem)] items-center gap-10 py-12 md:grid-cols-[0.95fr_1.05fr] md:py-16">
         <div className="relative z-10 max-w-2xl">
           <h1 className="text-4xl font-bold leading-[1.03] text-sage-deep sm:text-5xl md:text-7xl md:leading-[0.98]">
-            A church family in the Fulshear-Katy area learning to follow Jesus together.
+            A church family in the Fulshear area learning to follow Jesus together.
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-8 text-charcoal/78">
             Simple worship. Bible-centered teaching. Real community. You are
