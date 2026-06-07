@@ -1,177 +1,77 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { church, distinctives, images } from "../site-content";
 
 export const metadata: Metadata = {
   title: "About Us",
   description:
-    "Fulshear Church of Christ — a place to belong, a path to follow, a people to love. Meet our elders, ministers, deacons, and the heritage that shapes who we are.",
+    "Learn about Fulshear Church of Christ: a simple, sincere church family shaped by Scripture, weekly communion, a cappella worship, and local community.",
 };
 
-/* ─── Hero ──────────────────────────────────────────────────────────────────── */
-function PageHero() {
-  return (
-    <section className="relative overflow-hidden bg-sage-deep py-20 md:py-28">
-      <div
-        aria-hidden="true"
-        className="absolute inset-0"
-        style={{
-          background:
-            "linear-gradient(135deg, #2F5247 0%, #4D7770 50%, #C97A7C 100%)",
-        }}
-      />
-      <div
-        aria-hidden="true"
-        className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse at 70% 50%, rgba(228,168,170,0.32) 0%, transparent 60%)",
-        }}
-      />
-      <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
-        <p className="text-rose-light text-sm font-semibold tracking-widest uppercase mb-4">
-          Who We Are
-        </p>
-        <h1 className="font-serif text-white text-4xl md:text-6xl font-bold mb-6 leading-tight">
-          About Us
-        </h1>
-        <p className="font-serif text-white text-2xl md:text-3xl italic leading-relaxed max-w-2xl mx-auto">
-          A place to belong. A path to follow. A people to love.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-/* ─── Mission ───────────────────────────────────────────────────────────────── */
-function Mission() {
-  return (
-    <section className="bg-rose-muted py-16 md:py-20">
-      <div className="max-w-3xl mx-auto px-6 text-center">
-        <p className="text-rose-dark text-sm font-semibold tracking-widest uppercase mb-3">
-          Our Mission
-        </p>
-        <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold mb-6 leading-snug">
-          Where We&apos;re Going
-        </h2>
-        <p className="text-charcoal text-lg md:text-xl leading-relaxed">
-          To see the Fulshear community transformed by the love of Jesus —
-          becoming a place where faith is rooted in Scripture, families are
-          strengthened by fellowship, and hope is shared with the world.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-/* ─── Our Story ─────────────────────────────────────────────────────────────── */
-function OurStory() {
-  return (
-    <section className="bg-white py-16 md:py-20">
-      <div className="max-w-3xl mx-auto px-6">
-        <div className="text-center mb-10">
-          <p className="text-rose text-sm font-semibold tracking-widest uppercase mb-2">
-            Our Story
-          </p>
-          <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold">
-            How We Got Here
-          </h2>
-        </div>
-        <div className="space-y-5 text-charcoal text-base md:text-lg leading-relaxed">
-          <p>
-            Fulshear Church of Christ began as a small group of families
-            committed to being &ldquo;just Christians&rdquo; — gathering to
-            worship simply, study Scripture together, and serve the people of
-            our growing town.
-          </p>
-          <p>
-            Today we meet at our home on Charger Way, just off the heart of
-            Fulshear. We&apos;re not a denomination and we&apos;re not chasing
-            a trend. We&apos;re a family of believers trying to follow Jesus
-            faithfully — together, in this place, for as long as God gives us
-            to do it.
-          </p>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ─── What's a Church of Christ? ────────────────────────────────────────────── */
-function WhatIsACOC() {
-  return (
-    <section className="bg-cream py-16 md:py-20">
-      <div className="max-w-3xl mx-auto px-6 text-center">
-        <p className="text-rose text-sm font-semibold tracking-widest uppercase mb-2">
-          A Common Question
-        </p>
-        <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold mb-6">
-          What&apos;s a <br className="hidden md:block" />
-          Church of Christ?
-        </h2>
-        <p className="text-charcoal text-lg leading-relaxed">
-          We are a group of Christians who strive to be &ldquo;just
-          Christians.&rdquo; We have no creeds but the Bible, no leader but
-          Christ, and no mission other than to love God and serve our
-          community like the original church did 2,000 years ago.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-/* ─── Our Foundation (moved from home) ──────────────────────────────────────── */
-const beliefs = [
-  {
-    text: "We believe in the authority of Scripture as the inspired Word of God — our ultimate guide for faith and practice.",
-    reference: "2 Timothy 3:16–17",
-  },
-  {
-    text: "We confess that Jesus Christ is the Son of God, Lord, and Savior of all who place their trust in him.",
-    reference: "Romans 10:9",
-  },
-  {
-    text: "We practice baptism by immersion as a response of faith to the grace of God for the forgiveness of sins.",
-    reference: "Acts 2:38",
-  },
-  {
-    text: "We gather every Sunday to remember Jesus in the Lord's Supper, breaking bread together as one body.",
-    reference: "Acts 20:7",
-  },
-  {
-    text: "We are united in Christ alone — no creed but the Bible, no name but the name above all names.",
-    reference: "Colossians 3:17",
-  },
+const leaders = [
+  { name: "Mike Pawlik", role: "Elder", photo: "/leaders/mike-pawlik.jpg" },
+  { name: "Mark Pierce", role: "Elder", photo: "/leaders/mark-pierce.jpg" },
+  { name: "Keith Williams", role: "Elder", photo: "/leaders/keith-williams.jpg" },
+  { name: "Paul Cartwright", role: "Preaching Minister", photo: "/leaders/paul-cartwright.jpeg" },
+  { name: "Danny DiPetta", role: "Youth Minister", photo: "/leaders/danny-dipetta.jpg" },
 ];
 
-function OurFoundation() {
+function Hero() {
   return (
-    <section className="bg-sage-deep text-white py-16 md:py-24">
-      <div className="max-w-4xl mx-auto px-6">
-        <div className="text-center mb-14">
-          <p className="text-rose-light text-sm font-semibold tracking-widest uppercase mb-3">
-            What We Believe
+    <section className="section-pad bg-warm-white">
+      <div className="container-wide grid gap-12 md:grid-cols-[0.95fr_1.05fr] md:items-center">
+        <div>
+          <h1 className="text-4xl font-bold leading-tight text-sage-deep sm:text-5xl md:text-7xl">
+            We are trying to be the kind of church we read about in Scripture.
+          </h1>
+          <p className="mt-6 max-w-xl text-lg leading-8 text-charcoal/76">
+            Devoted to Jesus. Shaped by the Bible. Gathered around communion.
+            Singing together, praying together, and caring for one another.
           </p>
-          <h2 className="font-serif text-4xl md:text-5xl font-bold mb-4">
-            Our Foundation
+          <Link
+            href="/plan-a-visit"
+            className="mt-8 inline-flex rounded-full bg-sage-deep px-6 py-3.5 font-bold text-white hover:bg-sage-dark focus-ring"
+          >
+            Plan Your Visit
+          </Link>
+        </div>
+        <div className="relative aspect-[4/3] overflow-hidden rounded-[1.75rem] bg-sage-muted soft-shadow">
+          <Image
+            src={images.study}
+            alt="Adults studying Scripture and praying together"
+            fill
+            priority
+            sizes="(min-width: 768px) 50vw, 100vw"
+            className="object-cover"
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Identity() {
+  return (
+    <section className="section-pad bg-white">
+      <div className="container-wide grid gap-10 md:grid-cols-[0.75fr_1.25fr]">
+        <div>
+          <h2 className="text-4xl font-bold leading-tight text-sage-deep md:text-5xl">
+            What is a Church of Christ?
           </h2>
-          <p className="text-white/60 text-lg max-w-xl mx-auto">
-            Not a denomination — a family of believers anchored in the Word of
-            God and united in the name of Christ.
+          <p className="mt-4 text-lg leading-8 text-charcoal/76">
+            Churches of Christ are independent congregations seeking to follow
+            the pattern and spirit of the New Testament church. We are not
+            trying to build a religious brand. We are trying to follow Jesus
+            together.
           </p>
         </div>
-
-        <div className="divide-y divide-white/10">
-          {beliefs.map((belief) => (
-            <div
-              key={belief.reference}
-              className="py-6 flex flex-col sm:flex-row sm:items-start gap-4"
-            >
-              <div className="shrink-0 sm:w-36 text-rose-light font-serif text-sm font-semibold italic">
-                {belief.reference}
-              </div>
-              <p className="text-white/85 leading-relaxed">{belief.text}</p>
-            </div>
+        <div className="grid gap-5 sm:grid-cols-2">
+          {distinctives.map((item) => (
+            <article key={item.title} className="rounded-2xl border border-line bg-cream p-6">
+              <h3 className="text-2xl font-bold text-sage-deep">{item.title}</h3>
+              <p className="mt-3 text-sm leading-6 text-muted">{item.body}</p>
+            </article>
           ))}
         </div>
       </div>
@@ -179,212 +79,99 @@ function OurFoundation() {
   );
 }
 
-/* ─── Leadership ────────────────────────────────────────────────────────────── */
-const elders = [
-  { name: "Mike Pawlik", photo: "/leaders/mike-pawlik.jpg" },
-  { name: "Mark Pierce", photo: "/leaders/mark-pierce.jpg" },
-  { name: "Keith Williams", photo: "/leaders/keith-williams.jpg" },
-];
-
-const ministers = [
-  {
-    name: "Paul Cartwright",
-    role: "Preaching Minister",
-    photo: "/leaders/paul-cartwright.jpeg",
-  },
-  {
-    name: "Danny DiPetta",
-    role: "Youth Minister",
-    photo: "/leaders/danny-dipetta.jpg",
-  },
-];
-
-const deacons = [
-  { name: "Keith Arnold", photo: "/leaders/keith-arnold.jpg" },
-  { name: "Danny DiPetta", photo: "/leaders/danny-dipetta.jpg" },
-  { name: "Tommy Kuykendall", photo: "/leaders/tommy-kuykendall.jpg" },
-  { name: "Jyusef Larry", photo: "/leaders/jyusef-larry.jpg" },
-  { name: "Luke Matthews", photo: "/leaders/luke-matthews.jpg" },
-  { name: "Brock Mayberry", photo: "/leaders/brock-mayberry.jpg" },
-  { name: "Mike Richardson", photo: "/leaders/mike-richardson.jpg" },
-  { name: "Brent Seifert", photo: "/leaders/brent-seifert.jpg" },
-  { name: "Randy Simmons", photo: "/leaders/randy-simmons.jpg" },
-  { name: "Jim Taylor", photo: "/leaders/jim-taylor.png" },
-];
-
-function PersonCard({
-  name,
-  role,
-  photo,
-  size = "md",
-}: {
-  name: string;
-  role?: string;
-  photo: string;
-  size?: "md" | "sm";
-}) {
-  const photoSizeClass = size === "sm" ? "" : "";
+function LocalMission() {
   return (
-    <div className="flex flex-col items-center text-center">
-      <div
-        className={`relative w-full aspect-square rounded-2xl overflow-hidden bg-sage-muted shadow-sm ${photoSizeClass}`}
-      >
-        <Image
-          src={photo}
-          alt={name}
-          fill
-          sizes="(min-width: 1024px) 220px, (min-width: 640px) 30vw, 45vw"
-          className="object-cover"
-        />
-      </div>
-      <div className="mt-4">
-        <div className="font-serif font-bold text-sage-deep text-base md:text-lg">
-          {name}
+    <section className="section-pad bg-cream">
+      <div className="container-wide grid gap-12 md:grid-cols-[1.05fr_0.95fr] md:items-center">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-[1.75rem] bg-sage-muted soft-shadow">
+          <Image
+            src={images.fellowship}
+            alt="People visiting together after worship"
+            fill
+            sizes="(min-width: 768px) 50vw, 100vw"
+            className="object-cover"
+          />
         </div>
-        {role && (
-          <div className="text-muted text-xs md:text-sm mt-0.5 font-medium">
-            {role}
-          </div>
-        )}
+        <div>
+          <h2 className="text-4xl font-bold leading-tight text-sage-deep md:text-5xl">
+            A local church family for a growing community.
+          </h2>
+          <p className="mt-5 text-lg leading-8 text-charcoal/76">
+            Fulshear, Katy, Brookshire, Simonton, Richmond, and west Houston
+            are changing quickly. We want to be a steady place where people can
+            hear Scripture, ask honest questions, raise families in faith, and
+            find a church family that knows their name.
+          </p>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
 
 function Leadership() {
   return (
-    <section className="bg-white py-16 md:py-24">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="text-center mb-14">
-          <p className="text-rose text-sm font-semibold tracking-widest uppercase mb-2">
-            Our Shepherds & Servants
-          </p>
-          <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold">
-            Leadership
+    <section className="section-pad bg-white">
+      <div className="container-wide">
+        <div className="max-w-2xl">
+          <h2 className="text-4xl font-bold text-sage-deep md:text-5xl">
+            Shepherds and ministers you can recognize.
           </h2>
-          <p className="text-muted mt-3 max-w-xl mx-auto">
-            Our elders shepherd the congregation, our ministers teach and walk
-            alongside us, and our deacons serve in the day-to-day life of the
-            church.
+          <p className="mt-4 text-lg leading-8 text-charcoal/76">
+            Trust grows when people have names and faces. These are some of the
+            men who shepherd, teach, and serve alongside the congregation.
           </p>
         </div>
-
-        {/* Elders */}
-        <div className="mb-16">
-          <h3 className="font-serif text-sage-deep text-2xl font-bold text-center mb-8">
-            Elders
-          </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
-            {elders.map((person) => (
-              <PersonCard key={person.name} {...person} />
-            ))}
-          </div>
-        </div>
-
-        {/* Ministers */}
-        <div className="mb-16">
-          <h3 className="font-serif text-sage-deep text-2xl font-bold text-center mb-8">
-            Ministers
-          </h3>
-          <div className="grid grid-cols-2 gap-6 max-w-2xl mx-auto">
-            {ministers.map((person) => (
-              <PersonCard key={person.name + person.role} {...person} />
-            ))}
-          </div>
-        </div>
-
-        {/* Deacons */}
-        <div>
-          <h3 className="font-serif text-sage-deep text-2xl font-bold text-center mb-8">
-            Deacons
-          </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-6">
-            {deacons.map((person) => (
-              <PersonCard key={person.name} {...person} size="sm" />
-            ))}
-          </div>
+        <div className="mt-10 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">
+          {leaders.map((person) => (
+            <article key={person.name} className="text-center">
+              <div className="relative aspect-square overflow-hidden rounded-2xl bg-sage-muted">
+                <Image
+                  src={person.photo}
+                  alt={`${person.name}, ${person.role}`}
+                  fill
+                  sizes="(min-width: 1024px) 180px, (min-width: 640px) 30vw, 45vw"
+                  className="object-cover"
+                />
+              </div>
+              <h3 className="mt-4 text-lg font-bold text-sage-deep">{person.name}</h3>
+              <p className="text-sm font-semibold text-muted">{person.role}</p>
+            </article>
+          ))}
         </div>
       </div>
     </section>
   );
 }
 
-/* ─── Where We Gather (banner closer) ───────────────────────────────────────── */
-function WhereWeGather() {
+function VisitCallout() {
   return (
-    <section className="bg-cream py-16 md:py-20">
-      <div className="max-w-5xl mx-auto px-6">
-        <div className="text-center mb-10">
-          <p className="text-rose text-sm font-semibold tracking-widest uppercase mb-2">
-            Find Us
-          </p>
-          <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold mb-3">
-            Where We Gather
-          </h2>
-          <p className="text-muted leading-relaxed max-w-xl mx-auto mb-4">
-            We&apos;d love to meet you on Sunday — pull into the lot,
-            we&apos;ll be looking out for you.
-          </p>
-          <a
-            href="https://www.google.com/maps/search/?api=1&query=9241+Charger+Way+Fulshear+TX+77441"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-sage font-semibold text-sm hover:text-sage-dark transition-colors"
-          >
-            9241 Charger Way, Fulshear, TX 77441
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-              <path fillRule="evenodd" d="M4.25 5.5a.75.75 0 0 0-.75.75v8.5c0 .414.336.75.75.75h8.5a.75.75 0 0 0 .75-.75v-4a.75.75 0 0 1 1.5 0v4A2.25 2.25 0 0 1 12.75 17h-8.5A2.25 2.25 0 0 1 2 14.75v-8.5A2.25 2.25 0 0 1 4.25 4h5a.75.75 0 0 1 0 1.5h-5Z" clipRule="evenodd" />
-              <path fillRule="evenodd" d="M6.194 12.753a.75.75 0 0 0 1.06.053L16.5 4.44v2.81a.75.75 0 0 0 1.5 0v-4.5a.75.75 0 0 0-.75-.75h-4.5a.75.75 0 0 0 0 1.5h2.553l-9.056 8.194a.75.75 0 0 0-.053 1.06Z" clipRule="evenodd" />
-            </svg>
-          </a>
-        </div>
-
-        <div className="rounded-2xl overflow-hidden shadow-lg">
-          <Image
-            src="/banner.png"
-            alt="Fulshear Church of Christ building at sunset — 9241 Charger Way, Fulshear, TX 77441"
-            width={1700}
-            height={650}
-            className="w-full h-auto"
-          />
-        </div>
-
-        <div className="text-center mt-10">
-          <Link
-            href="/plan-a-visit"
-            className="inline-flex items-center justify-center gap-2 bg-sage text-white font-semibold px-7 py-3.5 rounded-full hover:bg-sage-dark transition-colors text-base shadow-sm"
-          >
-            Plan Your Visit
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="w-5 h-5"
-            >
-              <path
-                fillRule="evenodd"
-                d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </Link>
-        </div>
+    <section className="bg-sage-deep py-14 text-center text-white">
+      <div className="container-wide">
+        <h2 className="text-3xl font-bold md:text-4xl">
+          The best way to know us is to worship with us.
+        </h2>
+        <p className="mx-auto mt-3 max-w-2xl text-white/72">
+          We meet at {church.address}. Come as you are and move at your pace.
+        </p>
+        <Link
+          href="/plan-a-visit"
+          className="mt-7 inline-flex rounded-full bg-white px-6 py-3 font-bold text-sage-deep hover:bg-cream focus-ring"
+        >
+          Plan Your Visit
+        </Link>
       </div>
     </section>
   );
 }
 
-/* ─── Page ──────────────────────────────────────────────────────────────────── */
 export default function AboutPage() {
   return (
     <>
-      <PageHero />
-      <Mission />
-      <OurStory />
-      <WhatIsACOC />
-      <OurFoundation />
+      <Hero />
+      <Identity />
+      <LocalMission />
       <Leadership />
-      <WhereWeGather />
+      <VisitCallout />
     </>
   );
 }

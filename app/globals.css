@@ -1,30 +1,33 @@
 @import "tailwindcss";
 
 @theme {
-  /* Soft whites / creams */
-  --color-cream: #FAF9F6;
-  --color-warm-white: #F4F1EB;
+  --color-cream: #faf8f2;
+  --color-warm-white: #fffdf8;
+  --color-paper: #ffffff;
 
-  /* Sage / teal — drawn from the cross in the logo */
-  --color-sage: #6B9489;
-  --color-sage-dark: #4D7770;
-  --color-sage-deep: #2F5247;
-  --color-sage-light: #9CBCB3;
-  --color-sage-muted: #E5EFEB;
+  --color-sage: #55796e;
+  --color-sage-dark: #3d6257;
+  --color-sage-deep: #213f37;
+  --color-sage-light: #9bb9af;
+  --color-sage-muted: #e8f0ec;
 
-  /* Rose / coral — drawn from "Fulshear" in the logo */
-  --color-rose: #C97A7C;
-  --color-rose-dark: #A35C5E;
-  --color-rose-light: #E4A8AA;
-  --color-rose-muted: #F8E5E6;
+  --color-rose: #b96c6f;
+  --color-rose-dark: #944e51;
+  --color-rose-light: #e5a7a8;
+  --color-rose-muted: #f7e4e2;
+  --color-gold: #c9944a;
+  --color-gold-muted: #f5e8d1;
 
-  /* Neutrals */
-  --color-charcoal: #2C2C2C;
-  --color-muted: #6B7280;
+  --color-charcoal: #252c2a;
+  --color-muted: #68736f;
+  --color-line: #dde5df;
 
-  /* Typography */
   --font-serif: var(--font-playfair), Georgia, serif;
   --font-sans: var(--font-inter), system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -33,8 +36,44 @@ body {
   font-family: var(--font-sans);
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   font-family: var(--font-serif);
+}
+
+a,
+button {
+  text-underline-offset: 4px;
+}
+
+.site-shell {
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.96) 0%, rgba(250, 248, 242, 1) 34%),
+    radial-gradient(circle at 14% 18%, rgba(185, 108, 111, 0.13), transparent 28%),
+    radial-gradient(circle at 84% 8%, rgba(85, 121, 110, 0.16), transparent 32%);
+}
+
+.section-pad {
+  padding-block: clamp(4rem, 8vw, 7rem);
+}
+
+.container-wide {
+  width: min(1120px, calc(100% - 2rem));
+  margin-inline: auto;
+}
+
+.soft-shadow {
+  box-shadow: 0 24px 70px rgba(33, 63, 55, 0.14);
+}
+
+.focus-ring {
+  outline: 2px solid transparent;
+  outline-offset: 3px;
+}
+
+.focus-ring:focus-visible {
+  outline-color: var(--color-gold);
 }
 
 @media print {
@@ -59,209 +98,5 @@ h1, h2, h3 {
     color: black !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
-  }
-
-  .benevolence-form {
-    font-size: 9pt;
-    line-height: 1.15;
-  }
-
-  .benevolence-form section {
-    page-break-inside: avoid;
-  }
-
-  .benevolence-form h2 {
-    font-size: 16pt;
-    margin-bottom: 0;
-  }
-
-  .benevolence-form label,
-  .benevolence-form .text-xs,
-  .benevolence-form .text-sm {
-    font-size: 8pt;
-  }
-
-  .benevolence-form .space-y-4 > :not([hidden]) ~ :not([hidden]) {
-    margin-top: 0.14in;
-  }
-
-  .benevolence-form input {
-    padding-top: 0;
-    padding-bottom: 0;
-    min-height: 0.16in;
-  }
-
-  .benevolence-form textarea {
-    min-height: 0.45in;
-  }
-
-  .benevolence-detail {
-    background: white;
-    color: black;
-    font-size: 7.5pt;
-    line-height: 1.12;
-  }
-
-  .benevolence-detail > div {
-    max-width: none !important;
-    padding: 0 !important;
-  }
-
-  .benevolence-detail h1 {
-    font-size: 18pt !important;
-    line-height: 1 !important;
-    margin-top: 0.02in !important;
-  }
-
-  .benevolence-detail h1 + .max-w-3xl {
-    display: none !important;
-  }
-
-  .benevolence-detail h2,
-  .benevolence-detail .text-lg {
-    font-size: 10pt !important;
-    line-height: 1.05 !important;
-  }
-
-  .benevolence-detail h3 {
-    font-size: 8pt !important;
-    line-height: 1.05 !important;
-  }
-
-  .benevolence-detail .text-3xl {
-    font-size: 18pt !important;
-  }
-
-  .benevolence-detail .text-2xl {
-    font-size: 12pt !important;
-    line-height: 1 !important;
-  }
-
-  .benevolence-detail .text-sm {
-    font-size: 7.5pt !important;
-    line-height: 1.12 !important;
-  }
-
-  .benevolence-detail .text-xs {
-    font-size: 6.5pt !important;
-    line-height: 1.05 !important;
-  }
-
-  .benevolence-detail :where(.mt-6, .mt-5, .mt-4, .mt-3) {
-    margin-top: 0.07in !important;
-  }
-
-  .benevolence-detail :where(.mt-2, .mt-1) {
-    margin-top: 0.025in !important;
-  }
-
-  .benevolence-detail :where(.p-6, .p-5, .p-4) {
-    padding: 0.07in !important;
-  }
-
-  .benevolence-detail :where(.px-4, .px-3, .px-2) {
-    padding-left: 0.04in !important;
-    padding-right: 0.04in !important;
-  }
-
-  .benevolence-detail :where(.py-3, .py-2, .py-1) {
-    padding-top: 0.025in !important;
-    padding-bottom: 0.025in !important;
-  }
-
-  .benevolence-detail .gap-5,
-  .benevolence-detail .gap-4,
-  .benevolence-detail .gap-3,
-  .benevolence-detail .gap-2 {
-    gap: 0.06in !important;
-  }
-
-  .benevolence-detail .grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  }
-
-  .benevolence-detail section {
-    padding: 0.07in !important;
-  }
-
-  .benevolence-detail section > .mt-3 {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    column-gap: 0.12in !important;
-    row-gap: 0 !important;
-  }
-
-  .benevolence-detail section > .mt-3.space-y-4,
-  .benevolence-detail section > .space-y-4,
-  .benevolence-detail section > .mt-4.space-y-4 {
-    display: block !important;
-  }
-
-  .benevolence-detail section .grid,
-  .benevolence-detail .lg\:grid-cols-2,
-  .benevolence-detail .xl\:grid-cols-\[1fr_1fr\] {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-
-  .benevolence-detail .xl\:grid-cols-\[1\.4fr_1fr\],
-  .benevolence-detail .xl\:grid-cols-\[1\.25fr_1fr\] {
-    grid-template-columns: 1fr 1fr !important;
-  }
-
-  .benevolence-detail .overflow-x-auto {
-    overflow: visible !important;
-  }
-
-  .benevolence-detail table {
-    min-width: 0 !important;
-    width: 100% !important;
-    border-collapse: collapse !important;
-    font-size: 6.4pt !important;
-    line-height: 1.05 !important;
-  }
-
-  .benevolence-detail th,
-  .benevolence-detail td {
-    padding: 0.025in 0.035in !important;
-    vertical-align: top !important;
-  }
-
-  .benevolence-detail .border-b {
-    border-bottom-width: 0.5pt !important;
-  }
-
-  .benevolence-detail .rounded-full {
-    border-radius: 0 !important;
-  }
-
-  .benevolence-detail svg {
-    max-height: 1.8in !important;
-  }
-
-  .benevolence-detail .min-h-\[260px\] {
-    min-height: 1.8in !important;
-  }
-
-  .benevolence-detail .min-w-\[980px\],
-  .benevolence-detail .min-w-\[820px\],
-  .benevolence-detail .min-w-\[760px\],
-  .benevolence-detail .min-w-\[680px\],
-  .benevolence-detail .min-w-\[620px\] {
-    min-width: 0 !important;
-  }
-
-  .benevolence-detail section,
-  .benevolence-detail .grid > div {
-    page-break-inside: avoid;
-  }
-
-  .benevolence-detail button {
-    min-height: 0 !important;
-    border: 0 !important;
-    padding: 0 !important;
-    background: transparent !important;
-    color: black !important;
-    text-align: inherit !important;
-    box-shadow: none !important;
   }
 }
