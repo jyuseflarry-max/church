@@ -171,6 +171,30 @@ SUPABASE_SERVICE_ROLE_KEY=
 
 The service role key should never be exposed to browser code.
 
+The admin workflow is protected with:
+
+```bash
+TEACHING_ADMIN_PASSWORD=
+TEACHING_ADMIN_SESSION_SECRET=
+```
+
+The private worker endpoint is protected with:
+
+```bash
+TEACHING_WORKER_SECRET=
+```
+
+The worker endpoint lives at `/api/teaching-library/worker` and accepts POST requests with a bearer token:
+
+```bash
+Authorization: Bearer <TEACHING_WORKER_SECRET>
+```
+
+Current worker actions:
+
+- `health`
+- `import-feed`
+
 ## Publishing Rule
 
 Only lessons with `approval_status = 'published'` should appear on the public Teaching Library pages.

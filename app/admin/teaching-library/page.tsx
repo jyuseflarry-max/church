@@ -8,6 +8,7 @@ import {
   type TeachingAdminLesson,
   type TeachingApprovalStatus,
 } from "../../sermons/database";
+import { logoutTeachingAdminAction } from "../login/actions";
 import {
   approveLessonAction,
   archiveLessonAction,
@@ -95,6 +96,11 @@ export default async function TeachingLibraryAdminPage() {
             approve the public sermon clip, and publish only what is ready for
             visitors.
           </p>
+          <form action={logoutTeachingAdminAction} className="mt-8">
+            <button className="rounded-full border border-white/20 px-5 py-2.5 text-sm font-bold text-white hover:bg-white/10 focus-ring">
+              Sign out
+            </button>
+          </form>
         </div>
       </section>
 
