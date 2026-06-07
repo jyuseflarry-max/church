@@ -68,7 +68,17 @@ function MediaPanel({ lesson }: { lesson: Lesson }) {
 
         <div>
           <h2 className="text-2xl font-bold text-sage-deep">Watch</h2>
-          {lesson.videoUrl ? (
+          {lesson.youtubeVideoId ? (
+            <div className="mt-4 overflow-hidden rounded-xl bg-sage-deep">
+              <iframe
+                src={`https://www.youtube.com/embed/${lesson.youtubeVideoId}`}
+                title={lesson.title}
+                className="aspect-video w-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+          ) : lesson.videoUrl ? (
             <a
               href={lesson.videoUrl}
               target="_blank"

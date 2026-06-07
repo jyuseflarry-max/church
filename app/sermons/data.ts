@@ -1,11 +1,11 @@
 /**
  * Teaching library data.
  *
- * Public lesson metadata is pulled from the Congregate RSS podcast feed. The
- * public pages use this data now; the AI-assisted approval workflow can later
- * persist enriched records with clipped media, transcripts, artwork, and
- * approved metadata.
+ * Public lesson metadata is pulled from the approved Teaching Library database
+ * when configured. During the transition, the Congregate RSS podcast feed is
+ * still used as a fallback.
  */
+import { getPublishedLessonsFromDatabase } from "./database";
 
 export const FEED_URL =
   "https://westparkchurchofchrist.congregatecloud.com/lessons/all-lessons/podcast";
@@ -26,6 +26,7 @@ export type Lesson = {
   audioUrl: string | null;
   videoUrl: string | null;
   vimeoId: string | null;
+  youtubeVideoId: string | null;
   durationSeconds: number | null;
   artwork: string;
   summary: string;
@@ -66,6 +67,13 @@ const SUMMER_ARTWORK = "/sermons/artwork/wednesday-summer-series.png";
 const PATH_ARTWORK = "/sermons/artwork/following-jesus-path.png";
 
 export async function getAllLessons(): Promise<Lesson[]> {
+  const dbLessons = await getPublishedLessonsFromDatabase();
+  if (dbLessons?.length) return dbLessons;
+
+  return getFeedLessons();
+}
+
+export async function getFeedLessons(): Promise<Lesson[]> {
   let xml: string;
   try {
     const res = await fetch(FEED_URL, {
@@ -267,6 +275,7 @@ function parseItem(itemXml: string): Lesson | null {
     audioUrl: enclosureUrl,
     videoUrl,
     vimeoId,
+    youtubeVideoId: null,
     durationSeconds: parseDuration(duration),
     artwork,
     summary: buildSummary(title, speaker, cleanSeries, cleanType),
