@@ -164,6 +164,31 @@ function VisitCallout() {
   );
 }
 
+function PrivacyCallout() {
+  return (
+    <section className="border-t border-line bg-warm-white py-12">
+      <div className="container-wide flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="font-sans text-xl font-bold text-sage-deep">
+            Website privacy
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
+            Read how we handle information submitted through the website,
+            including contact forms, prayer requests, and related online
+            services.
+          </p>
+        </div>
+        <Link
+          href="/about/privacy-policy"
+          className="inline-flex rounded-full border border-line bg-white px-5 py-3 text-sm font-bold text-sage-deep hover:border-sage-light hover:bg-sage-muted focus-ring"
+        >
+          Privacy Policy
+        </Link>
+      </div>
+    </section>
+  );
+}
+
 export default function AboutPage() {
   return (
     <>
@@ -171,6 +196,7 @@ export default function AboutPage() {
       <Identity />
       <LocalMission />
       <Leadership />
+      <PrivacyCallout />
       <VisitCallout />
     </>
   );

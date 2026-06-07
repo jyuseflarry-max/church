@@ -145,6 +145,12 @@ export default function RootLayout({
               >
                 Member login
               </a>
+              <Link
+                href="/about/privacy-policy"
+                className="mt-3 block text-sm font-semibold text-white/64 hover:text-white"
+              >
+                Privacy Policy
+              </Link>
             </div>
 
             <div>
