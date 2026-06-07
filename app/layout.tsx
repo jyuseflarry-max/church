@@ -3,6 +3,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
 import BottomNav from "./components/BottomNav";
+import PlanOfSalvation from "./components/PlanOfSalvation";
 import { church, serviceTimes } from "./site-content";
 import "./globals.css";
 
@@ -125,6 +126,8 @@ export default function RootLayout({
         <main className="site-shell flex-1">{children}</main>
 
         <footer className="bg-sage-deep pb-24 pt-14 text-white md:pb-14">
+          <PlanOfSalvation />
+
           <div className="container-wide grid gap-10 md:grid-cols-[1.2fr_1fr_1fr]">
             <div>
               <Image
