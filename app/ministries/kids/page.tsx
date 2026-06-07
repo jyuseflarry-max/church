@@ -228,10 +228,10 @@ function Contact() {
         <p className="text-white/75 leading-relaxed mb-2">
           Email us at{" "}
           <a
-            href="mailto:info@fulshearcoc.org?subject=Kids%20Ministry"
+            href="mailto:office@fulshearcoc.org?subject=Kids%20Ministry"
             className="text-rose-light font-semibold hover:text-white transition-colors"
           >
-            info@fulshearcoc.org
+            office@fulshearcoc.org
           </a>{" "}
           — we&apos;ll get back to you quickly.
         </p>

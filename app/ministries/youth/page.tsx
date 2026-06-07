@@ -230,7 +230,7 @@ function MeetYourMinister() {
               question at all, he&apos;d love to hear from you.
             </p>
             <a
-              href="mailto:info@fulshearcoc.org?subject=Youth%20Ministry"
+              href="mailto:office@fulshearcoc.org?subject=Youth%20Ministry"
               className="inline-flex items-center justify-center gap-2 bg-sage text-white font-semibold px-6 py-3 rounded-full hover:bg-sage-dark transition-colors text-base shadow-sm"
             >
               Email Danny

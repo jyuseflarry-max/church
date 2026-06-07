@@ -145,7 +145,7 @@ function NewcomerDinner() {
           like the new person on Sunday.
         </p>
         <a
-          href="mailto:info@fulshearcoc.org?subject=Newcomer%20Dinner"
+          href="mailto:office@fulshearcoc.org?subject=Newcomer%20Dinner"
           className="inline-flex items-center justify-center gap-2 bg-sage text-white font-semibold px-7 py-3.5 rounded-full hover:bg-sage-dark transition-colors text-base shadow-sm"
         >
           Ask About the Next One
@@ -226,7 +226,7 @@ function FindYourPlace() {
 
         <div className="mt-10 text-center">
           <a
-            href="mailto:info@fulshearcoc.org?subject=I%27d%20like%20to%20serve"
+            href="mailto:office@fulshearcoc.org?subject=I%27d%20like%20to%20serve"
             className="inline-flex items-center gap-2 text-sage font-semibold text-base hover:text-sage-dark transition-colors"
           >
             Email Paul Cartwright to get started
@@ -347,7 +347,7 @@ function TalkToMinister() {
           back to you quickly.
         </p>
         <a
-          href="mailto:info@fulshearcoc.org"
+          href="mailto:office@fulshearcoc.org"
           className="inline-flex items-center justify-center gap-2 bg-white text-sage-deep font-semibold px-8 py-3.5 rounded-full hover:bg-cream transition-colors shadow-lg text-base"
         >
           Email Paul
@@ -361,7 +361,7 @@ function TalkToMinister() {
             <path d="m19 8.839-7.77 3.885a2.75 2.75 0 0 1-2.46 0L1 8.839V14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.839Z" />
           </svg>
         </a>
-        <p className="text-white/60 text-sm mt-4">info@fulshearcoc.org</p>
+        <p className="text-white/60 text-sm mt-4">office@fulshearcoc.org</p>
       </div>
     </section>
   );

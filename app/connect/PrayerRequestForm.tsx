@@ -21,7 +21,7 @@ export default function PrayerRequestForm() {
       request,
     ].filter(Boolean);
     const body = encodeURIComponent(lines.join("\n"));
-    window.location.href = `mailto:info@fulshearcoc.org?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:office@fulshearcoc.org?subject=${subject}&body=${body}`;
   }
 
   const inputClass =
@@ -114,10 +114,10 @@ export default function PrayerRequestForm() {
         Submitting opens your email app with the message pre-filled — just hit
         send. Prefer to type it yourself? Email{" "}
         <a
-          href="mailto:info@fulshearcoc.org?subject=Prayer%20Request"
+          href="mailto:office@fulshearcoc.org?subject=Prayer%20Request"
           className="text-sage font-semibold hover:text-sage-dark"
         >
-          info@fulshearcoc.org
+          office@fulshearcoc.org
         </a>
         .
       </p>

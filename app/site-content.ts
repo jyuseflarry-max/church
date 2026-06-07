@@ -3,7 +3,7 @@ export const church = {
   shortName: "Fulshear CofC",
   address: "9241 Charger Way, Fulshear, TX 77441",
   phone: "281-712-1492",
-  email: "info@fulshearcoc.org",
+  email: "office@fulshearcoc.org",
   mapsUrl:
     "https://www.google.com/maps/search/?api=1&query=9241+Charger+Way+Fulshear+TX+77441",
   livestreamUrl: "/sermons",
