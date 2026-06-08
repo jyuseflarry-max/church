@@ -225,8 +225,12 @@ export async function getTeachingAdminLessons(): Promise<TeachingAdminLesson[] |
     limit: "80",
   });
 
-  const rows = await supabaseFetch<SupabaseLessonRow[]>(config, `/rest/v1/teaching_lessons?${params}`);
-  return rows.map(toTeachingAdminLesson);
+  try {
+    const rows = await supabaseFetch<SupabaseLessonRow[]>(config, `/rest/v1/teaching_lessons?${params}`);
+    return rows.map(toTeachingAdminLesson);
+  } catch {
+    return null;
+  }
 }
 
 export async function importFeedLessonsToDatabase(lessons: Lesson[]): Promise<number> {

@@ -91,6 +91,7 @@ export default async function TeachingLibraryAdminPage() {
   const dbLessons = await getTeachingAdminLessons();
   const feedLessons = dbLessons ? [] : await getFeedLessons();
   const lessons = dbLessons ?? feedLessons.map(toPreviewLesson);
+  const databaseUnavailable = databaseStatus.writable && !dbLessons;
 
   return (
     <>
@@ -147,6 +148,13 @@ export default async function TeachingLibraryAdminPage() {
                   importing or publishing from the admin workflow.
                 </p>
               )}
+              {databaseUnavailable && (
+                <p className="mt-5 rounded-xl bg-rose-muted p-4 text-sm leading-6 text-rose-dark">
+                  The admin database connection is configured, but the lesson
+                  records could not be loaded. Check the Supabase service role
+                  key, project URL, and applied migrations.
+                </p>
+              )}
             </div>
 
             <div className="rounded-2xl border border-line bg-sage-deep p-6 text-white">
@@ -157,7 +165,7 @@ export default async function TeachingLibraryAdminPage() {
               </p>
               <form action={importCongregateLessonsAction}>
                 <button
-                  disabled={!databaseStatus.writable}
+                  disabled={!databaseStatus.writable || databaseUnavailable}
                   className="mt-5 w-full rounded-full bg-white px-5 py-3 text-sm font-bold text-sage-deep hover:bg-cream disabled:cursor-not-allowed disabled:opacity-50 focus-ring"
                 >
                   Import latest lessons
