@@ -157,17 +157,8 @@ function WeeklyRhythms() {
 function BeyondTheBuilding() {
   return (
     <section className="section-pad bg-warm-white">
-      <div className="container-wide grid gap-12 md:grid-cols-[0.9fr_1.1fr] md:items-center">
-        <div className="relative aspect-[4/3] overflow-hidden rounded-[1.75rem] bg-sage-muted soft-shadow">
-          <Image
-            src="/leaders/danny-dipetta.jpg"
-            alt="Danny DiPetta, Youth Minister at Fulshear Church of Christ"
-            fill
-            sizes="(min-width: 768px) 45vw, 100vw"
-            className="object-cover"
-          />
-        </div>
-        <div>
+      <div className="container-wide">
+        <div className="max-w-4xl">
           <h2 className="text-4xl font-bold leading-tight text-sage-deep md:text-5xl">
             Beyond the classroom.
           </h2>
@@ -220,17 +211,8 @@ function BigMoments() {
 function MeetYourMinister() {
   return (
     <section className="section-pad bg-white">
-      <div className="container-wide grid gap-12 md:grid-cols-[0.85fr_1.15fr] md:items-center">
-        <div className="relative mx-auto aspect-square w-full max-w-sm overflow-hidden rounded-[1.75rem] bg-sage-muted soft-shadow md:mx-0">
-          <Image
-            src="/leaders/danny-dipetta.jpg"
-            alt="Danny DiPetta, Youth Minister at Fulshear Church of Christ"
-            fill
-            sizes="(min-width: 768px) 360px, 80vw"
-            className="object-cover"
-          />
-        </div>
-        <div>
+      <div className="container-wide">
+        <div className="max-w-4xl">
           <p className="text-sm font-bold uppercase tracking-[0.22em] text-rose">
             Meet your minister
           </p>
