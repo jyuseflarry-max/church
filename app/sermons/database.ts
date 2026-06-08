@@ -667,7 +667,7 @@ function toLessonPayload(lesson: Lesson): SupabaseLessonPayload {
 
 function extractVimeoId(url: string | null): string | null {
   if (!url) return null;
-  const match = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  const match = url.match(/(?:player\.vimeo\.com\/video\/|vimeo\.com\/)(\d+)/i);
   return match?.[1] ?? null;
 }
 

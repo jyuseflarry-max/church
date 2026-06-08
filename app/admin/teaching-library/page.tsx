@@ -300,11 +300,25 @@ function ReviewCard({
           {lesson.speaker} | {formatDate(lesson.date)}
           {lesson.service ? ` | ${lesson.service}` : ""}
         </p>
+        <p className="mt-2 text-sm font-semibold text-sage-deep">
+          Audio: {lesson.audioUrl ? "imported" : "not found"} | Vimeo:{" "}
+          {lesson.vimeoId ? "imported" : "not found"}
+        </p>
         <p className="mt-3 text-sm leading-6 text-charcoal/72">{lesson.summary}</p>
         <div className="mt-4 flex flex-wrap gap-3 text-sm font-bold">
           <Link href={`/sermons/${lesson.slug}`} className="text-rose hover:text-rose-dark">
             Preview public page
           </Link>
+          {lesson.videoUrl && (
+            <a
+              href={lesson.videoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sage-deep hover:text-sage-dark"
+            >
+              Open Vimeo
+            </a>
+          )}
           <a
             href={lesson.link}
             target="_blank"

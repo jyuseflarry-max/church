@@ -243,9 +243,8 @@ function parseItem(itemXml: string): Lesson | null {
   const speaker = pickField(description, "Speaker") || author || "Guest Speaker";
   const scripture = pickField(description, "Scripture") || inferScripture(title);
 
-  const vimeoMatch = contentEncoded.match(/player\.vimeo\.com\/video\/(\d+)/);
-  const vimeoId = vimeoMatch?.[1] ?? null;
-  const videoUrl = vimeoId ? `https://vimeo.com/${vimeoId}` : null;
+  const videoUrl = extractVimeoUrl(contentEncoded);
+  const vimeoId = extractVimeoId(videoUrl);
 
   const id =
     link
@@ -404,6 +403,28 @@ function parseDuration(hms: string): number | null {
   if (parts.length === 2) return parts[0] * 60 + parts[1];
   if (parts.length === 1) return parts[0];
   return null;
+}
+
+function extractVimeoUrl(html: string): string | null {
+  const patterns = [
+    /https?:\/\/player\.vimeo\.com\/video\/(\d+)(?:\?[^"'<\s]+)?/i,
+    /https?:\/\/vimeo\.com\/(\d+)(?:\?[^"'<\s]+)?/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = html.match(pattern);
+    if (match) {
+      return `https://player.vimeo.com/video/${match[1]}`;
+    }
+  }
+
+  return null;
+}
+
+function extractVimeoId(url: string | null): string | null {
+  if (!url) return null;
+  const match = url.match(/(?:player\.vimeo\.com\/video\/|vimeo\.com\/)(\d+)/i);
+  return match?.[1] ?? null;
 }
 
 function stripCdata(s: string): string {

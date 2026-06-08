@@ -78,6 +78,16 @@ function MediaPanel({ lesson }: { lesson: Lesson }) {
                 allowFullScreen
               />
             </div>
+          ) : lesson.vimeoId ? (
+            <div className="mt-4 overflow-hidden rounded-xl bg-sage-deep">
+              <iframe
+                src={`https://player.vimeo.com/video/${lesson.vimeoId}`}
+                title={lesson.title}
+                className="aspect-video w-full"
+                allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+                allowFullScreen
+              />
+            </div>
           ) : lesson.videoUrl ? (
             <a
               href={lesson.videoUrl}
