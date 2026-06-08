@@ -40,8 +40,43 @@ export async function transcribeLessonAudio(lesson: TeachingAdminLesson): Promis
   }
 
   const audioBlob = await audioRes.blob();
+  const primaryModel = process.env.OPENAI_TRANSCRIPTION_MODEL ?? "gpt-4o-transcribe";
+  const fallbackModel = process.env.OPENAI_LONG_TRANSCRIPTION_MODEL ?? "whisper-1";
+
+  try {
+    return await transcribeAudioBlob({
+      apiKey,
+      audioBlob,
+      audioUrl: lesson.audioUrl,
+      model: primaryModel,
+    });
+  } catch (error) {
+    if (primaryModel === fallbackModel || !isDurationLimitError(error)) {
+      throw error;
+    }
+
+    return transcribeAudioBlob({
+      apiKey,
+      audioBlob,
+      audioUrl: lesson.audioUrl,
+      model: fallbackModel,
+    });
+  }
+}
+
+async function transcribeAudioBlob({
+  apiKey,
+  audioBlob,
+  audioUrl,
+  model,
+}: {
+  apiKey: string;
+  audioBlob: Blob;
+  audioUrl: string;
+  model: string;
+}): Promise<string> {
   const form = new FormData();
-  form.append("model", process.env.OPENAI_TRANSCRIPTION_MODEL ?? "gpt-4o-transcribe");
+  form.append("model", model);
   form.append("response_format", "json");
   form.append(
     "prompt",
@@ -51,7 +86,7 @@ export async function transcribeLessonAudio(lesson: TeachingAdminLesson): Promis
       "Do not summarize; transcribe the spoken content accurately.",
     ].join(" "),
   );
-  form.append("file", audioBlob, filenameForAudioUrl(lesson.audioUrl));
+  form.append("file", audioBlob, filenameForAudioUrl(audioUrl));
 
   const res = await fetch(`${OPENAI_API_URL}/audio/transcriptions`, {
     method: "POST",
@@ -70,6 +105,10 @@ export async function transcribeLessonAudio(lesson: TeachingAdminLesson): Promis
   const json = (await res.json()) as { text?: string };
   if (!json.text) throw new Error("OpenAI transcription returned no text.");
   return json.text;
+}
+
+function isDurationLimitError(error: unknown) {
+  return error instanceof Error && /longer than \d+ seconds|maximum for this model/i.test(error.message);
 }
 
 export async function createLessonBreakdown(
