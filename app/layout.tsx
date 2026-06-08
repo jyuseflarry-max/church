@@ -27,6 +27,7 @@ const SITE_URL =
 
 const SITE_DESCRIPTION =
   "A simple, sincere church family in the Fulshear-Katy area learning to follow Jesus together.";
+const OPEN_GRAPH_IMAGE = "/fulshear-opengraph.png";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -48,6 +49,14 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     url: SITE_URL,
     siteName: church.name,
+    images: [
+      {
+        url: OPEN_GRAPH_IMAGE,
+        width: 1792,
+        height: 1024,
+        alt: "Fulshear Church of Christ - following Christ together",
+      },
+    ],
     locale: "en_US",
     type: "website",
   },
@@ -55,6 +64,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: church.name,
     description: SITE_DESCRIPTION,
+    images: [OPEN_GRAPH_IMAGE],
   },
 };
 
