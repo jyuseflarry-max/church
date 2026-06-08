@@ -167,7 +167,28 @@ function BeyondTheBuilding() {
             through service projects, fellowship hangouts, game nights, and
             low-pressure gatherings where friendships can grow naturally.
           </p>
-          <div className="mt-8 rounded-2xl border border-line bg-white p-6">
+          <div className="mt-8 grid gap-5 md:grid-cols-2">
+            <article className="rounded-2xl border border-line bg-white p-6">
+              <h3 className="text-2xl font-bold text-sage-deep">
+                Monthly youth gatherings
+              </h3>
+              <p className="mt-3 text-sm leading-6 text-muted">
+                Students share meals, serve together, play games, and build
+                friendships in relaxed settings outside regular class time.
+              </p>
+            </article>
+            <article className="rounded-2xl border border-line bg-white p-6">
+              <h3 className="text-2xl font-bold text-sage-deep">
+                Adopt a Grandparent
+              </h3>
+              <p className="mt-3 text-sm leading-6 text-muted">
+                Youth members adopt a wiser member of the congregation to
+                connect with throughout the year, building friendships across
+                generations.
+              </p>
+            </article>
+          </div>
+          <div className="mt-5 rounded-2xl border border-line bg-white p-6">
             <p className="font-serif text-3xl font-bold leading-tight text-sage-deep">
               Students need adults who know their name.
             </p>
@@ -211,8 +232,17 @@ function BigMoments() {
 function MeetYourMinister() {
   return (
     <section className="section-pad bg-white">
-      <div className="container-wide">
-        <div className="max-w-4xl">
+      <div className="container-wide grid gap-12 md:grid-cols-[0.85fr_1.15fr] md:items-center">
+        <div className="relative mx-auto aspect-square w-full max-w-sm overflow-hidden rounded-[1.75rem] bg-sage-muted soft-shadow md:mx-0">
+          <Image
+            src="/leaders/danny-dipetta.jpg"
+            alt="Danny DiPetta, Youth Minister at Fulshear Church of Christ"
+            fill
+            sizes="(min-width: 768px) 360px, 80vw"
+            className="object-cover"
+          />
+        </div>
+        <div>
           <p className="text-sm font-bold uppercase tracking-[0.22em] text-rose">
             Meet your minister
           </p>
