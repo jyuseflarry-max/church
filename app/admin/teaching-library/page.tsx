@@ -306,6 +306,12 @@ function ReviewCard({
         </p>
         <p className="mt-3 text-sm leading-6 text-charcoal/72">{lesson.summary}</p>
         <div className="mt-4 flex flex-wrap gap-3 text-sm font-bold">
+          <Link
+            href={`/admin/teaching-library/preview/${lesson.slug}`}
+            className="text-rose hover:text-rose-dark"
+          >
+            Preview lesson
+          </Link>
           {lesson.approvalStatus === "published" ? (
             <Link href={`/sermons/${lesson.slug}`} className="text-rose hover:text-rose-dark">
               Open public page

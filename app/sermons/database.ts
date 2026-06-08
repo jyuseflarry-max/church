@@ -231,6 +231,19 @@ export async function getTeachingAdminLessons(): Promise<TeachingAdminLesson[] |
   return result.lessons;
 }
 
+export async function getTeachingAdminLessonBySlug(slug: string): Promise<TeachingAdminLesson | null> {
+  const config = getServiceConfig();
+  if (!config) return null;
+
+  const params = new URLSearchParams({
+    select: LESSON_SELECT,
+    slug: `eq.${slug}`,
+    limit: "1",
+  });
+  const rows = await supabaseFetch<SupabaseLessonRow[]>(config, `/rest/v1/teaching_lessons?${params}`);
+  return rows[0] ? toTeachingAdminLesson(rows[0]) : null;
+}
+
 export async function getTeachingAdminLessonResult(): Promise<TeachingAdminLessonResult> {
   const config = getServiceConfig();
   if (!config) return { lessons: null, error: "SUPABASE_SERVICE_ROLE_KEY is not configured." };
