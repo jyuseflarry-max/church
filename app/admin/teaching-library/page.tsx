@@ -36,6 +36,8 @@ type PageProps = {
     offset?: string;
     limit?: string;
     importError?: string;
+    aiPrepared?: string;
+    aiError?: string;
   }>;
 };
 
@@ -221,6 +223,16 @@ export default async function TeachingLibraryAdminPage({ searchParams }: PagePro
                   {params.importError}
                 </p>
               )}
+              {params.aiPrepared && (
+                <p className="mt-4 rounded-xl bg-white/10 p-3 text-sm font-semibold text-white">
+                  AI review prepared. Refresh the queue if the updated transcript and clip notes are not visible yet.
+                </p>
+              )}
+              {params.aiError && (
+                <p className="mt-4 rounded-xl bg-rose-muted p-3 font-mono text-xs leading-5 text-rose-dark">
+                  {params.aiError}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -356,7 +368,7 @@ function ReviewCard({
             action={prepareAiReviewAction}
             lessonId={lesson.id}
             label="Prepare AI review"
-            disabled={!writable || lesson.approvalStatus === "published"}
+            disabled={!writable || !lesson.audioUrl || lesson.approvalStatus === "published"}
           />
           <ActionForm
             action={approveLessonAction}

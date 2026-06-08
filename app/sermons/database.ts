@@ -403,22 +403,85 @@ export async function processNextAiReviewLesson(): Promise<{
     return { lesson: null, transcriptCreated: false, breakdownCreated: false };
   }
 
-  let transcript = lesson.transcript;
-  let transcriptCreated = false;
+  return processAiReviewLesson(lesson);
+}
 
-  if (!transcript) {
-    transcript = await transcribeLessonAudio(lesson);
-    transcriptCreated = true;
+export async function processLessonAiReview(lessonId: string): Promise<{
+  lesson: TeachingAdminLesson | null;
+  transcriptCreated: boolean;
+  breakdownCreated: boolean;
+}> {
+  const lesson = await markAiReviewLessonProcessing(lessonId);
+  if (!lesson) {
+    return { lesson: null, transcriptCreated: false, breakdownCreated: false };
   }
 
-  const breakdown = await createLessonBreakdown(lesson, transcript);
-  await saveLessonAiBreakdown(lesson.id, transcript, breakdown);
+  return processAiReviewLesson(lesson);
+}
 
-  return {
-    lesson,
-    transcriptCreated,
-    breakdownCreated: true,
-  };
+async function processAiReviewLesson(lesson: TeachingAdminLesson): Promise<{
+  lesson: TeachingAdminLesson;
+  transcriptCreated: boolean;
+  breakdownCreated: boolean;
+}> {
+  try {
+    let transcript = lesson.transcript;
+    let transcriptCreated = false;
+
+    if (!transcript) {
+      transcript = await transcribeLessonAudio(lesson);
+      transcriptCreated = true;
+    }
+
+    const breakdown = await createLessonBreakdown(lesson, transcript);
+    await saveLessonAiBreakdown(lesson.id, transcript, breakdown);
+
+    return {
+      lesson,
+      transcriptCreated,
+      breakdownCreated: true,
+    };
+  } catch (error) {
+    await patchLesson(lesson.id, {
+      ai_breakdown: {
+        status: "failed",
+        failedAt: new Date().toISOString(),
+        error: error instanceof Error ? error.message : "Unknown AI review error.",
+      },
+      updated_at: new Date().toISOString(),
+    });
+    throw error;
+  }
+}
+
+async function markAiReviewLessonProcessing(lessonId: string): Promise<TeachingAdminLesson | null> {
+  const config = getServiceConfig();
+  if (!config) return null;
+
+  const params = new URLSearchParams({
+    select: LESSON_SELECT,
+    id: `eq.${lessonId}`,
+    limit: "1",
+  });
+  const rows = await supabaseFetch<SupabaseLessonRow[]>(config, `/rest/v1/teaching_lessons?${params}`);
+  const row = rows[0];
+  if (!row) return null;
+
+  await patchLesson(row.id, {
+    approval_status: "ai_review",
+    transcript_status: "pending",
+    artwork_status: "pending",
+    ai_breakdown: {
+      status: "processing",
+      startedAt: new Date().toISOString(),
+    },
+    updated_at: new Date().toISOString(),
+  });
+
+  return toTeachingAdminLesson({
+    ...row,
+    approval_status: "ai_review",
+  });
 }
 
 export async function updateLessonStatus(

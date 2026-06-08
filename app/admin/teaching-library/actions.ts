@@ -9,6 +9,7 @@ import {
   markLessonYoutubePublished,
   markLessonYoutubeUploaded,
   prepareLessonAiReview,
+  processLessonAiReview,
   queueLessonAudioCleanup,
   queueLessonYoutubeUpload,
   updateLessonStatus,
@@ -38,8 +39,21 @@ export async function importCongregateLessonsAction(formData?: FormData) {
 export async function prepareAiReviewAction(formData: FormData) {
   await requireTeachingAdmin();
   const lessonId = requireLessonId(formData);
-  await prepareLessonAiReview(lessonId);
-  revalidateTeachingLibrary();
+  let redirectPath = "/admin/teaching-library?aiPrepared=1";
+
+  try {
+    await prepareLessonAiReview(lessonId);
+    const result = await processLessonAiReview(lessonId);
+    if (!result.lesson) {
+      redirectPath = "/admin/teaching-library?aiError=Lesson%20could%20not%20be%20loaded.";
+    }
+    revalidateTeachingLibrary();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown AI review error.";
+    redirectPath = `/admin/teaching-library?aiError=${encodeURIComponent(message.slice(0, 500))}`;
+  }
+
+  redirect(redirectPath);
 }
 
 export async function approveLessonAction(formData: FormData) {
