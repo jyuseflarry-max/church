@@ -8,7 +8,8 @@
 import { getPublishedLessonsFromDatabase } from "./database";
 
 export const FEED_URL =
-  "https://westparkchurchofchrist.congregatecloud.com/lessons/all-lessons/podcast";
+  process.env.CONGREGATE_FEED_URL ??
+  "https://www.fulshearcoc.org/lessons/all-lessons/podcast";
 
 export type LessonStatus = "imported" | "ai-review" | "approved" | "published";
 

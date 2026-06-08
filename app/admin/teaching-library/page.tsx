@@ -166,8 +166,8 @@ export default async function TeachingLibraryAdminPage() {
             <div className="rounded-2xl border border-line bg-sage-deep p-6 text-white">
               <h2 className="text-3xl font-bold">Import from Congregate</h2>
               <p className="mt-3 text-sm leading-6 text-white/72">
-                This pulls the current feed into the database as private imported
-                records. Re-running it updates matching lessons by slug.
+                This pulls the latest 50 feed items into the database as private
+                imported records. Re-running it updates matching lessons by slug.
               </p>
               <form action={importCongregateLessonsAction}>
                 <button

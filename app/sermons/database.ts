@@ -253,12 +253,13 @@ export async function importFeedLessonsToDatabase(lessons: Lesson[]): Promise<nu
   const config = getServiceConfig();
   if (!config) return 0;
 
-  const sourcePayloads = lessons.map(toSourcePayload);
-  const lessonPayloads = lessons.map(toLessonPayload);
+  const importBatch = lessons.slice(0, 50);
+  const sourcePayloads = importBatch.map(toSourcePayload);
+  const lessonPayloads = importBatch.map(toLessonPayload);
 
   await upsertRows(config, "teaching_sources", sourcePayloads, "provider,provider_item_id");
-  const rows = await upsertRows<SupabaseLessonRow>(config, "teaching_lessons", lessonPayloads, "slug");
-  return rows.length;
+  await upsertRows(config, "teaching_lessons", lessonPayloads, "slug");
+  return lessonPayloads.length;
 }
 
 export async function prepareLessonAiReview(lessonId: string): Promise<void> {
@@ -558,23 +559,26 @@ async function patchLesson(lessonId: string, payload: Record<string, unknown>): 
   });
 }
 
-async function upsertRows<T>(
+async function upsertRows(
   config: SupabaseConfig,
   table: string,
   rows: unknown[],
   onConflict: string,
-): Promise<T[]> {
-  if (rows.length === 0) return [];
+): Promise<void> {
+  if (rows.length === 0) return;
 
-  const params = new URLSearchParams({ on_conflict: onConflict });
-  return supabaseFetch<T[]>(config, `/rest/v1/${table}?${params}`, {
-    method: "POST",
-    body: JSON.stringify(rows),
-    headers: {
-      Prefer: "resolution=merge-duplicates,return=representation",
-      "Content-Type": "application/json",
-    },
-  });
+  const chunks = chunk(rows, 25);
+  for (const batch of chunks) {
+    const params = new URLSearchParams({ on_conflict: onConflict });
+    await supabaseFetch(config, `/rest/v1/${table}?${params}`, {
+      method: "POST",
+      body: JSON.stringify(batch),
+      headers: {
+        Prefer: "resolution=merge-duplicates,return=minimal",
+        "Content-Type": "application/json",
+      },
+    });
+  }
 }
 
 async function supabaseFetch<T>(
@@ -738,4 +742,12 @@ function slugify(value: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 80);
+}
+
+function chunk<T>(values: T[], size: number): T[][] {
+  const chunks: T[][] = [];
+  for (let index = 0; index < values.length; index += size) {
+    chunks.push(values.slice(index, index + size));
+  }
+  return chunks;
 }
