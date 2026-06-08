@@ -65,6 +65,7 @@ export type LessonFilters = {
   series?: string;
   year?: string;
   sort?: "newest" | "oldest";
+  view?: "cards" | "list";
 };
 
 const DEFAULT_ARTWORK = "/sermons/artwork/teaching-library-default.png";

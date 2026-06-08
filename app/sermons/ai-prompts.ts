@@ -27,6 +27,7 @@ export function buildLessonBreakdownPrompt(input: LessonBreakdownInput): string 
     "",
     "Artwork should be restrained, Scripture-centered, warm, simple, and consistent with the series visual family when a series exists.",
     "Do not create hype language. Do not be defensive. Keep the tone sincere, biblical, and visitor-friendly.",
+    "The summary must be 1-2 short sentences, no more than 220 characters. It should describe what the lesson is about, not repeat a long transcript excerpt.",
     "",
     `Source title: ${input.sourceTitle}`,
     `Source date: ${input.sourceDate}`,

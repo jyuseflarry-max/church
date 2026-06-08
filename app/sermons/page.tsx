@@ -28,6 +28,12 @@ function stringParam(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
+function lessonBlurb(lesson: Lesson) {
+  const summary = lesson.summary.replace(/\s+/g, " ").trim();
+  if (summary.length <= 180) return summary;
+  return `${summary.slice(0, 177).replace(/\s+\S*$/, "")}...`;
+}
+
 function ArrowIcon() {
   return (
     <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4" aria-hidden="true">
@@ -222,13 +228,37 @@ function FilterForm({
           </select>
         </label>
       </div>
-      <div className="mt-5 flex flex-wrap gap-3">
-        <button className="rounded-full bg-sage-deep px-5 py-2.5 text-sm font-bold text-white hover:bg-sage-dark focus-ring">
-          Apply filters
-        </button>
-        <Link href="/sermons#browse" className="rounded-full border border-line px-5 py-2.5 text-sm font-bold text-sage-deep hover:bg-sage-muted focus-ring">
-          Reset
-        </Link>
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-3">
+          <label className="inline-flex items-center gap-2 rounded-full border border-line bg-cream px-4 py-2 text-sm font-bold text-sage-deep">
+            <input
+              type="radio"
+              name="view"
+              value="cards"
+              defaultChecked={(filters.view ?? "cards") === "cards"}
+              className="accent-sage-deep"
+            />
+            Cards
+          </label>
+          <label className="inline-flex items-center gap-2 rounded-full border border-line bg-cream px-4 py-2 text-sm font-bold text-sage-deep">
+            <input
+              type="radio"
+              name="view"
+              value="list"
+              defaultChecked={filters.view === "list"}
+              className="accent-sage-deep"
+            />
+            List
+          </label>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <button className="rounded-full bg-sage-deep px-5 py-2.5 text-sm font-bold text-white hover:bg-sage-dark focus-ring">
+            Apply filters
+          </button>
+          <Link href="/sermons#browse" className="rounded-full border border-line px-5 py-2.5 text-sm font-bold text-sage-deep hover:bg-sage-muted focus-ring">
+            Reset
+          </Link>
+        </div>
       </div>
     </form>
   );
@@ -264,7 +294,7 @@ function Select({
   );
 }
 
-function LessonList({ lessons }: { lessons: Lesson[] }) {
+function LessonList({ lessons, view }: { lessons: Lesson[]; view: "cards" | "list" }) {
   if (lessons.length === 0) {
     return (
       <div className="rounded-2xl border border-line bg-white p-10 text-center">
@@ -274,46 +304,79 @@ function LessonList({ lessons }: { lessons: Lesson[] }) {
     );
   }
 
+  if (view === "list") {
+    return (
+      <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
+        {lessons.map((lesson) => {
+          const duration = formatDuration(lesson.durationSeconds);
+          return (
+            <Link
+              key={lesson.id}
+              href={`/sermons/${lesson.slug}`}
+              className="grid gap-3 border-b border-line p-4 last:border-b-0 hover:bg-cream focus-ring md:grid-cols-[1fr_auto] md:items-center"
+            >
+              <div>
+                <div className="flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-[0.12em] text-rose">
+                  <span>{lesson.type}</span>
+                  {lesson.service && <span>{lesson.service}</span>}
+                  {lesson.series && <span>{lesson.series}</span>}
+                </div>
+                <h2 className="mt-1 text-xl font-bold leading-tight text-sage-deep">{lesson.title}</h2>
+                <p className="mt-1 text-sm font-semibold text-muted">
+                  {lesson.speaker} | {formatDate(lesson.date)}
+                  {duration ? ` | ${duration}` : ""}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-charcoal/72">{lessonBlurb(lesson)}</p>
+              </div>
+              <span className="inline-flex items-center gap-2 text-sm font-bold text-sage-deep">
+                Open <ArrowIcon />
+              </span>
+            </Link>
+          );
+        })}
+      </div>
+    );
+  }
+
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
       {lessons.map((lesson) => {
         const duration = formatDuration(lesson.durationSeconds);
         return (
-          <article key={lesson.id} className="grid gap-5 rounded-2xl border border-line bg-white p-4 shadow-sm md:grid-cols-[220px_1fr_auto] md:items-center">
-            <Link href={`/sermons/${lesson.slug}`} className="relative aspect-video overflow-hidden rounded-xl bg-sage-muted focus-ring">
+          <article key={lesson.id} className="overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
+            <Link href={`/sermons/${lesson.slug}`} className="relative block aspect-video bg-sage-muted focus-ring">
               <LessonArtwork lesson={lesson} />
             </Link>
-            <div>
+            <div className="p-5">
               <div className="flex flex-wrap gap-2 text-xs font-bold uppercase tracking-[0.12em] text-rose">
                 <span>{lesson.type}</span>
                 {lesson.service && <span>{lesson.service}</span>}
                 {lesson.series && <span>{lesson.series}</span>}
               </div>
-              <h2 className="mt-2 text-2xl font-bold leading-tight text-sage-deep">
+              <h2 className="mt-2 text-xl font-bold leading-tight text-sage-deep">
                 <Link href={`/sermons/${lesson.slug}`} className="hover:text-rose">
                   {lesson.title}
                 </Link>
               </h2>
               <p className="mt-2 text-sm font-semibold text-muted">
-                {lesson.speaker} · {formatDate(lesson.date)}
-                {duration ? ` · ${duration}` : ""}
+                {lesson.speaker} | {formatDate(lesson.date)}
+                {duration ? ` | ${duration}` : ""}
               </p>
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-charcoal/72">{lesson.summary}</p>
+              <p className="mt-3 text-sm leading-6 text-charcoal/72">{lessonBlurb(lesson)}</p>
+              <Link
+                href={`/sermons/${lesson.slug}`}
+                className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-sage-deep hover:text-rose"
+              >
+                Open lesson
+                <ArrowIcon />
+              </Link>
             </div>
-            <Link
-              href={`/sermons/${lesson.slug}`}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-sage-deep px-5 py-2.5 text-sm font-bold text-white hover:bg-sage-dark focus-ring"
-            >
-              Open
-              <ArrowIcon />
-            </Link>
           </article>
         );
       })}
     </div>
   );
 }
-
 export default async function SermonsPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const filters: LessonFilters = {
@@ -324,6 +387,7 @@ export default async function SermonsPage({ searchParams }: PageProps) {
     series: stringParam(params.series),
     year: stringParam(params.year),
     sort: stringParam(params.sort) === "oldest" ? "oldest" : "newest",
+    view: stringParam(params.view) === "list" ? "list" : "cards",
   };
 
   const lessons = await getAllLessons();
@@ -352,10 +416,11 @@ export default async function SermonsPage({ searchParams }: PageProps) {
           </div>
           <FilterForm filters={filters} options={options} />
           <div className="mt-8">
-            <LessonList lessons={visibleLessons.slice(0, 60)} />
+            <LessonList lessons={visibleLessons.slice(0, 60)} view={filters.view ?? "cards"} />
           </div>
         </div>
       </section>
     </>
   );
 }
+

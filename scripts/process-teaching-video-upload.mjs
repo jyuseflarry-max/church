@@ -584,6 +584,7 @@ function buildLessonBreakdownPrompt(lesson, transcript) {
     "When the transcript includes timestamps like [20:00], use those timestamps to calculate clipStartSeconds and clipEndSeconds relative to the full recording.",
     "Do not include songs, prayers, communion comments, invitation songs, announcements, or full-service material in the public clip.",
     "Keep the tone sincere, biblical, and visitor-friendly.",
+    "The summary must be 1-2 short sentences, no more than 220 characters. It should describe what the lesson is about, not repeat a long transcript excerpt.",
     "",
     `Source title: ${lesson.title}`,
     `Source date: ${lesson.lesson_date}`,
