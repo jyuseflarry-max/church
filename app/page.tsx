@@ -43,12 +43,6 @@ function Hero() {
               Plan Your Visit
               <ArrowIcon />
             </Link>
-            <Link
-              href={church.livestreamUrl}
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-line bg-white px-6 py-3.5 text-base font-bold text-sage-deep transition-colors hover:border-sage-light hover:bg-sage-muted focus-ring"
-            >
-              Watch Online
-            </Link>
           </div>
 
           <div className="mt-8 grid gap-3 rounded-2xl border border-line bg-white/88 p-4 shadow-sm sm:grid-cols-2">
