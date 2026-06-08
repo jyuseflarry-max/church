@@ -1,247 +1,215 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import PrayerRequestForm from "./PrayerRequestForm";
+import { church, images } from "../site-content";
 
 export const metadata: Metadata = {
   title: "Get Connected",
   description:
-    "Once you've visited, here's how to get involved at Fulshear Church of Christ — Bible classes, our Newcomer Dinner, ways to serve, the partners we love in our community, and how to talk with a minister.",
+    "Get connected at Fulshear Church of Christ through Bible classes, newcomer dinners, service, community outreach, prayer, and conversations with a minister.",
 };
 
-/* ─── Page Hero ─────────────────────────────────────────────────────────────── */
-function PageHero() {
-  return (
-    <section className="relative overflow-hidden bg-sage-deep py-20 md:py-28">
-      <div
-        aria-hidden="true"
-        className="absolute inset-0"
-        style={{
-          background:
-            "linear-gradient(135deg, #2F5247 0%, #4D7770 50%, #C97A7C 100%)",
-        }}
-      />
-      <div
-        aria-hidden="true"
-        className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse at 20% 60%, rgba(228,168,170,0.32) 0%, transparent 60%)",
-        }}
-      />
-      <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
-        <p className="text-rose-light text-sm font-semibold tracking-widest uppercase mb-4">
-          Get Involved
-        </p>
-        <h1 className="font-serif text-white text-4xl md:text-6xl font-bold mb-6 leading-tight">
-          Get Connected
-        </h1>
-        <p className="text-white/75 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-          You&apos;ve visited — now what? Here&apos;s how the Fulshear family
-          learns, serves, and grows together. Email or stop by anytime;
-          we&apos;d love to put a face with your name.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-/* ─── Bible Classes ─────────────────────────────────────────────────────────── */
 const classBlocks = [
   {
     day: "Sunday Mornings",
     time: "9:00 AM",
-    adultLabel: "Three concurrent adult classes",
-    adultBody:
-      "Pick the study track that fits the season you&rsquo;re in — verse-by-verse Bible study, topical discussion, or a deeper dive on a single book.",
-    kidsBody:
-      "Age-grouped classes from nursery through high school, all running at the same time so the whole family can plug in together.",
+    adult: "Three adult class options, with kids and teens meeting at the same time.",
+    family: "The whole family can study Scripture in age-appropriate spaces before worship begins.",
   },
   {
     day: "Wednesday Evenings",
     time: "7:00 PM",
-    adultLabel: "One mid-week adult class",
-    adultBody:
-      "A focused mid-week study — a great place to slow down, ask questions, and dig into Scripture with people you&rsquo;re getting to know.",
-    kidsBody:
-      "Multiple kids&rsquo; classes running concurrently, so parents can join the adult study without missing a beat.",
+    adult: "A focused mid-week study for adults.",
+    family: "Kids and students meet too, making Wednesday a simple rhythm for the whole family.",
   },
 ];
 
-function BibleClasses() {
-  return (
-    <section className="bg-white py-16 md:py-20">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="text-center mb-12">
-          <p className="text-rose text-sm font-semibold tracking-widest uppercase mb-2">
-            Learn Together
-          </p>
-          <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold">
-            Bible Classes <br className="hidden md:block" />
-            for Every Age
-          </h2>
-          <p className="text-muted mt-3 max-w-xl mx-auto">
-            Bible study is at the heart of who we are. Visitors are always
-            welcome — come early, sit in, ask questions.
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-6">
-          {classBlocks.map((block) => (
-            <div
-              key={block.day}
-              className="bg-cream rounded-2xl p-7 flex flex-col gap-4"
-            >
-              <div className="flex items-baseline justify-between">
-                <h3 className="font-serif font-bold text-sage-deep text-xl">
-                  {block.day}
-                </h3>
-                <span className="text-sage font-semibold text-sm">
-                  {block.time}
-                </span>
-              </div>
-              <div>
-                <div className="text-sage-deep font-semibold text-sm mb-1">
-                  Adults
-                </div>
-                <p
-                  className="text-charcoal text-sm leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: block.adultLabel + " — " + block.adultBody }}
-                />
-              </div>
-              <div>
-                <div className="text-sage-deep font-semibold text-sm mb-1">
-                  Kids & Teens
-                </div>
-                <p
-                  className="text-charcoal text-sm leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: block.kidsBody }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ─── Newcomer Dinner ───────────────────────────────────────────────────────── */
-function NewcomerDinner() {
-  return (
-    <section className="bg-rose-muted py-16 md:py-20">
-      <div className="max-w-4xl mx-auto px-6 text-center">
-        <p className="text-rose-dark text-sm font-semibold tracking-widest uppercase mb-3">
-          Meet the Family
-        </p>
-        <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold mb-5 leading-snug">
-          Come to Our <br className="hidden md:block" />
-          Newcomer Dinner
-        </h2>
-        <p className="text-charcoal leading-relaxed text-lg mb-6 max-w-2xl mx-auto">
-          A few times a year we set aside an evening just for newer faces — a
-          relaxed dinner with our elders, ministers, and other folks who are
-          new to the church family. It&apos;s the easiest way to put names
-          with faces, ask the questions visitors usually have, and feel less
-          like the new person on Sunday.
-        </p>
-        <a
-          href="mailto:office@fulshearcoc.org?subject=Newcomer%20Dinner"
-          className="inline-flex items-center justify-center gap-2 bg-sage text-white font-semibold px-7 py-3.5 rounded-full hover:bg-sage-dark transition-colors text-base shadow-sm"
-        >
-          Ask About the Next One
-        </a>
-      </div>
-    </section>
-  );
-}
-
-/* ─── Serve / Find Your Place ───────────────────────────────────────────────── */
 const ministries = [
   {
     name: "Worship",
-    body: "Song leading, prayers, Lord&rsquo;s Supper preparation — the rhythms of Sunday worship.",
+    body: "Song leading, prayers, Lord's Supper preparation, Scripture reading, and the shared rhythms of Sunday worship.",
   },
   {
     name: "Kids Ministry",
-    body: "Teach, assist, or help with check-in for our nursery through 5th-grade classes.",
+    body: "Teach, assist, or help create a calm first-Sunday experience for children and parents.",
   },
   {
     name: "Youth Ministry",
-    body: "Walk alongside our middle and high schoolers as they grow in faith and friendship.",
+    body: "Walk alongside middle and high school students as they grow in faith and friendship.",
   },
   {
     name: "Greeters & Hospitality",
-    body: "Be the friendly face at the door and the warm welcome that visitors remember.",
+    body: "Be the friendly face at the door and the warm welcome visitors remember.",
   },
   {
-    name: "Meals & Benevolence",
+    name: "Meals & Care",
     body: "Cook, deliver, and care for families navigating illness, loss, or a new baby.",
   },
   {
     name: "Audio / Visual",
-    body: "Help run sound, slides, and the live stream so we can worship and reach beyond the building.",
-  },
-  {
-    name: "Outreach & Service",
-    body: "Plug into our work with Fulshear High, first responders, and missions partners (see below).",
+    body: "Help run sound, slides, and livestream support so worship can be heard clearly.",
   },
 ];
 
-function FindYourPlace() {
+const outreach = [
+  {
+    title: "Missions",
+    body: "We support missionaries carrying the gospel into communities close to home and across the world.",
+  },
+  {
+    title: "Fulshear High School",
+    body: "We partner with coaches, teams, and student groups by showing up with meals, mentoring, and encouragement.",
+  },
+  {
+    title: "First Responders",
+    body: "We regularly support and care for Fulshear's police, fire, and EMS workers.",
+  },
+];
+
+function ArrowIcon() {
   return (
-    <section className="bg-white py-16 md:py-20">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="text-center mb-12">
-          <p className="text-rose text-sm font-semibold tracking-widest uppercase mb-2">
-            Serve Together
+    <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4" aria-hidden="true">
+      <path
+        fillRule="evenodd"
+        d="M3 10a.75.75 0 0 1 .75-.75h10.64l-4.16-3.96a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.16-3.96H3.75A.75.75 0 0 1 3 10Z"
+        clipRule="evenodd"
+      />
+    </svg>
+  );
+}
+
+function Hero() {
+  return (
+    <section className="relative overflow-hidden">
+      <div className="container-wide grid min-h-[calc(100vh-4rem)] items-center gap-10 py-12 md:grid-cols-[0.95fr_1.05fr] md:py-16">
+        <div className="relative z-10 max-w-2xl">
+          <p className="text-sm font-bold uppercase tracking-[0.22em] text-rose">
+            Get connected
           </p>
-          <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold">
-            Find Your Place
-          </h2>
-          <p className="text-muted mt-3 max-w-xl mx-auto">
-            Every ministry has a place for those willing to serve — and, for
-            the roles where Scripture sets specific qualifications, those who
-            meet them. Whether you&apos;ve been here a month or a decade, your
-            gifts have a home here. Curious about a specific area? Email us
-            and we&apos;ll connect you with the team lead.
+          <h1 className="mt-4 text-4xl font-bold leading-[1.03] text-sage-deep sm:text-5xl md:text-7xl md:leading-[0.98]">
+            Start finding your place in the church family.
+          </h1>
+          <p className="mt-6 max-w-xl text-lg leading-8 text-charcoal/78">
+            Once you have visited, the next step is usually simple: learn with
+            us, share a meal, serve somewhere, or ask a real question. We would
+            be glad to help you take the next step at your pace.
           </p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <a
+              href={`mailto:${church.email}?subject=Getting%20Connected`}
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-sage-deep px-6 py-3.5 text-base font-bold text-white transition-colors hover:bg-sage-dark focus-ring"
+            >
+              Email the Office
+              <ArrowIcon />
+            </a>
+            <Link
+              href="/plan-a-visit"
+              className="inline-flex items-center justify-center rounded-full border border-line bg-white px-6 py-3.5 text-base font-bold text-sage-deep transition-colors hover:border-sage-light hover:bg-sage-muted focus-ring"
+            >
+              Plan a Visit
+            </Link>
+          </div>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {ministries.map((m) => (
-            <div
-              key={m.name}
-              className="bg-cream rounded-xl p-6 border border-sage-muted/60"
-            >
-              <h3 className="font-serif font-bold text-sage-deep text-lg mb-2">
-                {m.name}
-              </h3>
-              <p
-                className="text-charcoal text-sm leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: m.body }}
-              />
-            </div>
+        <div className="relative">
+          <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-sage-muted soft-shadow md:aspect-[5/6]">
+            <Image
+              src={images.fellowship}
+              alt="People visiting together after worship in a church lobby"
+              fill
+              priority
+              sizes="(min-width: 768px) 50vw, 100vw"
+              className="object-cover"
+            />
+          </div>
+          <div className="absolute -bottom-5 left-5 right-5 rounded-2xl bg-white p-5 shadow-xl ring-1 ring-line md:left-auto md:w-72">
+            <p className="font-serif text-2xl font-bold leading-tight text-sage-deep">
+              You do not have to figure it out alone.
+            </p>
+            <p className="mt-2 text-sm leading-6 text-muted">
+              Send a note, come to class, or ask someone at the door on Sunday.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function BibleClasses() {
+  return (
+    <section className="section-pad bg-cream">
+      <div className="container-wide">
+        <div className="max-w-2xl">
+          <h2 className="text-4xl font-bold leading-tight text-sage-deep md:text-5xl">
+            Learn Scripture with people you are getting to know.
+          </h2>
+          <p className="mt-4 text-lg leading-8 text-charcoal/76">
+            Bible study is one of the easiest ways to move from visiting to
+            belonging. Visitors are always welcome to sit in and ask questions.
+          </p>
+        </div>
+        <div className="mt-10 grid gap-5 md:grid-cols-2">
+          {classBlocks.map((block) => (
+            <article key={block.day} className="rounded-2xl border border-line bg-white p-6">
+              <div className="flex items-baseline justify-between gap-4">
+                <h3 className="text-2xl font-bold text-sage-deep">{block.day}</h3>
+                <p className="shrink-0 text-sm font-bold text-sage">{block.time}</p>
+              </div>
+              <div className="mt-5 space-y-4">
+                <div>
+                  <p className="text-sm font-bold uppercase tracking-[0.16em] text-rose">
+                    Adults
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-muted">{block.adult}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-bold uppercase tracking-[0.16em] text-rose">
+                    Kids & Teens
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-muted">{block.family}</p>
+                </div>
+              </div>
+            </article>
           ))}
         </div>
+      </div>
+    </section>
+  );
+}
 
-        <div className="mt-10 text-center">
+function NewcomerDinner() {
+  return (
+    <section className="section-pad bg-white">
+      <div className="container-wide grid gap-12 md:grid-cols-[0.9fr_1.1fr] md:items-center">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-[1.75rem] bg-sage-muted soft-shadow">
+          <Image
+            src={images.arrival}
+            alt="Families arriving at church on Sunday morning"
+            fill
+            sizes="(min-width: 768px) 45vw, 100vw"
+            className="object-cover"
+          />
+        </div>
+        <div>
+          <p className="text-sm font-bold uppercase tracking-[0.22em] text-rose">
+            Meet the family
+          </p>
+          <h2 className="mt-3 text-4xl font-bold leading-tight text-sage-deep md:text-5xl">
+            Come to a newcomer dinner.
+          </h2>
+          <p className="mt-5 text-lg leading-8 text-charcoal/76">
+            A few times a year, we set aside an evening for newer faces to
+            share a relaxed meal with elders, ministers, and others who are
+            finding their way into the church family.
+          </p>
           <a
-            href="mailto:office@fulshearcoc.org?subject=I%27d%20like%20to%20serve"
-            className="inline-flex items-center gap-2 text-sage font-semibold text-base hover:text-sage-dark transition-colors"
+            href={`mailto:${church.email}?subject=Newcomer%20Dinner`}
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-sage-deep px-6 py-3 text-sm font-bold text-white hover:bg-sage-dark focus-ring"
           >
-            Email Paul Cartwright to get started
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="w-4 h-4"
-            >
-              <path
-                fillRule="evenodd"
-                d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z"
-                clipRule="evenodd"
-              />
-            </svg>
+            Ask About the Next One
+            <ArrowIcon />
           </a>
         </div>
       </div>
@@ -249,53 +217,58 @@ function FindYourPlace() {
   );
 }
 
-/* ─── In the Community / Outreach ───────────────────────────────────────────── */
-const outreach = [
-  {
-    title: "Missions",
-    body: "We support missionaries carrying the gospel into communities both close to home and across the world. Their work is our work.",
-  },
-  {
-    title: "Fulshear High School",
-    body: "We partner with athletic teams, coaches, and student groups at Fulshear High — providing meals, mentoring, and showing up for the kids in our community.",
-  },
-  {
-    title: "First Responders",
-    body: "We regularly support and care for Fulshear&rsquo;s police, fire, and EMS — the men and women who keep our neighborhood safe.",
-  },
-];
+function FindYourPlace() {
+  return (
+    <section className="section-pad bg-warm-white">
+      <div className="container-wide">
+        <div className="max-w-2xl">
+          <h2 className="text-4xl font-bold leading-tight text-sage-deep md:text-5xl">
+            Find a place to serve.
+          </h2>
+          <p className="mt-4 text-lg leading-8 text-charcoal/76">
+            Every ministry has a place for willing hands. Curious about a
+            specific area? Send a note and we will connect you with the right
+            person.
+          </p>
+        </div>
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {ministries.map((ministry) => (
+            <article key={ministry.name} className="rounded-2xl border border-line bg-white p-6">
+              <h3 className="text-2xl font-bold text-sage-deep">{ministry.name}</h3>
+              <p className="mt-3 text-sm leading-6 text-muted">{ministry.body}</p>
+            </article>
+          ))}
+        </div>
+        <a
+          href={`mailto:${church.email}?subject=I%27d%20like%20to%20serve`}
+          className="mt-8 inline-flex items-center gap-2 rounded-full bg-rose px-6 py-3 text-sm font-bold text-white hover:bg-rose-dark focus-ring"
+        >
+          Ask Where to Serve
+          <ArrowIcon />
+        </a>
+      </div>
+    </section>
+  );
+}
 
 function InTheCommunity() {
   return (
-    <section className="bg-cream py-16 md:py-20">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="text-center mb-12">
-          <p className="text-rose text-sm font-semibold tracking-widest uppercase mb-2">
-            Beyond Our Walls
-          </p>
-          <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold">
-            In the Community
+    <section className="section-pad bg-sage-deep text-white">
+      <div className="container-wide">
+        <div className="max-w-2xl">
+          <h2 className="text-4xl font-bold leading-tight md:text-5xl">
+            We want to bless the community around us.
           </h2>
-          <p className="text-muted mt-3 max-w-xl mx-auto">
-            Loving our neighbors means more than Sunday morning. Here&apos;s
-            where the Fulshear church family is showing up.
+          <p className="mt-4 text-lg leading-8 text-white/72">
+            Loving our neighbors means showing up beyond Sunday morning.
           </p>
         </div>
-
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="mt-10 grid gap-5 md:grid-cols-3">
           {outreach.map((item) => (
-            <div
-              key={item.title}
-              className="bg-white rounded-2xl p-7 shadow-sm flex flex-col gap-3"
-            >
-              <h3 className="font-serif font-bold text-sage-deep text-xl">
-                {item.title}
-              </h3>
-              <p
-                className="text-charcoal text-sm leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: item.body }}
-              />
-            </div>
+            <article key={item.title} className="rounded-2xl border border-white/12 bg-white/[0.06] p-6">
+              <h3 className="text-2xl font-bold text-white">{item.title}</h3>
+              <p className="mt-3 text-sm leading-6 text-white/70">{item.body}</p>
+            </article>
           ))}
         </div>
       </div>
@@ -303,25 +276,23 @@ function InTheCommunity() {
   );
 }
 
-/* ─── Prayer Request ────────────────────────────────────────────────────────── */
 function PrayerSection() {
   return (
-    <section className="bg-white py-16 md:py-20">
-      <div className="max-w-3xl mx-auto px-6">
-        <div className="text-center mb-10">
-          <p className="text-rose text-sm font-semibold tracking-widest uppercase mb-2">
-            Pray With Us
+    <section className="section-pad bg-white">
+      <div className="container-wide grid gap-10 md:grid-cols-[0.75fr_1.25fr]">
+        <div>
+          <p className="text-sm font-bold uppercase tracking-[0.22em] text-rose">
+            Pray with us
           </p>
-          <h2 className="font-serif text-sage-deep text-3xl md:text-4xl font-bold mb-3">
-            Submit a Prayer Request
+          <h2 className="mt-3 text-4xl font-bold leading-tight text-sage-deep md:text-5xl">
+            Submit a prayer request.
           </h2>
-          <p className="text-muted leading-relaxed">
-            Whether it&apos;s a quiet weight, a celebration, or a need someone
-            you love is facing — we want to pray with you.
+          <p className="mt-4 text-lg leading-8 text-charcoal/76">
+            Whether it is a quiet weight, a celebration, or a need someone you
+            love is facing, we want to pray with you.
           </p>
         </div>
-
-        <div className="bg-cream rounded-2xl p-6 md:p-8 shadow-sm">
+        <div className="rounded-[1.5rem] border border-line bg-cream p-6 shadow-sm md:p-8">
           <PrayerRequestForm />
         </div>
       </div>
@@ -329,49 +300,34 @@ function PrayerSection() {
   );
 }
 
-/* ─── Talk to a Minister ────────────────────────────────────────────────────── */
 function TalkToMinister() {
   return (
-    <section className="bg-sage-deep text-white py-16 text-center">
-      <div className="max-w-2xl mx-auto px-6">
-        <p className="text-rose-light text-sm font-semibold tracking-widest uppercase mb-3">
-          Talk to a Minister
-        </p>
-        <h2 className="font-serif text-white text-3xl md:text-4xl font-bold mb-4">
-          We&apos;d Love to <br className="hidden md:block" />
-          Hear from You
+    <section className="bg-sage-deep py-14 text-center text-white">
+      <div className="container-wide">
+        <h2 className="text-3xl font-bold md:text-4xl">
+          We would love to hear from you.
         </h2>
-        <p className="text-white/75 text-lg leading-relaxed mb-8">
-          Big question, small question, or anything in between — Paul
-          Cartwright is glad to hear from you. Email anytime; we&apos;ll get
-          back to you quickly.
+        <p className="mx-auto mt-3 max-w-2xl text-white/72">
+          Big question, small question, or anything in between, send a note and
+          a real person will reply.
         </p>
-        <a
-          href="mailto:office@fulshearcoc.org"
-          className="inline-flex items-center justify-center gap-2 bg-white text-sage-deep font-semibold px-8 py-3.5 rounded-full hover:bg-cream transition-colors shadow-lg text-base"
-        >
-          Email Paul
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            className="w-5 h-5"
-          >
-            <path d="M3 4a2 2 0 0 0-2 2v1.161l8.441 4.221a1.25 1.25 0 0 0 1.118 0L19 7.162V6a2 2 0 0 0-2-2H3Z" />
-            <path d="m19 8.839-7.77 3.885a2.75 2.75 0 0 1-2.46 0L1 8.839V14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.839Z" />
-          </svg>
-        </a>
-        <p className="text-white/60 text-sm mt-4">office@fulshearcoc.org</p>
+        <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+          <a href={`mailto:${church.email}`} className="rounded-full bg-white px-6 py-3 font-bold text-sage-deep hover:bg-cream focus-ring">
+            Email the Office
+          </a>
+          <a href={`tel:+1${church.phone.replace(/\D/g, "")}`} className="rounded-full border border-white/20 px-6 py-3 font-bold text-white hover:bg-white/10 focus-ring">
+            {church.phone}
+          </a>
+        </div>
       </div>
     </section>
   );
 }
 
-/* ─── Page ──────────────────────────────────────────────────────────────────── */
 export default function ConnectPage() {
   return (
     <>
-      <PageHero />
+      <Hero />
       <BibleClasses />
       <NewcomerDinner />
       <FindYourPlace />
