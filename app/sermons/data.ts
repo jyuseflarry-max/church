@@ -124,7 +124,7 @@ export async function getCongregateLessonBatch(offset = 0, limit = 50): Promise<
     skip = 0;
   }
 
-  return lessons;
+  return attachPodcastAudio(lessons);
 }
 
 export async function getFeaturedLesson(): Promise<Lesson | null> {
@@ -389,6 +389,39 @@ function parseItem(itemXml: string): Lesson | null {
       needsApproval: true,
     },
   };
+}
+
+async function attachPodcastAudio(lessons: Lesson[]): Promise<Lesson[]> {
+  if (lessons.length === 0) return lessons;
+
+  let feedLessons: Lesson[];
+  try {
+    feedLessons = await getFeedLessons();
+  } catch {
+    return lessons;
+  }
+
+  return lessons.map((lesson) => {
+    if (lesson.audioUrl) return lesson;
+    const feedLesson = feedLessons.find((candidate) => isSameCatalogLesson(lesson, candidate));
+    return feedLesson?.audioUrl
+      ? {
+          ...lesson,
+          audioUrl: feedLesson.audioUrl,
+          durationSeconds: feedLesson.durationSeconds,
+        }
+      : lesson;
+  });
+}
+
+function isSameCatalogLesson(a: Lesson, b: Lesson): boolean {
+  const sameDate = a.date.slice(0, 10) === b.date.slice(0, 10);
+  const sameTitle = slugify(a.title) === slugify(b.title);
+  if (!sameDate || !sameTitle) return false;
+
+  const sameSpeaker = !a.speaker || !b.speaker || normalize(a.speaker) === normalize(b.speaker);
+  const sameService = !a.service || !b.service || normalize(a.service) === normalize(b.service);
+  return sameSpeaker && sameService;
 }
 
 function catalogPageUrl(page: number): string {

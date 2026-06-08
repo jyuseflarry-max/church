@@ -306,9 +306,13 @@ function ReviewCard({
         </p>
         <p className="mt-3 text-sm leading-6 text-charcoal/72">{lesson.summary}</p>
         <div className="mt-4 flex flex-wrap gap-3 text-sm font-bold">
-          <Link href={`/sermons/${lesson.slug}`} className="text-rose hover:text-rose-dark">
-            Preview public page
-          </Link>
+          {lesson.approvalStatus === "published" ? (
+            <Link href={`/sermons/${lesson.slug}`} className="text-rose hover:text-rose-dark">
+              Open public page
+            </Link>
+          ) : (
+            <span className="text-muted">Public page appears after publish</span>
+          )}
           {lesson.videoUrl && (
             <a
               href={lesson.videoUrl}
@@ -380,10 +384,14 @@ function ReviewCard({
           <ActionForm
             action={queueYoutubeUploadAction}
             lessonId={lesson.id}
-            label="Queue YouTube upload"
+            label="Queue video clip + YouTube"
             disabled={
               !writable ||
+              !lesson.vimeoId ||
+              !lesson.ai.suggestedClipStart ||
+              !lesson.ai.suggestedClipEnd ||
               lesson.youtubeUploadStatus === "queued" ||
+              lesson.youtubeUploadStatus === "uploading" ||
               lesson.youtubeUploadStatus === "uploaded_private" ||
               lesson.youtubeUploadStatus === "published"
             }

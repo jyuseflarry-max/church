@@ -1,4 +1,4 @@
-import { getFeedLessons } from "../../../sermons/data";
+import { getCongregateLessonBatch } from "../../../sermons/data";
 import {
   getTeachingDatabaseStatus,
   importFeedLessonsToDatabase,
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   }
 
   if (action === "import-feed") {
-    const lessons = await getFeedLessons();
+    const lessons = await getCongregateLessonBatch();
     const imported = await importFeedLessonsToDatabase(lessons);
     return Response.json({ ok: true, imported });
   }

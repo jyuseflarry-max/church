@@ -77,6 +77,7 @@ export async function queueYoutubeUploadAction(formData: FormData) {
   await requireTeachingAdmin();
   const lessonId = requireLessonId(formData);
   await queueLessonYoutubeUpload(lessonId);
+  await dispatchTeachingVideoWorker();
   revalidateTeachingLibrary();
 }
 
@@ -124,4 +125,27 @@ function revalidateTeachingLibrary() {
   revalidatePath("/admin/teaching-library");
   revalidatePath("/sermons");
   revalidatePath("/sermons/collections");
+}
+
+async function dispatchTeachingVideoWorker() {
+  const token = process.env.GITHUB_ACTIONS_DISPATCH_TOKEN;
+  const repo = process.env.GITHUB_ACTIONS_REPO;
+  const workflow = process.env.GITHUB_ACTIONS_TEACHING_WORKFLOW ?? "teaching-video-upload.yml";
+  if (!token || !repo) return;
+
+  try {
+    await fetch(`https://api.github.com/repos/${repo}/actions/workflows/${workflow}/dispatches`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github+json",
+        "Content-Type": "application/json",
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+      body: JSON.stringify({ ref: "main" }),
+      signal: AbortSignal.timeout(10000),
+    });
+  } catch {
+    // The queued database state is enough; the scheduled GitHub Action can still pick it up.
+  }
 }
