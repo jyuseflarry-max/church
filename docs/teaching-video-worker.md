@@ -11,9 +11,13 @@ Add these in GitHub under **Settings -> Secrets and variables -> Actions**:
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `VIMEO_ACCESS_TOKEN`
+- `OPENAI_API_KEY`
 - `YOUTUBE_CLIENT_ID`
 - `YOUTUBE_CLIENT_SECRET`
 - `YOUTUBE_REFRESH_TOKEN`
+- `SUPABASE_TEACHING_MEDIA_BUCKET`, optional. When set, the worker uploads the
+  clipped cleaned MP3 to this Supabase Storage bucket and saves the URL on the
+  lesson record.
 
 The Vimeo token must be able to read video file links for the Fulshear Vimeo
 account. The worker cannot trim a Vimeo player URL unless Vimeo returns a
@@ -35,10 +39,13 @@ queued videos every 15 minutes.
 ## Workflow
 
 1. Import lessons from Congregate.
-2. Prepare AI review to create transcript and clip times.
-3. Review and approve the suggested clip boundaries.
-4. Queue video clip + YouTube.
-5. GitHub Actions downloads the Vimeo source video, trims it with `ffmpeg`,
-   cleans the audio track for speech, uploads the clipped MP4 to YouTube as
-   private, and saves the YouTube ID.
-6. Review the private YouTube upload, then mark it public.
+2. If podcast audio exists, prepare AI review from that audio.
+3. If no podcast audio exists, queue the video-first workflow.
+4. GitHub Actions downloads the Vimeo source video, extracts a cleaned MP3 from
+   the full video, transcribes that audio, asks AI for sermon boundaries and
+   metadata, trims the sermon video, cleans the audio track, extracts the final
+   cleaned sermon MP3, uploads the clipped MP4 to YouTube as private, and saves
+   the YouTube ID.
+5. Review the generated transcript, clip boundaries, private YouTube upload, and
+   optional MP3.
+6. Publish the public lesson page.

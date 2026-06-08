@@ -434,8 +434,6 @@ function ReviewCard({
             disabled={
               !writable ||
               !lesson.vimeoId ||
-              !lesson.ai.suggestedClipStart ||
-              !lesson.ai.suggestedClipEnd ||
               lesson.youtubeUploadStatus === "queued" ||
               lesson.youtubeUploadStatus === "uploading" ||
               lesson.youtubeUploadStatus === "uploaded_private" ||
@@ -475,6 +473,14 @@ function nextWorkflowStep(lesson: TeachingAdminLesson):
   if (lesson.approvalStatus === "published") return null;
 
   if (!lesson.transcript || !lesson.ai.suggestedClipStart || !lesson.ai.suggestedClipEnd) {
+    if (!lesson.audioUrl && lesson.vimeoId) {
+      return {
+        step: "queue-video",
+        label: "Continue: process video-first review",
+        primary: true,
+      };
+    }
+
     return {
       step: "prepare-ai",
       label: lesson.audioUrl ? "Continue: prepare AI review" : "Needs audio before AI review",
