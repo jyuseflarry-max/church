@@ -15,10 +15,12 @@ import {
 } from "../../sermons/database";
 import { requireTeachingAdmin } from "../auth";
 
-export async function importCongregateLessonsAction() {
+export async function importCongregateLessonsAction(formData?: FormData) {
   await requireTeachingAdmin();
   const lessons = await getFeedLessons();
-  await importFeedLessonsToDatabase(lessons);
+  const offset = numberField(formData, "offset", 0);
+  const limit = numberField(formData, "limit", 50);
+  await importFeedLessonsToDatabase(lessons, { offset, limit });
   revalidateTeachingLibrary();
 }
 
@@ -98,6 +100,13 @@ function requireLessonId(formData: FormData): string {
     throw new Error("Missing lesson id.");
   }
   return lessonId;
+}
+
+function numberField(formData: FormData | undefined, name: string, fallback: number): number {
+  const value = formData?.get(name);
+  if (typeof value !== "string") return fallback;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
 }
 
 function revalidateTeachingLibrary() {

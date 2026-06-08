@@ -166,15 +166,39 @@ export default async function TeachingLibraryAdminPage() {
             <div className="rounded-2xl border border-line bg-sage-deep p-6 text-white">
               <h2 className="text-3xl font-bold">Import from Congregate</h2>
               <p className="mt-3 text-sm leading-6 text-white/72">
-                This pulls the latest 50 feed items into the database as private
-                imported records. Re-running it updates matching lessons by slug.
+                Import lessons in 50-item batches. Use offset 0 for the latest
+                batch, then 50, 100, 150, and so on for older lessons.
               </p>
-              <form action={importCongregateLessonsAction}>
+              <form action={importCongregateLessonsAction} className="mt-5 grid gap-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="text-xs font-bold uppercase tracking-[0.12em] text-white/70">
+                    Offset
+                    <input
+                      name="offset"
+                      type="number"
+                      min="0"
+                      step="50"
+                      defaultValue="0"
+                      className="mt-2 min-h-11 w-full rounded-xl border border-white/15 bg-white/95 px-3 text-sm font-bold text-sage-deep outline-none focus:border-gold"
+                    />
+                  </label>
+                  <label className="text-xs font-bold uppercase tracking-[0.12em] text-white/70">
+                    Limit
+                    <input
+                      name="limit"
+                      type="number"
+                      min="1"
+                      max="100"
+                      defaultValue="50"
+                      className="mt-2 min-h-11 w-full rounded-xl border border-white/15 bg-white/95 px-3 text-sm font-bold text-sage-deep outline-none focus:border-gold"
+                    />
+                  </label>
+                </div>
                 <button
                   disabled={!databaseStatus.writable || databaseUnavailable}
-                  className="mt-5 w-full rounded-full bg-white px-5 py-3 text-sm font-bold text-sage-deep hover:bg-cream disabled:cursor-not-allowed disabled:opacity-50 focus-ring"
+                  className="w-full rounded-full bg-white px-5 py-3 text-sm font-bold text-sage-deep hover:bg-cream disabled:cursor-not-allowed disabled:opacity-50 focus-ring"
                 >
-                  Import latest lessons
+                  Import batch
                 </button>
               </form>
             </div>

@@ -249,11 +249,16 @@ export async function getTeachingAdminLessonResult(): Promise<TeachingAdminLesso
   }
 }
 
-export async function importFeedLessonsToDatabase(lessons: Lesson[]): Promise<number> {
+export async function importFeedLessonsToDatabase(
+  lessons: Lesson[],
+  options: { offset?: number; limit?: number } = {},
+): Promise<number> {
   const config = getServiceConfig();
   if (!config) return 0;
 
-  const importBatch = lessons.slice(0, 50);
+  const offset = Math.max(0, options.offset ?? 0);
+  const limit = Math.min(100, Math.max(1, options.limit ?? 50));
+  const importBatch = lessons.slice(offset, offset + limit);
   const sourcePayloads = importBatch.map(toSourcePayload);
   const lessonPayloads = importBatch.map(toLessonPayload);
 
@@ -604,7 +609,10 @@ async function supabaseFetch<T>(
   }
 
   if (res.status === 204) return undefined as T;
-  return (await res.json()) as T;
+
+  const text = await res.text();
+  if (!text) return undefined as T;
+  return JSON.parse(text) as T;
 }
 
 function toSourcePayload(lesson: Lesson): SupabaseSourcePayload {
