@@ -246,19 +246,14 @@ function parseItem(itemXml: string): Lesson | null {
   const videoUrl = extractVimeoUrl(contentEncoded);
   const vimeoId = extractVimeoId(videoUrl);
 
-  const id =
-    link
-      .replace(/[?#].*$/, "")
-      .split("/")
-      .filter(Boolean)
-      .pop() || slugify(title);
+  const id = idFromLink(link) || slugify(title);
 
   const parsed = new Date(pubDate);
   const dateIso = isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString();
   const cleanSeries = series && series !== "N/A" ? series : null;
   const cleanType = type || "Lesson";
   const cleanService = service ?? "";
-  const slug = `${dateIso.slice(0, 10)}-${slugify(title)}`;
+  const slug = `${dateIso.slice(0, 10)}-${slugify(title)}-${slugify(id)}`;
   const artwork = artworkFor(cleanSeries, cleanService, cleanType, title);
 
   return {
@@ -403,6 +398,15 @@ function parseDuration(hms: string): number | null {
   if (parts.length === 2) return parts[0] * 60 + parts[1];
   if (parts.length === 1) return parts[0];
   return null;
+}
+
+function idFromLink(link: string): string {
+  try {
+    const url = new URL(link);
+    return slugify(url.pathname);
+  } catch {
+    return slugify(link.replace(/[?#].*$/, ""));
+  }
 }
 
 function extractVimeoUrl(html: string): string | null {
