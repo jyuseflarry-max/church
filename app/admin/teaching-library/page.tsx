@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { formatDate, getFeedLessons, type Lesson } from "../../sermons/data";
 import {
-  getTeachingAdminLessons,
+  getTeachingAdminLessonResult,
   getTeachingDatabaseStatus,
   type TeachingAdminLesson,
   type TeachingApprovalStatus,
@@ -88,7 +88,8 @@ const audioCleanupStatusLabels = {
 
 export default async function TeachingLibraryAdminPage() {
   const databaseStatus = getTeachingDatabaseStatus();
-  const dbLessons = await getTeachingAdminLessons();
+  const adminLessonResult = await getTeachingAdminLessonResult();
+  const dbLessons = adminLessonResult.lessons;
   const feedLessons = dbLessons ? [] : await getFeedLessons();
   const lessons = dbLessons ?? feedLessons.map(toPreviewLesson);
   const databaseUnavailable = databaseStatus.writable && !dbLessons;
@@ -153,6 +154,11 @@ export default async function TeachingLibraryAdminPage() {
                   The admin database connection is configured, but the lesson
                   records could not be loaded. Check the Supabase service role
                   key, project URL, and applied migrations.
+                  {adminLessonResult.error && (
+                    <span className="mt-3 block font-mono text-xs">
+                      {adminLessonResult.error}
+                    </span>
+                  )}
                 </p>
               )}
             </div>

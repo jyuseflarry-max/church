@@ -128,6 +128,10 @@ export type TeachingDatabaseStatus = {
   missing: string[];
 };
 
+export type TeachingAdminLessonResult =
+  | { lessons: TeachingAdminLesson[]; error: null }
+  | { lessons: null; error: string };
+
 export type TeachingAdminLesson = Lesson & {
   approvalStatus: TeachingApprovalStatus;
   audioCleanupStatus: AudioCleanupStatus;
@@ -216,8 +220,13 @@ export async function getPublishedLessonsFromDatabase(): Promise<Lesson[] | null
 }
 
 export async function getTeachingAdminLessons(): Promise<TeachingAdminLesson[] | null> {
+  const result = await getTeachingAdminLessonResult();
+  return result.lessons;
+}
+
+export async function getTeachingAdminLessonResult(): Promise<TeachingAdminLessonResult> {
   const config = getServiceConfig();
-  if (!config) return null;
+  if (!config) return { lessons: null, error: "SUPABASE_SERVICE_ROLE_KEY is not configured." };
 
   const params = new URLSearchParams({
     select: LESSON_SELECT,
@@ -227,9 +236,9 @@ export async function getTeachingAdminLessons(): Promise<TeachingAdminLesson[] |
 
   try {
     const rows = await supabaseFetch<SupabaseLessonRow[]>(config, `/rest/v1/teaching_lessons?${params}`);
-    return rows.map(toTeachingAdminLesson);
-  } catch {
-    return null;
+    return { lessons: rows.map(toTeachingAdminLesson), error: null };
+  } catch (error) {
+    return { lessons: null, error: error instanceof Error ? error.message : "Unknown database error." };
   }
 }
 
