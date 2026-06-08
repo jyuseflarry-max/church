@@ -263,11 +263,48 @@ export async function importFeedLessonsToDatabase(
     importBatch.map(toSourcePayload),
     (source) => `${source.provider}:${source.provider_item_id}`,
   );
-  const lessonPayloads = uniqueBy(importBatch.map(toLessonPayload), (lesson) => lesson.slug);
+  const lessonPayloads = await reuseExistingLessonSlugs(
+    config,
+    uniqueBy(importBatch.map(toLessonPayload), semanticLessonKey),
+  );
 
   await upsertRows(config, "teaching_sources", sourcePayloads, "provider,provider_item_id");
   await upsertRows(config, "teaching_lessons", lessonPayloads, "slug");
   return lessonPayloads.length;
+}
+
+async function reuseExistingLessonSlugs(
+  config: SupabaseConfig,
+  payloads: SupabaseLessonPayload[],
+): Promise<SupabaseLessonPayload[]> {
+  if (payloads.length === 0) return payloads;
+
+  const dates = [...new Set(payloads.map((lesson) => lesson.lesson_date))];
+  const params = new URLSearchParams({
+    select: "slug,title,speaker,lesson_date,service",
+    lesson_date: `in.(${dates.join(",")})`,
+  });
+  const rows = await supabaseFetch<
+    Pick<SupabaseLessonRow, "slug" | "title" | "speaker" | "lesson_date" | "service">[]
+  >(config, `/rest/v1/teaching_lessons?${params}`);
+
+  const existingByKey = new Map<string, string>();
+  for (const row of rows) {
+    existingByKey.set(
+      semanticLessonKey({
+        lesson_date: row.lesson_date,
+        title: row.title,
+        speaker: row.speaker ?? "",
+        service: row.service ?? "",
+      }),
+      row.slug,
+    );
+  }
+
+  return payloads.map((payload) => ({
+    ...payload,
+    slug: existingByKey.get(semanticLessonKey(payload)) ?? payload.slug,
+  }));
 }
 
 export async function prepareLessonAiReview(lessonId: string): Promise<void> {
@@ -771,4 +808,18 @@ function uniqueBy<T>(values: T[], keyFor: (value: T) => string): T[] {
     seen.add(key);
     return true;
   });
+}
+
+function semanticLessonKey(value: {
+  lesson_date: string;
+  title: string;
+  speaker: string;
+  service: string;
+}) {
+  return [
+    value.lesson_date,
+    slugify(value.title),
+    slugify(value.speaker),
+    slugify(value.service),
+  ].join("|");
 }
