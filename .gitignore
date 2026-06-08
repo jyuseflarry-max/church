@@ -40,6 +40,9 @@ yarn-error.log*
 # supabase
 /supabase/.temp/
 
+# separate local repository
+/split-benevolence-app/
+
 # claude code (local settings)
 .claude/
 
