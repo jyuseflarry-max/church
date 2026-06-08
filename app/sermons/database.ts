@@ -1,4 +1,10 @@
 import type { Lesson, LessonStatus } from "./data";
+import {
+  createLessonBreakdown,
+  isOpenAiConfigured,
+  transcribeLessonAudio,
+  type LessonBreakdownResult,
+} from "./openai-worker";
 
 export type TeachingApprovalStatus =
   | "imported"
@@ -14,6 +20,14 @@ export type YoutubeUploadStatus =
   | "uploading"
   | "uploaded_private"
   | "published"
+  | "failed"
+  | "skipped";
+
+export type AudioCleanupStatus =
+  | "not_requested"
+  | "queued"
+  | "processing"
+  | "processed"
   | "failed"
   | "skipped";
 
@@ -34,6 +48,13 @@ type SupabaseLessonRow = {
   source_video_url: string | null;
   clipped_audio_url: string | null;
   clipped_video_url: string | null;
+  audio_cleanup_status: string;
+  audio_cleanup_provider: string | null;
+  cleaned_source_audio_url: string | null;
+  cleaned_clip_audio_url: string | null;
+  audio_cleanup_settings: Record<string, unknown> | null;
+  audio_cleanup_notes: string | null;
+  audio_cleanup_completed_at: string | null;
   youtube_video_id: string | null;
   youtube_url: string | null;
   youtube_visibility: "private" | "unlisted" | "public" | null;
@@ -42,6 +63,7 @@ type SupabaseLessonRow = {
   youtube_published_at: string | null;
   youtube_metadata: Record<string, unknown> | null;
   transcript: string | null;
+  transcript_status?: string;
   artwork_url: string | null;
   artwork_prompt: string | null;
   approval_status: string;
@@ -54,7 +76,7 @@ type SupabaseLessonRow = {
 
 const DEFAULT_ARTWORK = "/sermons/artwork/teaching-library-default.png";
 const LESSON_SELECT =
-  "id,slug,title,speaker,lesson_date,service,lesson_type,series,scripture,summary,topics,source_url,source_audio_url,source_video_url,clipped_audio_url,clipped_video_url,youtube_video_id,youtube_url,youtube_visibility,youtube_upload_status,youtube_uploaded_at,youtube_published_at,youtube_metadata,transcript,artwork_url,artwork_prompt,approval_status,clip_start_seconds,clip_end_seconds,published_at,created_at,updated_at";
+  "id,slug,title,speaker,lesson_date,service,lesson_type,series,scripture,summary,topics,source_url,source_audio_url,source_video_url,clipped_audio_url,clipped_video_url,audio_cleanup_status,audio_cleanup_provider,cleaned_source_audio_url,cleaned_clip_audio_url,audio_cleanup_settings,audio_cleanup_notes,audio_cleanup_completed_at,youtube_video_id,youtube_url,youtube_visibility,youtube_upload_status,youtube_uploaded_at,youtube_published_at,youtube_metadata,transcript,artwork_url,artwork_prompt,approval_status,clip_start_seconds,clip_end_seconds,published_at,created_at,updated_at";
 
 type SupabaseConfig = {
   url: string;
@@ -93,6 +115,7 @@ type SupabaseLessonPayload = {
   youtube_video_id: string | null;
   youtube_url: string | null;
   youtube_upload_status: YoutubeUploadStatus;
+  audio_cleanup_status: AudioCleanupStatus;
   artwork_url: string | null;
   artwork_prompt: string;
   approval_status: TeachingApprovalStatus;
@@ -101,11 +124,18 @@ type SupabaseLessonPayload = {
 export type TeachingDatabaseStatus = {
   configured: boolean;
   writable: boolean;
+  openAiConfigured: boolean;
   missing: string[];
 };
 
 export type TeachingAdminLesson = Lesson & {
   approvalStatus: TeachingApprovalStatus;
+  audioCleanupStatus: AudioCleanupStatus;
+  audioCleanupProvider: string | null;
+  cleanedSourceAudioUrl: string | null;
+  cleanedClipAudioUrl: string | null;
+  audioCleanupNotes: string | null;
+  audioCleanupCompletedAt: string | null;
   youtubeUploadStatus: YoutubeUploadStatus;
   youtubeVisibility: "private" | "unlisted" | "public" | null;
   youtubeUrl: string | null;
@@ -148,10 +178,14 @@ export function getTeachingDatabaseStatus(): TeachingDatabaseStatus {
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
     missing.push("SUPABASE_SERVICE_ROLE_KEY");
   }
+  if (!process.env.OPENAI_API_KEY) {
+    missing.push("OPENAI_API_KEY");
+  }
 
   return {
     configured: Boolean(getReadConfig()),
     writable: Boolean(getServiceConfig()),
+    openAiConfigured: isOpenAiConfigured(),
     missing,
   };
 }
@@ -192,17 +226,7 @@ export async function getTeachingAdminLessons(): Promise<TeachingAdminLesson[] |
   });
 
   const rows = await supabaseFetch<SupabaseLessonRow[]>(config, `/rest/v1/teaching_lessons?${params}`);
-  return rows.map((row) => ({
-    ...mapLessonRow(row),
-    approvalStatus: normalizeApprovalStatus(row.approval_status),
-    youtubeUploadStatus: normalizeYoutubeUploadStatus(row.youtube_upload_status),
-    youtubeVisibility: row.youtube_visibility,
-    youtubeUrl: row.youtube_url,
-    youtubeUploadedAt: row.youtube_uploaded_at,
-    youtubePublishedAt: row.youtube_published_at,
-    updatedAt: row.updated_at ?? null,
-    publishedAt: row.published_at,
-  }));
+  return rows.map(toTeachingAdminLesson);
 }
 
 export async function importFeedLessonsToDatabase(lessons: Lesson[]): Promise<number> {
@@ -228,6 +252,94 @@ export async function prepareLessonAiReview(lessonId: string): Promise<void> {
     },
     updated_at: new Date().toISOString(),
   });
+}
+
+export async function queueLessonAudioCleanup(lessonId: string): Promise<void> {
+  await patchLesson(lessonId, {
+    audio_cleanup_status: "queued",
+    audio_cleanup_provider: process.env.AUDIO_CLEANUP_PROVIDER ?? "manual",
+    audio_cleanup_settings: defaultAudioCleanupSettings(),
+    audio_cleanup_notes:
+      "Queued for hum/buzz reduction, voice leveling, and final loudness normalization before public publishing.",
+    updated_at: new Date().toISOString(),
+  });
+}
+
+export async function markLessonAudioCleaned(
+  lessonId: string,
+  cleanedAudioUrl: string,
+  target: "source" | "clip" = "clip",
+): Promise<void> {
+  const now = new Date().toISOString();
+  const payload: Record<string, unknown> = {
+    audio_cleanup_status: "processed",
+    audio_cleanup_completed_at: now,
+    updated_at: now,
+  };
+
+  if (target === "source") {
+    payload.cleaned_source_audio_url = cleanedAudioUrl.trim();
+  } else {
+    payload.cleaned_clip_audio_url = cleanedAudioUrl.trim();
+    payload.clipped_audio_url = cleanedAudioUrl.trim();
+  }
+
+  await patchLesson(lessonId, payload);
+}
+
+export async function markNextQueuedAudioCleanupProcessing(): Promise<TeachingAdminLesson | null> {
+  const config = getServiceConfig();
+  if (!config) return null;
+
+  const params = new URLSearchParams({
+    select: LESSON_SELECT,
+    audio_cleanup_status: "eq.queued",
+    order: "lesson_date.desc",
+    limit: "1",
+  });
+  const rows = await supabaseFetch<SupabaseLessonRow[]>(config, `/rest/v1/teaching_lessons?${params}`);
+  const row = rows[0];
+  if (!row) return null;
+
+  await patchLesson(row.id, {
+    audio_cleanup_status: "processing",
+    audio_cleanup_notes:
+      "Processing started. Worker should run hum removal, light denoise, leveling, and loudness normalization.",
+    updated_at: new Date().toISOString(),
+  });
+
+  return {
+    ...toTeachingAdminLesson(row),
+    audioCleanupStatus: "processing",
+  };
+}
+
+export async function processNextAiReviewLesson(): Promise<{
+  lesson: TeachingAdminLesson | null;
+  transcriptCreated: boolean;
+  breakdownCreated: boolean;
+}> {
+  const lesson = await markNextAiReviewLessonProcessing();
+  if (!lesson) {
+    return { lesson: null, transcriptCreated: false, breakdownCreated: false };
+  }
+
+  let transcript = lesson.transcript;
+  let transcriptCreated = false;
+
+  if (!transcript) {
+    transcript = await transcribeLessonAudio(lesson);
+    transcriptCreated = true;
+  }
+
+  const breakdown = await createLessonBreakdown(lesson, transcript);
+  await saveLessonAiBreakdown(lesson.id, transcript, breakdown);
+
+  return {
+    lesson,
+    transcriptCreated,
+    breakdownCreated: true,
+  };
 }
 
 export async function updateLessonStatus(
@@ -295,7 +407,11 @@ function mapLessonRow(row: SupabaseLessonRow): Lesson {
   const speaker = row.speaker || "Guest Speaker";
   const type = row.lesson_type || "Lesson";
   const service = row.service || "";
-  const audioUrl = row.clipped_audio_url ?? row.source_audio_url;
+  const audioUrl =
+    row.cleaned_clip_audio_url ??
+    row.clipped_audio_url ??
+    row.cleaned_source_audio_url ??
+    row.source_audio_url;
   const videoUrl = row.youtube_url ?? row.clipped_video_url ?? row.source_video_url;
 
   return {
@@ -329,6 +445,82 @@ function mapLessonRow(row: SupabaseLessonRow): Lesson {
       needsApproval: row.approval_status !== "published",
     },
   };
+}
+
+function toTeachingAdminLesson(row: SupabaseLessonRow): TeachingAdminLesson {
+  return {
+    ...mapLessonRow(row),
+    approvalStatus: normalizeApprovalStatus(row.approval_status),
+    audioCleanupStatus: normalizeAudioCleanupStatus(row.audio_cleanup_status),
+    audioCleanupProvider: row.audio_cleanup_provider,
+    cleanedSourceAudioUrl: row.cleaned_source_audio_url,
+    cleanedClipAudioUrl: row.cleaned_clip_audio_url,
+    audioCleanupNotes: row.audio_cleanup_notes,
+    audioCleanupCompletedAt: row.audio_cleanup_completed_at,
+    youtubeUploadStatus: normalizeYoutubeUploadStatus(row.youtube_upload_status),
+    youtubeVisibility: row.youtube_visibility,
+    youtubeUrl: row.youtube_url,
+    youtubeUploadedAt: row.youtube_uploaded_at,
+    youtubePublishedAt: row.youtube_published_at,
+    updatedAt: row.updated_at ?? null,
+    publishedAt: row.published_at,
+  };
+}
+
+async function markNextAiReviewLessonProcessing(): Promise<TeachingAdminLesson | null> {
+  const config = getServiceConfig();
+  if (!config) return null;
+
+  const params = new URLSearchParams({
+    select: LESSON_SELECT,
+    approval_status: "eq.ai_review",
+    order: "lesson_date.desc",
+    limit: "1",
+  });
+  const rows = await supabaseFetch<SupabaseLessonRow[]>(config, `/rest/v1/teaching_lessons?${params}`);
+  const row = rows[0];
+  if (!row) return null;
+
+  await patchLesson(row.id, {
+    ai_breakdown: {
+      status: "processing",
+      startedAt: new Date().toISOString(),
+    },
+    updated_at: new Date().toISOString(),
+  });
+
+  return toTeachingAdminLesson(row);
+}
+
+async function saveLessonAiBreakdown(
+  lessonId: string,
+  transcript: string,
+  breakdown: LessonBreakdownResult,
+) {
+  await patchLesson(lessonId, {
+    title: breakdown.title,
+    speaker: breakdown.speaker,
+    scripture: breakdown.scripture,
+    summary: breakdown.summary,
+    topics: breakdown.topics,
+    series: breakdown.series,
+    service: breakdown.serviceType,
+    lesson_type: breakdown.lessonType,
+    clip_start_seconds: breakdown.clipStartSeconds,
+    clip_end_seconds: breakdown.clipEndSeconds,
+    transcript,
+    transcript_status: "generated",
+    artwork_prompt: breakdown.artworkPrompt,
+    approval_status: "needs_changes",
+    ai_breakdown: {
+      status: "completed",
+      completedAt: new Date().toISOString(),
+      confidence: breakdown.confidence,
+      reviewNotes: breakdown.reviewNotes,
+      suggested: breakdown,
+    },
+    updated_at: new Date().toISOString(),
+  });
 }
 
 async function patchLesson(lessonId: string, payload: Record<string, unknown>): Promise<void> {
@@ -431,6 +623,7 @@ function toLessonPayload(lesson: Lesson): SupabaseLessonPayload {
     youtube_video_id: lesson.youtubeVideoId,
     youtube_url: lesson.youtubeVideoId ? `https://www.youtube.com/watch?v=${lesson.youtubeVideoId}` : null,
     youtube_upload_status: "not_requested",
+    audio_cleanup_status: "not_requested",
     artwork_url: lesson.artwork,
     artwork_prompt: lesson.ai.artworkPrompt,
     approval_status: "imported",
@@ -481,6 +674,31 @@ function normalizeYoutubeUploadStatus(status: string): YoutubeUploadStatus {
     return status;
   }
   return "not_requested";
+}
+
+function normalizeAudioCleanupStatus(status: string): AudioCleanupStatus {
+  if (
+    status === "queued" ||
+    status === "processing" ||
+    status === "processed" ||
+    status === "failed" ||
+    status === "skipped"
+  ) {
+    return status;
+  }
+  return "not_requested";
+}
+
+function defaultAudioCleanupSettings() {
+  return {
+    humNotchHz: 60,
+    harmonicNotchHz: 120,
+    highPassHz: 80,
+    loudnessTarget: "-16 LUFS",
+    truePeakLimit: "-1.5 dBTP",
+    denoise: "light",
+    preserveOriginal: true,
+  };
 }
 
 function secondsToTimestamp(seconds: number | null): string | null {

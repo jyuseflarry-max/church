@@ -184,6 +184,25 @@ The private worker endpoint is protected with:
 TEACHING_WORKER_SECRET=
 ```
 
+The audio cleanup provider can be selected with:
+
+```bash
+AUDIO_CLEANUP_PROVIDER=manual
+```
+
+Recommended future values are `auphonic`, `audo`, or `ffmpeg`.
+
+AI assistance uses OpenAI:
+
+```bash
+OPENAI_API_KEY=
+OPENAI_TRANSCRIPTION_MODEL=gpt-4o-transcribe
+OPENAI_LESSON_BREAKDOWN_MODEL=gpt-4o
+OPENAI_IMAGE_MODEL=gpt-image-1
+```
+
+The current worker uses OpenAI for transcription and structured lesson breakdown. Image generation is listed for the next artwork worker step.
+
 The worker endpoint lives at `/api/teaching-library/worker` and accepts POST requests with a bearer token:
 
 ```bash
@@ -194,6 +213,8 @@ Current worker actions:
 
 - `health`
 - `import-feed`
+- `start-audio-cleanup`
+- `process-ai-review`
 
 ## Publishing Rule
 
@@ -204,14 +225,42 @@ Everything else can live in the admin workflow as draft/review material.
 ## Background Jobs To Build Next
 
 1. Import job: checks Congregate for new lessons and stores source records.
-2. Transcription job: creates a full transcript from the source media.
-3. AI breakdown job: suggests clip range, metadata, topics, Scripture, transcript cleanup, and artwork prompt.
-4. Artwork job: generates lesson artwork and keeps series images visually related.
-5. Approval action: lets a reviewer edit and approve the suggested lesson.
-6. Clipping job: creates the public audio/video segment after approval.
-7. YouTube upload job: uploads the approved clip to YouTube as private and stores the YouTube video ID.
-8. Publish action: moves an approved lesson to `published` so it appears on the public site.
-9. YouTube release action: marks the YouTube video public after final review.
+2. Audio cleanup job: reduces steady hum/buzz, lightly denoises speech, levels volume, and normalizes loudness while preserving the original source.
+3. Transcription job: creates a full transcript from the cleaned source media when available.
+4. AI breakdown job: suggests clip range, metadata, topics, Scripture, transcript cleanup, and artwork prompt.
+5. Artwork job: generates lesson artwork and keeps series images visually related.
+6. Approval action: lets a reviewer edit and approve the suggested lesson.
+7. Clipping job: creates the public audio/video segment after approval.
+8. Final audio cleanup job: cleans and normalizes the clipped public lesson.
+9. YouTube upload job: uploads the approved clip to YouTube as private and stores the YouTube video ID.
+10. Publish action: moves an approved lesson to `published` so it appears on the public site.
+11. YouTube release action: marks the YouTube video public after final review.
+
+## Audio Cleanup Plan
+
+The original source recording should always remain untouched.
+
+Audio cleanup should create a derived version that can be used for transcription, public clips, and YouTube publishing.
+
+For steady buzz or electrical hum, start with a conservative signal chain:
+
+1. 60 Hz notch filter
+2. 120 Hz harmonic notch filter if needed
+3. 80 Hz high-pass filter
+4. Light speech denoise
+5. Voice leveling
+6. Loudness normalization to roughly `-16 LUFS`
+7. True peak limiting around `-1.5 dBTP`
+
+The first automated provider to test should be Auphonic because it supports long-form spoken audio workflows, automatic leveling, noise reduction, filtering, loudness normalization, and API-based processing.
+
+Admin workflow:
+
+1. Queue audio cleanup from `/admin/teaching-library`.
+2. Worker marks the next item as `processing`.
+3. Cleanup provider produces a cleaned audio URL.
+4. Admin or worker saves the cleaned audio URL.
+5. Public lesson playback uses cleaned clip audio when available.
 
 ## YouTube Publishing Plan
 

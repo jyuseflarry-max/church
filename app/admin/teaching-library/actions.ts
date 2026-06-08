@@ -4,9 +4,11 @@ import { revalidatePath } from "next/cache";
 import { getFeedLessons } from "../../sermons/data";
 import {
   importFeedLessonsToDatabase,
+  markLessonAudioCleaned,
   markLessonYoutubePublished,
   markLessonYoutubeUploaded,
   prepareLessonAiReview,
+  queueLessonAudioCleanup,
   queueLessonYoutubeUpload,
   updateLessonStatus,
   type TeachingApprovalStatus,
@@ -37,6 +39,25 @@ export async function publishLessonAction(formData: FormData) {
 
 export async function archiveLessonAction(formData: FormData) {
   await updateStatus(formData, "archived");
+}
+
+export async function queueAudioCleanupAction(formData: FormData) {
+  await requireTeachingAdmin();
+  const lessonId = requireLessonId(formData);
+  await queueLessonAudioCleanup(lessonId);
+  revalidateTeachingLibrary();
+}
+
+export async function markAudioCleanedAction(formData: FormData) {
+  await requireTeachingAdmin();
+  const lessonId = requireLessonId(formData);
+  const cleanedAudioUrl = formData.get("cleanedAudioUrl");
+  const target = formData.get("audioTarget") === "source" ? "source" : "clip";
+  if (typeof cleanedAudioUrl !== "string" || cleanedAudioUrl.trim().length === 0) {
+    throw new Error("Missing cleaned audio URL.");
+  }
+  await markLessonAudioCleaned(lessonId, cleanedAudioUrl, target);
+  revalidateTeachingLibrary();
 }
 
 export async function queueYoutubeUploadAction(formData: FormData) {

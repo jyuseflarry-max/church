@@ -13,10 +13,12 @@ import {
   approveLessonAction,
   archiveLessonAction,
   importCongregateLessonsAction,
+  markAudioCleanedAction,
   markYoutubePublishedAction,
   markYoutubeUploadedAction,
   prepareAiReviewAction,
   publishLessonAction,
+  queueAudioCleanupAction,
   queueYoutubeUploadAction,
 } from "./actions";
 
@@ -35,7 +37,7 @@ const workflowSteps = [
   },
   {
     title: "Prepare",
-    body: "Mark an item for AI transcription, clip detection, transcript cleanup, metadata, and artwork.",
+    body: "Mark an item for AI transcription, clip detection, audio cleanup, metadata, and artwork.",
   },
   {
     title: "Approve",
@@ -71,6 +73,15 @@ const youtubeStatusLabels = {
   uploading: "Uploading",
   uploaded_private: "Private upload",
   published: "Public",
+  failed: "Failed",
+  skipped: "Skipped",
+};
+
+const audioCleanupStatusLabels = {
+  not_requested: "Not requested",
+  queued: "Queued",
+  processing: "Processing",
+  processed: "Processed",
   failed: "Failed",
   skipped: "Skipped",
 };
@@ -128,6 +139,7 @@ export default async function TeachingLibraryAdminPage() {
               <div className="mt-5 flex flex-wrap gap-3">
                 <StatusPill active={databaseStatus.configured} label="Read configured" />
                 <StatusPill active={databaseStatus.writable} label="Write configured" />
+                <StatusPill active={databaseStatus.openAiConfigured} label="AI configured" />
               </div>
               {databaseStatus.missing.length > 0 && (
                 <p className="mt-5 rounded-xl bg-cream p-4 text-sm leading-6 text-muted">
@@ -166,7 +178,8 @@ export default async function TeachingLibraryAdminPage() {
               <p className="mt-3 max-w-3xl text-lg leading-8 text-charcoal/76">
                 These records are private until they are published. The AI and
                 YouTube workers will attach transcripts, clip boundaries,
-                generated artwork, and public video links to this same queue.
+                cleaned audio, generated artwork, and public video links to this
+                same queue.
               </p>
             </div>
             <p className="text-sm font-bold text-muted">{lessons.length} lessons</p>
@@ -250,6 +263,7 @@ function ReviewCard({
         </h4>
         <ul className="mt-4 space-y-2 text-sm text-muted">
           <li>Transcript: {lesson.transcript ? "attached" : "pending"}</li>
+          <li>Audio cleanup: {audioCleanupStatusLabels[lesson.audioCleanupStatus]}</li>
           <li>Clip: {lesson.durationSeconds ? "timed" : "pending"}</li>
           <li>Artwork prompt: {lesson.ai.artworkPrompt ? "ready" : "pending"}</li>
           <li>YouTube: {youtubeStatusLabels[lesson.youtubeUploadStatus]}</li>
@@ -274,6 +288,22 @@ function ReviewCard({
             label="Publish"
             primary
             disabled={!writable || lesson.approvalStatus === "published"}
+          />
+          <ActionForm
+            action={queueAudioCleanupAction}
+            lessonId={lesson.id}
+            label="Queue audio cleanup"
+            disabled={
+              !writable ||
+              lesson.audioCleanupStatus === "queued" ||
+              lesson.audioCleanupStatus === "processing" ||
+              lesson.audioCleanupStatus === "processed"
+            }
+          />
+          <CleanedAudioUrlForm
+            lessonId={lesson.id}
+            disabled={!writable}
+            defaultValue={lesson.cleanedClipAudioUrl ?? lesson.cleanedSourceAudioUrl ?? ""}
           />
           <ActionForm
             action={queueYoutubeUploadAction}
@@ -310,6 +340,50 @@ function ReviewCard({
         </div>
       </div>
     </article>
+  );
+}
+
+function CleanedAudioUrlForm({
+  lessonId,
+  defaultValue,
+  disabled,
+}: {
+  lessonId: string;
+  defaultValue: string;
+  disabled: boolean;
+}) {
+  return (
+    <form action={markAudioCleanedAction} className="rounded-xl border border-line bg-white p-3">
+      <input type="hidden" name="lessonId" value={lessonId} />
+      <label className="text-xs font-bold uppercase tracking-[0.12em] text-muted">
+        Cleaned audio URL
+        <input
+          name="cleanedAudioUrl"
+          defaultValue={defaultValue}
+          placeholder="https://..."
+          disabled={disabled}
+          className="mt-2 min-h-10 w-full rounded-lg border border-line bg-cream px-3 text-sm font-medium text-charcoal outline-none focus:border-sage disabled:opacity-50"
+        />
+      </label>
+      <label className="mt-2 block text-xs font-bold uppercase tracking-[0.12em] text-muted">
+        Target
+        <select
+          name="audioTarget"
+          defaultValue="clip"
+          disabled={disabled}
+          className="mt-2 min-h-10 w-full rounded-lg border border-line bg-cream px-3 text-sm font-medium text-charcoal outline-none focus:border-sage disabled:opacity-50"
+        >
+          <option value="clip">Public clip</option>
+          <option value="source">Full source</option>
+        </select>
+      </label>
+      <button
+        disabled={disabled}
+        className="mt-2 w-full rounded-full border border-line bg-white px-4 py-2 text-sm font-bold text-sage-deep hover:bg-sage-muted disabled:cursor-not-allowed disabled:opacity-45 focus-ring"
+      >
+        Save cleaned audio
+      </button>
+    </form>
   );
 }
 
@@ -379,6 +453,12 @@ function toPreviewLesson(lesson: Lesson): TeachingAdminLesson {
   return {
     ...lesson,
     approvalStatus: "imported",
+    audioCleanupStatus: "not_requested",
+    audioCleanupProvider: null,
+    cleanedSourceAudioUrl: null,
+    cleanedClipAudioUrl: null,
+    audioCleanupNotes: null,
+    audioCleanupCompletedAt: null,
     youtubeUploadStatus: "not_requested",
     youtubeVisibility: null,
     youtubeUrl: lesson.youtubeVideoId ? `https://www.youtube.com/watch?v=${lesson.youtubeVideoId}` : null,

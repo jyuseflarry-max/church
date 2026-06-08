@@ -92,15 +92,6 @@ create table if not exists public.teaching_lessons (
   published_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  search_vector tsvector generated always as (
-    setweight(to_tsvector('english', coalesce(title, '')), 'A') ||
-    setweight(to_tsvector('english', coalesce(speaker, '')), 'B') ||
-    setweight(to_tsvector('english', coalesce(array_to_string(scripture, ' '), '')), 'B') ||
-    setweight(to_tsvector('english', coalesce(series, '')), 'B') ||
-    setweight(to_tsvector('english', coalesce(summary, '')), 'C') ||
-    setweight(to_tsvector('english', coalesce(array_to_string(topics, ' '), '')), 'C') ||
-    setweight(to_tsvector('english', coalesce(transcript, '')), 'D')
-  ) stored,
   constraint teaching_lessons_clip_range_chk check (
     clip_end_seconds is null
     or clip_start_seconds is null
@@ -155,9 +146,6 @@ create index if not exists teaching_lessons_type_idx
 create index if not exists teaching_lessons_series_idx
   on public.teaching_lessons (series)
   where series is not null;
-
-create index if not exists teaching_lessons_search_idx
-  on public.teaching_lessons using gin (search_vector);
 
 create index if not exists teaching_collection_lessons_lesson_idx
   on public.teaching_collection_lessons (lesson_id);
