@@ -160,8 +160,8 @@ function BeyondTheBuilding() {
       <div className="container-wide grid gap-12 md:grid-cols-[0.9fr_1.1fr] md:items-center">
         <div className="relative aspect-[4/3] overflow-hidden rounded-[1.75rem] bg-sage-muted soft-shadow">
           <Image
-            src={images.study}
-            alt="Bible study and prayer around a table"
+            src="/kids.jpg"
+            alt="Youth Ministry at Fulshear Church of Christ"
             fill
             sizes="(min-width: 768px) 45vw, 100vw"
             className="object-cover"
