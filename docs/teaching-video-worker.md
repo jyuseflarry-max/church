@@ -39,5 +39,6 @@ queued videos every 15 minutes.
 3. Review and approve the suggested clip boundaries.
 4. Queue video clip + YouTube.
 5. GitHub Actions downloads the Vimeo source video, trims it with `ffmpeg`,
-   uploads the clipped MP4 to YouTube as private, and saves the YouTube ID.
+   cleans the audio track for speech, uploads the clipped MP4 to YouTube as
+   private, and saves the YouTube ID.
 6. Review the private YouTube upload, then mark it public.

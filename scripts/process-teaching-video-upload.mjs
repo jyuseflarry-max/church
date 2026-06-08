@@ -157,6 +157,16 @@ async function downloadFile(url, destination) {
 
 async function trimVideo({ inputPath, outputPath, startSeconds, endSeconds }) {
   const duration = Math.max(1, endSeconds - startSeconds);
+  const audioFilter = [
+    "highpass=f=80",
+    "lowpass=f=12000",
+    "afftdn=nf=-25",
+    "equalizer=f=60:t=q:w=12:g=-18",
+    "equalizer=f=120:t=q:w=12:g=-12",
+    "acompressor=threshold=-20dB:ratio=2.5:attack=20:release=250:makeup=2",
+    "loudnorm=I=-16:TP=-1.5:LRA=11",
+  ].join(",");
+
   await run("ffmpeg", [
     "-y",
     "-ss",
@@ -171,6 +181,8 @@ async function trimVideo({ inputPath, outputPath, startSeconds, endSeconds }) {
     "veryfast",
     "-crf",
     "23",
+    "-af",
+    audioFilter,
     "-c:a",
     "aac",
     "-b:a",
