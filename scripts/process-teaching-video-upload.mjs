@@ -27,6 +27,7 @@ async function main() {
   requireEnv("YOUTUBE_CLIENT_ID", YOUTUBE_CLIENT_ID);
   requireEnv("YOUTUBE_CLIENT_SECRET", YOUTUBE_CLIENT_SECRET);
   requireEnv("YOUTUBE_REFRESH_TOKEN", YOUTUBE_REFRESH_TOKEN);
+  requireEnv("SUPABASE_TEACHING_MEDIA_BUCKET", SUPABASE_STORAGE_BUCKET);
 
   const lesson = await claimNextQueuedLesson();
   if (!lesson) {
@@ -116,7 +117,7 @@ async function main() {
       inputPath: outputPath,
       outputPath: clipAudioPath,
     });
-    const clippedAudioUrl = await maybeUploadTeachingMedia({
+    const clippedAudioUrl = await uploadTeachingMedia({
       filePath: clipAudioPath,
       lesson,
       extension: "mp3",
@@ -127,15 +128,11 @@ async function main() {
     const videoId = await uploadToYouTube(accessToken, outputPath, lesson);
     const now = new Date().toISOString();
     await patchLesson(lesson.id, {
-      ...(clippedAudioUrl
-        ? {
-            clipped_audio_url: clippedAudioUrl,
-            cleaned_clip_audio_url: clippedAudioUrl,
-            audio_cleanup_status: "processed",
-            audio_cleanup_provider: "github_actions_ffmpeg",
-            audio_cleanup_completed_at: now,
-          }
-        : {}),
+      clipped_audio_url: clippedAudioUrl,
+      cleaned_clip_audio_url: clippedAudioUrl,
+      audio_cleanup_status: "processed",
+      audio_cleanup_provider: "github_actions_ffmpeg",
+      audio_cleanup_completed_at: now,
       youtube_video_id: videoId,
       youtube_url: `https://www.youtube.com/watch?v=${videoId}`,
       youtube_visibility: YOUTUBE_DEFAULT_PRIVACY,
@@ -394,9 +391,7 @@ async function createLessonBreakdown(lesson, transcript) {
   return normalizeBreakdown(JSON.parse(outputText));
 }
 
-async function maybeUploadTeachingMedia({ filePath, lesson, extension, contentType }) {
-  if (!SUPABASE_STORAGE_BUCKET) return null;
-
+async function uploadTeachingMedia({ filePath, lesson, extension, contentType }) {
   const objectPath = `lessons/${lesson.slug}/${path.basename(filePath, path.extname(filePath))}.${extension}`;
   const body = await fs.readFile(filePath);
   const res = await fetch(

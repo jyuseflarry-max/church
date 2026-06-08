@@ -15,9 +15,10 @@ Add these in GitHub under **Settings -> Secrets and variables -> Actions**:
 - `YOUTUBE_CLIENT_ID`
 - `YOUTUBE_CLIENT_SECRET`
 - `YOUTUBE_REFRESH_TOKEN`
-- `SUPABASE_TEACHING_MEDIA_BUCKET`, optional. When set, the worker uploads the
-  clipped cleaned MP3 to this Supabase Storage bucket and saves the URL on the
-  lesson record.
+- `SUPABASE_TEACHING_MEDIA_BUCKET`
+
+The media bucket is required. The worker uploads the clipped cleaned MP3 to this
+Supabase Storage bucket and saves the permanent public URL on the lesson record.
 
 The Vimeo token must be able to read video file links for the Fulshear Vimeo
 account. The worker cannot trim a Vimeo player URL unless Vimeo returns a
@@ -47,5 +48,16 @@ queued videos every 15 minutes.
    cleaned sermon MP3, uploads the clipped MP4 to YouTube as private, and saves
    the YouTube ID.
 5. Review the generated transcript, clip boundaries, private YouTube upload, and
-   optional MP3.
+   saved MP3.
 6. Publish the public lesson page.
+
+## Podcast Feed
+
+Published lessons with saved MP3 audio appear in the website RSS feed:
+
+`/podcast.xml`
+
+Submit the full production URL, for example
+`https://fulshearcoc.org/podcast.xml`, to Spotify for Creators and other podcast
+directories. After the feed is approved, future published lesson MP3s should be
+picked up from the feed automatically.
