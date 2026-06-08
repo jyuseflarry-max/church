@@ -259,8 +259,11 @@ export async function importFeedLessonsToDatabase(
   const offset = Math.max(0, options.offset ?? 0);
   const limit = Math.min(100, Math.max(1, options.limit ?? 50));
   const importBatch = lessons.slice(offset, offset + limit);
-  const sourcePayloads = importBatch.map(toSourcePayload);
-  const lessonPayloads = importBatch.map(toLessonPayload);
+  const sourcePayloads = uniqueBy(
+    importBatch.map(toSourcePayload),
+    (source) => `${source.provider}:${source.provider_item_id}`,
+  );
+  const lessonPayloads = uniqueBy(importBatch.map(toLessonPayload), (lesson) => lesson.slug);
 
   await upsertRows(config, "teaching_sources", sourcePayloads, "provider,provider_item_id");
   await upsertRows(config, "teaching_lessons", lessonPayloads, "slug");
@@ -758,4 +761,14 @@ function chunk<T>(values: T[], size: number): T[][] {
     chunks.push(values.slice(index, index + size));
   }
   return chunks;
+}
+
+function uniqueBy<T>(values: T[], keyFor: (value: T) => string): T[] {
+  const seen = new Set<string>();
+  return values.filter((value) => {
+    const key = keyFor(value);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
