@@ -21,6 +21,7 @@ export type LessonBreakdownResult = {
 };
 
 const OPENAI_API_URL = "https://api.openai.com/v1";
+const LESSON_BREAKDOWN_RETRY_DELAYS_MS = [2000, 5000];
 
 export function isOpenAiConfigured() {
   return Boolean(process.env.OPENAI_API_KEY);
@@ -125,12 +126,8 @@ export async function createLessonBreakdown(
     transcript: transcript.slice(0, 90000),
   });
 
-  const res = await fetch(`${OPENAI_API_URL}/responses`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
+  const res = await fetchLessonBreakdown({
+    apiKey,
     body: JSON.stringify({
       model: process.env.OPENAI_LESSON_BREAKDOWN_MODEL ?? "gpt-4o",
       input: [
@@ -153,7 +150,6 @@ export async function createLessonBreakdown(
         },
       },
     }),
-    signal: AbortSignal.timeout(120000),
   });
 
   if (!res.ok) {
@@ -166,6 +162,83 @@ export async function createLessonBreakdown(
   if (!outputText) throw new Error("OpenAI lesson breakdown returned no text.");
 
   return normalizeBreakdown(JSON.parse(outputText));
+}
+
+async function fetchLessonBreakdown({
+  apiKey,
+  body,
+}: {
+  apiKey: string;
+  body: string;
+}): Promise<Response> {
+  for (let attempt = 0; attempt <= LESSON_BREAKDOWN_RETRY_DELAYS_MS.length; attempt++) {
+    try {
+      const res = await fetch(`${OPENAI_API_URL}/responses`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body,
+        signal: AbortSignal.timeout(120000),
+      });
+
+      if (res.ok) return res;
+
+      const responseBody = await res.text();
+      if (shouldRetryOpenAiResponse(res.status) && attempt < LESSON_BREAKDOWN_RETRY_DELAYS_MS.length) {
+        await wait(openAiRetryDelay(res, attempt));
+        continue;
+      }
+
+      throw new Error(openAiErrorMessage(res, responseBody, attempt));
+    } catch (error) {
+      if (shouldRetryOpenAiFetchError(error) && attempt < LESSON_BREAKDOWN_RETRY_DELAYS_MS.length) {
+        await wait(openAiRetryDelay(null, attempt));
+        continue;
+      }
+      throw error;
+    }
+  }
+
+  throw new Error("OpenAI lesson breakdown failed after retrying.");
+}
+
+function shouldRetryOpenAiResponse(status: number) {
+  return [408, 409, 429, 500, 502, 503, 504].includes(status);
+}
+
+function shouldRetryOpenAiFetchError(error: unknown) {
+  return error instanceof TypeError || (error instanceof DOMException && error.name === "AbortError");
+}
+
+function openAiRetryDelay(res: Response | null, attempt: number) {
+  const retryAfter = res?.headers.get("retry-after");
+  const retryAfterMs = retryAfter ? parseRetryAfterMs(retryAfter) : null;
+  if (retryAfterMs !== null) return retryAfterMs;
+
+  return LESSON_BREAKDOWN_RETRY_DELAYS_MS[attempt] + Math.floor(Math.random() * 750);
+}
+
+function parseRetryAfterMs(value: string) {
+  const seconds = Number(value);
+  if (Number.isFinite(seconds)) return Math.max(0, seconds * 1000);
+
+  const dateMs = Date.parse(value);
+  if (Number.isFinite(dateMs)) return Math.max(0, dateMs - Date.now());
+
+  return null;
+}
+
+function openAiErrorMessage(res: Response, body: string, attempt: number) {
+  const requestId = res.headers.get("x-request-id");
+  const requestIdText = requestId ? ` request_id=${requestId}` : "";
+  const attemptsText = attempt > 0 ? ` after ${attempt + 1} attempts` : "";
+  return `OpenAI lesson breakdown failed${attemptsText}: ${res.status}${requestIdText} ${body}`;
+}
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function requireOpenAiKey() {
