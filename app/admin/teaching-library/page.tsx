@@ -30,6 +30,15 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
+type PageProps = {
+  searchParams: Promise<{
+    imported?: string;
+    offset?: string;
+    limit?: string;
+    importError?: string;
+  }>;
+};
+
 const workflowSteps = [
   {
     title: "Import",
@@ -86,7 +95,8 @@ const audioCleanupStatusLabels = {
   skipped: "Skipped",
 };
 
-export default async function TeachingLibraryAdminPage() {
+export default async function TeachingLibraryAdminPage({ searchParams }: PageProps) {
+  const params = await searchParams;
   const databaseStatus = getTeachingDatabaseStatus();
   const adminLessonResult = await getTeachingAdminLessonResult();
   const dbLessons = adminLessonResult.lessons;
@@ -201,6 +211,16 @@ export default async function TeachingLibraryAdminPage() {
                   Import batch
                 </button>
               </form>
+              {params.imported && (
+                <p className="mt-4 rounded-xl bg-white/10 p-3 text-sm font-semibold text-white">
+                  Imported {params.imported} lessons from offset {params.offset ?? "0"}.
+                </p>
+              )}
+              {params.importError && (
+                <p className="mt-4 rounded-xl bg-rose-muted p-3 font-mono text-xs leading-5 text-rose-dark">
+                  {params.importError}
+                </p>
+              )}
             </div>
           </div>
         </div>

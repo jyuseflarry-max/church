@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { getFeedLessons } from "../../sermons/data";
 import {
   importFeedLessonsToDatabase,
@@ -17,11 +18,20 @@ import { requireTeachingAdmin } from "../auth";
 
 export async function importCongregateLessonsAction(formData?: FormData) {
   await requireTeachingAdmin();
-  const lessons = await getFeedLessons();
   const offset = numberField(formData, "offset", 0);
   const limit = numberField(formData, "limit", 50);
-  await importFeedLessonsToDatabase(lessons, { offset, limit });
-  revalidateTeachingLibrary();
+
+  try {
+    const lessons = await getFeedLessons();
+    const imported = await importFeedLessonsToDatabase(lessons, { offset, limit });
+    revalidateTeachingLibrary();
+    redirect(
+      `/admin/teaching-library?imported=${imported}&offset=${offset}&limit=${limit}`,
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown import error.";
+    redirect(`/admin/teaching-library?importError=${encodeURIComponent(message.slice(0, 500))}`);
+  }
 }
 
 export async function prepareAiReviewAction(formData: FormData) {
