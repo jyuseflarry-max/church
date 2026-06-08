@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { church, images } from "../../site-content";
+import { church } from "../../site-content";
 
 export const metadata: Metadata = {
   title: "Youth Ministry",
@@ -86,8 +86,8 @@ function Hero() {
         </div>
         <div className="relative aspect-[4/3] overflow-hidden rounded-[1.75rem] bg-sage-muted soft-shadow">
           <Image
-            src={images.fellowship}
-            alt="Students and church family visiting together"
+            src="/kids.jpg"
+            alt="Youth Ministry at Fulshear Church of Christ"
             fill
             priority
             sizes="(min-width: 768px) 50vw, 100vw"
@@ -160,8 +160,8 @@ function BeyondTheBuilding() {
       <div className="container-wide grid gap-12 md:grid-cols-[0.9fr_1.1fr] md:items-center">
         <div className="relative aspect-[4/3] overflow-hidden rounded-[1.75rem] bg-sage-muted soft-shadow">
           <Image
-            src="/kids.jpg"
-            alt="Youth Ministry at Fulshear Church of Christ"
+            src="/leaders/danny-dipetta.jpg"
+            alt="Danny DiPetta, Youth Minister at Fulshear Church of Christ"
             fill
             sizes="(min-width: 768px) 45vw, 100vw"
             className="object-cover"
