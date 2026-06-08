@@ -11,6 +11,10 @@ export const FEED_URL =
   process.env.CONGREGATE_FEED_URL ??
   "https://www.fulshearcoc.org/lessons/all-lessons/podcast";
 
+export const CATALOG_URL =
+  process.env.CONGREGATE_CATALOG_URL ??
+  "https://www.fulshearcoc.org/lessons/all-lessons";
+
 export type LessonStatus = "imported" | "ai-review" | "approved" | "published";
 
 export type Lesson = {
@@ -89,6 +93,38 @@ export async function getFeedLessons(): Promise<Lesson[]> {
   }
 
   return parseFeed(xml).sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
+}
+
+export async function getCongregateLessonBatch(offset = 0, limit = 50): Promise<Lesson[]> {
+  const pageSize = 25;
+  const safeOffset = Math.max(0, offset);
+  const safeLimit = Math.min(100, Math.max(1, limit));
+  const startPage = Math.floor(safeOffset / pageSize) + 1;
+  let skip = safeOffset % pageSize;
+  const lessons: Lesson[] = [];
+
+  for (let page = startPage; lessons.length < safeLimit; page += 1) {
+    let html: string;
+    try {
+      const res = await fetch(catalogPageUrl(page), {
+        next: { revalidate: 600 },
+        signal: AbortSignal.timeout(10000),
+        headers: { Accept: "text/html", "User-Agent": "FulshearTeachingLibrary/1.0" },
+      });
+      if (!res.ok) break;
+      html = await res.text();
+    } catch {
+      break;
+    }
+
+    const pageLessons = parseCatalogPage(html);
+    if (pageLessons.length === 0) break;
+    const usableLessons = skip > 0 ? pageLessons.slice(skip) : pageLessons;
+    lessons.push(...usableLessons.slice(0, safeLimit - lessons.length));
+    skip = 0;
+  }
+
+  return lessons;
 }
 
 export async function getFeaturedLesson(): Promise<Lesson | null> {
@@ -223,6 +259,75 @@ function parseFeed(xml: string): Lesson[] {
   return lessons;
 }
 
+function parseCatalogPage(html: string): Lesson[] {
+  const body = html.match(/<tbody\b[^>]*>([\s\S]*?)<\/tbody>/i)?.[1];
+  if (!body) return [];
+
+  const rows = body.match(/<tr\b[^>]*>[\s\S]*?<\/tr>/gi) ?? [];
+  return rows
+    .map(parseCatalogRow)
+    .filter((lesson): lesson is Lesson => Boolean(lesson))
+    .sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
+}
+
+function parseCatalogRow(rowHtml: string): Lesson | null {
+  const cells = rowHtml.match(/<td\b[^>]*>[\s\S]*?<\/td>/gi) ?? [];
+  if (cells.length < 6) return null;
+  const [dateCell, titleCell, speakerCell, typeCell, seriesCell, serviceCell, filesCell] = cells;
+  if (!dateCell || !titleCell || !speakerCell || !typeCell || !seriesCell || !serviceCell) return null;
+
+  const dateText = stripHtml(decodeEntities(dateCell));
+  const titleLink = titleCell.match(/href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i);
+  if (!titleLink) return null;
+
+  const link = absoluteCongregateUrl(decodeEntities(titleLink[1]));
+  const title = stripHtml(decodeEntities(titleLink[2]));
+  const speaker = stripHtml(decodeEntities(speakerCell)) || "Guest Speaker";
+  const type = stripHtml(decodeEntities(typeCell)) || "Lesson";
+  const seriesText = stripHtml(decodeEntities(seriesCell));
+  const service = stripHtml(decodeEntities(serviceCell));
+  const filesHtml = filesCell ?? "";
+  const videoUrl = extractVimeoUrl(decodeEntities(filesHtml));
+  const vimeoId = extractVimeoId(videoUrl);
+  const audioUrl = extractAudioUrl(filesHtml);
+  const dateIso = parseCatalogDate(dateText);
+  const cleanSeries = seriesText && seriesText !== "N/A" ? seriesText : null;
+  const id = idFromLink(link) || slugify(`${dateText}-${title}-${speaker}-${service}`);
+  const cleanType = type || "Lesson";
+  const cleanService = service ?? "";
+  const slug = `${dateIso.slice(0, 10)}-${slugify(title)}-${slugify(id)}`;
+  const artwork = artworkFor(cleanSeries, cleanService, cleanType, title);
+
+  return {
+    id,
+    slug,
+    title,
+    speaker,
+    date: dateIso,
+    year: String(new Date(dateIso).getFullYear()),
+    series: cleanSeries,
+    service: cleanService,
+    type: cleanType,
+    link,
+    audioUrl,
+    videoUrl,
+    vimeoId,
+    youtubeVideoId: null,
+    durationSeconds: null,
+    artwork,
+    summary: buildSummary(title, speaker, cleanSeries, cleanType),
+    scripture: inferScripture(title),
+    transcript: null,
+    status: "imported",
+    ai: {
+      suggestedClipStart: null,
+      suggestedClipEnd: null,
+      artworkPrompt: artworkPromptFor(title, cleanSeries, cleanType),
+      needsApproval: true,
+    },
+  };
+}
+
 function parseItem(itemXml: string): Lesson | null {
   const title = decodeEntities(extractTag(itemXml, "title"));
   const link = decodeEntities(extractTag(itemXml, "link"));
@@ -284,6 +389,34 @@ function parseItem(itemXml: string): Lesson | null {
       needsApproval: true,
     },
   };
+}
+
+function catalogPageUrl(page: number): string {
+  if (page <= 1) return CATALOG_URL;
+  return `${CATALOG_URL.replace(/\/+$/, "")}/page/${page}`;
+}
+
+function absoluteCongregateUrl(url: string): string {
+  try {
+    return new URL(url, CATALOG_URL).toString();
+  } catch {
+    return url;
+  }
+}
+
+function parseCatalogDate(value: string): string {
+  const match = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/);
+  if (!match) return new Date().toISOString();
+  const month = Number(match[1]);
+  const day = Number(match[2]);
+  const year = match[3].length === 2 ? 2000 + Number(match[3]) : Number(match[3]);
+  return new Date(Date.UTC(year, month - 1, day)).toISOString();
+}
+
+function extractAudioUrl(html: string): string | null {
+  const links = [...html.matchAll(/href="([^"]+)"/gi)].map((match) => decodeEntities(match[1]));
+  const audioLink = links.find((link) => /\.(?:mp3|m4a|wav)(?:[?#].*)?$/i.test(link));
+  return audioLink ? absoluteCongregateUrl(audioLink) : null;
 }
 
 function groupLessons(
