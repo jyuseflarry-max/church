@@ -39,8 +39,43 @@ export async function importCongregateLessonsAction(formData?: FormData) {
 export async function prepareAiReviewAction(formData: FormData) {
   await requireTeachingAdmin();
   const lessonId = requireLessonId(formData);
-  let redirectPath = "/admin/teaching-library?aiPrepared=1";
+  const redirectPath = await prepareAiReviewForLesson(lessonId);
+  redirect(redirectPath);
+}
 
+export async function continueLessonWorkflowAction(formData: FormData) {
+  await requireTeachingAdmin();
+  const lessonId = requireLessonId(formData);
+  const workflowStep = formData.get("workflowStep");
+
+  if (workflowStep === "prepare-ai") {
+    redirect(await prepareAiReviewForLesson(lessonId));
+  }
+
+  if (workflowStep === "approve") {
+    await updateLessonStatus(lessonId, "approved");
+    revalidateTeachingLibrary();
+    redirect("/admin/teaching-library?workflow=approved");
+  }
+
+  if (workflowStep === "queue-video") {
+    await queueLessonYoutubeUpload(lessonId);
+    await dispatchTeachingVideoWorker();
+    revalidateTeachingLibrary();
+    redirect("/admin/teaching-library?workflow=queued-video");
+  }
+
+  if (workflowStep === "publish") {
+    await updateLessonStatus(lessonId, "published");
+    revalidateTeachingLibrary();
+    redirect("/admin/teaching-library?workflow=published");
+  }
+
+  redirect("/admin/teaching-library?workflow=review-needed");
+}
+
+async function prepareAiReviewForLesson(lessonId: string) {
+  let redirectPath = "/admin/teaching-library?aiPrepared=1";
   try {
     await prepareLessonAiReview(lessonId);
     const result = await processLessonAiReview(lessonId);
@@ -53,7 +88,7 @@ export async function prepareAiReviewAction(formData: FormData) {
     redirectPath = `/admin/teaching-library?aiError=${encodeURIComponent(message.slice(0, 500))}`;
   }
 
-  redirect(redirectPath);
+  return redirectPath;
 }
 
 export async function approveLessonAction(formData: FormData) {

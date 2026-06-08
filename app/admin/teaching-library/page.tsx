@@ -12,6 +12,7 @@ import { logoutTeachingAdminAction } from "../login/actions";
 import {
   approveLessonAction,
   archiveLessonAction,
+  continueLessonWorkflowAction,
   importCongregateLessonsAction,
   markAudioCleanedAction,
   markYoutubePublishedAction,
@@ -38,6 +39,7 @@ type PageProps = {
     importError?: string;
     aiPrepared?: string;
     aiError?: string;
+    workflow?: string;
   }>;
 };
 
@@ -233,6 +235,11 @@ export default async function TeachingLibraryAdminPage({ searchParams }: PagePro
                   {params.aiError}
                 </p>
               )}
+              {params.workflow && (
+                <p className="mt-4 rounded-xl bg-white/10 p-3 text-sm font-semibold text-white">
+                  Workflow step completed: {workflowMessage(params.workflow)}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -282,6 +289,16 @@ function StatusPill({ active, label }: { active: boolean; label: string }) {
   );
 }
 
+function workflowMessage(value: string) {
+  const labels: Record<string, string> = {
+    approved: "approved and ready for video queue",
+    "queued-video": "video clip queued for YouTube",
+    published: "published publicly",
+    "review-needed": "ready for review",
+  };
+  return labels[value] ?? value;
+}
+
 function ReviewCard({
   lesson,
   writable,
@@ -289,6 +306,8 @@ function ReviewCard({
   lesson: TeachingAdminLesson;
   writable: boolean;
 }) {
+  const nextStep = nextWorkflowStep(lesson);
+
   return (
     <article className="grid gap-5 rounded-2xl border border-line bg-white p-5 shadow-sm lg:grid-cols-[220px_1fr_320px]">
       <div className="relative aspect-video overflow-hidden rounded-xl bg-sage-muted">
@@ -364,6 +383,15 @@ function ReviewCard({
           <li>Published: {lesson.publishedAt ? formatDate(lesson.publishedAt) : "no"}</li>
         </ul>
         <div className="mt-5 grid gap-2">
+          {nextStep && (
+            <WorkflowActionForm
+              lessonId={lesson.id}
+              step={nextStep.step}
+              label={nextStep.label}
+              primary={nextStep.primary}
+              disabled={!writable || Boolean(nextStep.disabled)}
+            />
+          )}
           <ActionForm
             action={prepareAiReviewAction}
             lessonId={lesson.id}
@@ -441,6 +469,54 @@ function ReviewCard({
   );
 }
 
+function nextWorkflowStep(lesson: TeachingAdminLesson):
+  | { step: string; label: string; primary?: boolean; disabled?: boolean }
+  | null {
+  if (lesson.approvalStatus === "published") return null;
+
+  if (!lesson.transcript || !lesson.ai.suggestedClipStart || !lesson.ai.suggestedClipEnd) {
+    return {
+      step: "prepare-ai",
+      label: lesson.audioUrl ? "Continue: prepare AI review" : "Needs audio before AI review",
+      primary: true,
+      disabled: !lesson.audioUrl,
+    };
+  }
+
+  if (lesson.approvalStatus === "needs_changes" || lesson.approvalStatus === "ai_review") {
+    return {
+      step: "approve",
+      label: "Continue: approve after review",
+      primary: true,
+    };
+  }
+
+  if (
+    lesson.approvalStatus === "approved" &&
+    lesson.vimeoId &&
+    lesson.youtubeUploadStatus !== "queued" &&
+    lesson.youtubeUploadStatus !== "uploading" &&
+    lesson.youtubeUploadStatus !== "uploaded_private" &&
+    lesson.youtubeUploadStatus !== "published"
+  ) {
+    return {
+      step: "queue-video",
+      label: "Continue: queue video + YouTube",
+      primary: true,
+    };
+  }
+
+  if (lesson.youtubeUploadStatus === "uploaded_private" && lesson.youtubeVideoId) {
+    return {
+      step: "publish",
+      label: "Continue: publish public page",
+      primary: true,
+    };
+  }
+
+  return null;
+}
+
 function CleanedAudioUrlForm({
   lessonId,
   defaultValue,
@@ -512,6 +588,37 @@ function YoutubeVideoIdForm({
         className="mt-2 w-full rounded-full border border-line bg-white px-4 py-2 text-sm font-bold text-sage-deep hover:bg-sage-muted disabled:cursor-not-allowed disabled:opacity-45 focus-ring"
       >
         Save private upload
+      </button>
+    </form>
+  );
+}
+
+function WorkflowActionForm({
+  lessonId,
+  step,
+  label,
+  primary = false,
+  disabled,
+}: {
+  lessonId: string;
+  step: string;
+  label: string;
+  primary?: boolean;
+  disabled: boolean;
+}) {
+  return (
+    <form action={continueLessonWorkflowAction}>
+      <input type="hidden" name="lessonId" value={lessonId} />
+      <input type="hidden" name="workflowStep" value={step} />
+      <button
+        disabled={disabled}
+        className={`w-full rounded-full px-4 py-2 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-45 focus-ring ${
+          primary
+            ? "bg-sage-deep text-white hover:bg-sage-dark"
+            : "border border-line bg-white text-sage-deep hover:bg-sage-muted"
+        }`}
+      >
+        {label}
       </button>
     </form>
   );
