@@ -1,23 +1,10 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
 import BottomNav from "./components/BottomNav";
 import PlanOfSalvation from "./components/PlanOfSalvation";
 import { church, serviceTimes } from "./site-content";
 import "./globals.css";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-  display: "swap",
-});
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ??
@@ -69,13 +56,12 @@ export const metadata: Metadata = {
 };
 
 const navLinks = [
-  { href: "/plan-a-visit", label: "Plan Your Visit" },
-  { href: "/live", label: "Live" },
-  { href: "/ministries/kids", label: "Kids" },
-  { href: "/ministries/youth", label: "Youth" },
-  { href: "/sermons", label: "Teaching" },
-  { href: "/about", label: "About" },
-  { href: "/connect", label: "Connect" },
+  { href: "/plan-a-visit", label: "New Here" },
+  { href: "/about", label: "About Jesus" },
+  { href: "/sermons", label: "Watch & Learn" },
+  { href: "/connect", label: "Next Steps" },
+  { href: "/vbs", label: "Events" },
+  { href: "/ministries/kids", label: "Kids & Families" },
 ];
 
 export default function RootLayout({
@@ -86,11 +72,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${playfair.variable} h-full antialiased`}
+      className="h-full antialiased"
     >
       <body className="min-h-full flex flex-col bg-cream">
-        <header className="sticky top-0 z-50 border-b border-line/80 bg-warm-white/95 backdrop-blur-md">
-          <div className="container-wide flex h-16 items-center justify-between gap-5">
+        <header className="sticky top-0 z-50 border-b border-line/80 bg-white/95 shadow-[0_6px_28px_rgba(36,33,30,0.06)] backdrop-blur-md">
+          <div className="container-wide flex h-[4.5rem] items-center justify-between gap-5">
             <Link href="/" className="flex items-center focus-ring" aria-label={`${church.name} home`}>
               <Image
                 src="/logo.png"
@@ -98,7 +84,7 @@ export default function RootLayout({
                 width={150}
                 height={126}
                 priority
-                className="h-12 w-auto"
+                className="h-14 w-auto"
               />
             </Link>
 
@@ -107,7 +93,7 @@ export default function RootLayout({
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="rounded-full px-3 py-2 text-sm font-semibold text-charcoal transition-colors hover:bg-sage-muted hover:text-sage-deep focus-ring"
+                  className="rounded-md px-3 py-2 text-xs font-bold text-charcoal transition-colors hover:bg-rose-muted hover:text-rose-dark focus-ring"
                 >
                   {link.label}
                 </Link>
@@ -119,13 +105,13 @@ export default function RootLayout({
                 href={church.mapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-sage-deep transition-colors hover:border-sage-light hover:bg-sage-muted focus-ring sm:inline-flex"
+                className="hidden rounded-md border border-line bg-white px-4 py-2 text-xs font-bold text-charcoal transition-colors hover:border-rose-light hover:bg-rose-muted focus-ring sm:inline-flex"
               >
                 Directions
               </a>
               <Link
                 href="/plan-a-visit"
-                className="rounded-full bg-sage-deep px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-sage-dark focus-ring"
+                className="rounded-md bg-rose px-4 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-rose-dark focus-ring"
               >
                 Plan Your Visit
               </Link>
@@ -135,7 +121,7 @@ export default function RootLayout({
 
         <main className="site-shell flex-1">{children}</main>
 
-        <footer className="bg-sage-deep pb-24 pt-14 text-white md:pb-14">
+        <footer className="bg-[#201c18] pb-24 pt-14 text-white md:pb-14">
           <PlanOfSalvation />
 
           <div className="container-wide grid gap-10 md:grid-cols-[1.2fr_1fr_1fr]">
@@ -145,7 +131,7 @@ export default function RootLayout({
                 alt={church.name}
                 width={150}
                 height={126}
-                className="mb-5 h-16 w-auto rounded bg-white/95 p-1"
+                className="mb-5 h-16 w-auto rounded-md bg-white/95 p-1"
               />
               <p className="max-w-sm text-sm leading-7 text-white/72">
                 A simple, sincere church family serving Fulshear, Katy, Brookshire,
